@@ -1,0 +1,21 @@
+\section{Multi-Agent Bidding Mechanism for Multi-Objective RL}
+\begin{definition}[MO-MDP]
+    A multi-objective Markov decision process (MO-MDP) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\), where
+    \begin{itemize}
+        \item \(S\) is the set of states,
+        \item \(A\) is the set of actions,
+        \item \(T : S \times A \to \dist(S)\) is the transition function mapping a state-action pair to a distribution over states,
+        \item \(R : S \times A \times S \to \R^m\) is the reward function with each output component corresponding to the different objectives, and
+        \item \(\mu_0 \in \dist(S)\) is the initial state distribution.
+    \end{itemize}
+\end{definition}
+
+A \textit{policy} in an MO-MDP \(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions. 
+
+\begin{definition}[MAB-MDP]
+    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an MOMDP with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also define \(B = \{0, \dots, b\}\) to be the range of bids.
+    We can define the corresponding multi-agent bidding Markov decision process (MAB-MDP) as a tuple \(\mathcal{B} = (S, \hat{A}, \hat{T}, \hat{R}, \mu_0)\) where
+    \begin{itemize}
+        \item \(\hat{A} = \left(A \times B\right)^m\) represents the action space of the \(m\) agents in which each agent selects an action from \(A\) and a bid from \(B\).
+    \end{itemize}
+\end{definition}
