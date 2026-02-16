@@ -1,6 +1,6 @@
 \section{A Multi-Agent Bidding Approach for Multi-Objective RL}
-\begin{definition}[MO-MDP]
-    A multi-objective Markov decision process (MO-MDP) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\), where
+\begin{definition}[\momdp]
+    A multi-objective Markov decision process (\momdp) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\), where
     \begin{itemize}
         \item \(S\) is the set of states,
         \item \(A\) is the set of actions,
@@ -10,11 +10,11 @@
     \end{itemize}
 \end{definition}
 
-A \textit{policy} in an MO-MDP \(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions. 
+A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions. 
 
-\begin{definition}[MAB-MDP]
-    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an MOMDP with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also, define \(M = \{\bot, 1, \dots, m\}\) be indices of the \(m\) agents corresponding to the \(m\) objectives along with \(\bot\) representing a null agent. Lastly, let \(B = \{0, \dots, b\}\) be the range of bids and \(\rho > 0\) be the bid penalty factor.
-    We define the multi-agent bidding Markov decision process (MAB-MDP) as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat{S}, \hat{A}, \hat{T}, \hat{R}, \hat\mu_0)\) where
+\begin{definition}[\mabmdp]
+    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also, define \(M = \{\bot, 1, \dots, m\}\) be indices of the \(m\) agents corresponding to the \(m\) objectives along with \(\bot\) representing a null agent. Lastly, let \(B = \{0, \dots, b\}\) be the range of bids and \(\rho > 0\) be the bid penalty factor.
+    We define the multi-agent bidding Markov decision process (\mabmdp) as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat{S}, \hat{A}, \hat{T}, \hat{R}, \hat\mu_0)\) where
     \begin{itemize}
         \item \(\hat{S} = S \times M\) is the original state space accompanied by an agent index, 
         \item \(\hat{A} = \left(A \times B\right)^m\) represents the action space of the \(m\) agents in which each agent selects an action from \(A\) and a bid from \(B\),
@@ -35,3 +35,5 @@ A \textit{policy} in an MO-MDP \(\mathcal{M}\) is a function \(\pi : (S \times A
 \end{definition}
 
 Intuitively, in the above definition, a state \((s, i) \in \hat S\) encodes the agent that won the bidding and chose the action to reach \(s\) in the previous step. At each step, each of the agents chose an action and a bid, and an action amongst the set of highest bidders is chosen uniformly at random. The reward function is designed so that the agent whose action was chosen receives a bidding penalty.
+
+Given an \mabmdp~\(\mathcal{B}_{\mathcal{M}}\), a \textit{policy} for each agent indexed by \(i \in \{1, \dots, m\}\) takes a similar form \(\pi_i : (\hat S \times \hat A)^* \times \hat S \to \hat A\).
