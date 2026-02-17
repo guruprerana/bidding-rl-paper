@@ -34,6 +34,4 @@ A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A
     \end{itemize}
 \end{definition}
 
-Intuitively, in the above definition, a state \((s, i) \in \hat S\) encodes the agent that won the bidding and chose the action to reach \(s\) in the previous step. At each step, each of the agents chose an action and a bid, and an action amongst the set of highest bidders is chosen uniformly at random. The reward function is designed so that the agent whose action was chosen receives a bidding penalty.
-
-Given an \mabmdp~\(\mathcal{B}_{\mathcal{M}}\), a \textit{policy} for each agent indexed by \(i \in \{1, \dots, m\}\) takes a similar form \(\pi_i : (\hat S \times \hat A)^* \times \hat S \to \hat A\).
+Given an \mabmdp~\(\mathcal{B}_{\mathcal{M}}\), a \textit{policy} for each agent indexed by \(i \in \{1, \dots, m\}\) takes a similar form \(\pi_i : (\hat S \times \hat A)^* \times \hat S \to \hat A\). Intuitively, a state \((s, i) \in \hat S\) encodes the agent that won the bidding and chose the action to reach \(s\) in the previous step. At each step, each of the agents choose an action and a bid, and an action amongst the set of highest bidders is chosen uniformly at random. The reward function is designed so that the agent whose action was chosen receives a bidding penalty.
