@@ -13,24 +13,21 @@
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions. 
 
 \begin{definition}[\mabmdp]
-    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also, define \(M = \{\bot, 1, \dots, m\}\) be indices of the \(m\) agents corresponding to the \(m\) objectives along with \(\bot\) representing a null agent. Lastly, let \(B = \{0, \dots, b\}\) be the range of bids and \(\rho > 0\) be the bid penalty factor.
-    We define the multi-agent bidding Markov decision process (\mabmdp) as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat{S}, \hat{A}, \hat{T}, \hat{R}, \hat\mu_0)\) where
+    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also, define \(M = \{1, \dots, m\}\) be indices of the \(m\) agents corresponding to the \(m\) objectives along with \(\bot\) representing a null agent. Lastly, let \(B = \{0, \dots, b\}\) be the range of bids and \(\rho > 0\) be the bid penalty factor.
+    We define the multi-agent bidding Markov decision process (\mabmdp) as a tuple \(\mathcal{B}_{\mathcal{M}} = (S, \hat{A}, \hat{T}, P, \hat{R}, \mu_0)\) where
     \begin{itemize}
-        \item \(\hat{S} = S \times M\) is the original state space accompanied by an agent index, 
-        \item \(\hat{A} = \left(A \times B\right)^m\) represents the action space of the \(m\) agents in which each agent selects an action from \(A\) and a bid from \(B\),
-        \item \(\hat{T} : \hat{S} \times \hat{A} \to \dist(\hat{S})\) is the new transition function defined as,
+        \item \(\hat{A} = A^m \times B^m\) represents the action space of the \(m\) agents in which each agent selects an action from \(A\) and a bid from \(B\),
+        \item \(\hat{T} : S \times \hat{A} \to \dist(S)\) is the new transition function defined as,
         \begin{equation*}
-            \hat{T}((s, \_), ((a_1, b_1), \dots, (a_m, b_m))) \coloneqq \frac{1}{\abs{B_{\max}}}\sum_{i \in B_{\max}} (T(s, a_i), i)
+            \hat{T}(s, (\vec a, \vec b)) \coloneqq \frac{1}{\abs{B_{\max}}}\sum_{i \in B_{\max}} T(s, a_i)
         \end{equation*}
-        where \(B_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with maximal bids. The tuple \((T(s, a_i), i)\) represents the distribution over \(\hat S\) induced by the original transition function \(T\) such that the second component is fixed, and the weighted sum represents taking the weighted sums of the distributions over \(\hat S\).
-        \item \(\hat{R} : \hat{S} \times \hat{A} \times \hat{S} \to \R^m\) is the reward function for the \(m\) agents with
+        where \(B_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with maximal bids and the weighted sum represents taking the weighted sums of the distributions over \(S\).
+        \item \(P : \hat A \times M \to \R^m\) is the bidding penalty for the \(m\) agents and the second component is the index of the agent that won the bidding.
+        \item \(\hat{R} : S \times \hat{A} \times M \times S \to \R^m\) is the reward function for the \(m\) agents with
         \begin{equation*}
-            \hat{R}_k((s_0, \_), ((a_1, b_1), \dots, (a_m, b_m)), (s, i)) \coloneqq \begin{cases}
-                R_k(s_0, a_k, s) - \rho b_k & i = k \\
-                R_k(s_0, a_i, s) & \text{otherwise}
-            \end{cases}
+            \hat{R}_k(s_0, (\vec a, \vec b), i, s) \coloneqq R_k(s_0, a_i, s) - P_k((\vec a, \vec b), i)
         \end{equation*}
-        \item \(\hat \mu_0 \coloneqq (\mu_0, \bot)\) is the initial state distribution over \(\hat S\) induced by \(\mu_0\) and the second component is fixed to be \(\bot\).
+        where \(i \in M\) is the index of the agent that won the bid and chose the action.
     \end{itemize}
 \end{definition}
 
