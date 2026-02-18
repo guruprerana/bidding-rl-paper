@@ -14,7 +14,7 @@ A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A
 
 \begin{definition}[\mabmdp]
     Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives and let \(b \in \Z_{>0}\) be the bid upper bound. Also, define \(M = \{1, \dots, m\}\) be indices of the \(m\) agents corresponding to the \(m\) objectives along with \(\bot\) representing a null agent. Lastly, let \(B = \{0, \dots, b\}\) be the range of bids and \(\rho > 0\) be the bid penalty factor.
-    We define the multi-agent bidding Markov decision process (\mabmdp) as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat S, \hat{A}, \hat{T}, P, \hat{R}, \mu_0)\) where
+    We define the multi-agent bidding Markov decision process (\mabmdp) as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat S, \hat{A}, \hat{T}, P, \hat{R}, \hat \mu_0)\) where
     \begin{itemize}
         \item \(\hat S = M \times S\) is the new state space augmented with the index of the agent that won the previous round of bidding,
         \item \(\hat{A} = A^m \times B^m\) represents the action space of the \(m\) agents in which each agent selects an action from \(A\) and a bid from \(B\),
