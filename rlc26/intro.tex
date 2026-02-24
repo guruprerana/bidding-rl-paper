@@ -1,1 +1,15 @@
 \section{Introduction}
+
+\todo{I am putting this here, it will go at the end of the introduction.}
+
+Prior works proposed a composition technique based on Q-learning.
+Each local policy $\pi^i$ for each individual reward function $R^i$ would be designed using a Q-learning agent that disregards all reward functions other than its own.
+Along the Q-function, it also learns a W-function which maps every state to a numeric importance score~\citep{humphrys1995w}.
+Intuitively, if $W(s)$ is high, then it is highly important for the local policy to be able to execute its action in the state $s$.
+The composition of policies happens at runtime, when at each state $s$, if $W^i(s)$ is the W-value of the $i$-th local policy, for $i\in [1;m]$, and if $i^* = \arg\max_{i} W^i(s)$, then we select the action proposed by the policy $\pi^{i^*}$ at the current state $s$.
+It has been demonstrated that, interestingly, W-learning generates selfish local policies that end up cooperating in practice.
+Subsequently, this framework has been extended to deep learning and applied to realistic applications~\citep{rosero2024multi}. 
+
+A limitation of W-learning is that it assumes that all local policies will be honest while broadcasting their W-values: if any of the policies is dishonest, i.e., emits a higher W-value than the actual, then it will get undue advantages in executing its actions, potentially compromising the global performance.
+To put it in game theoretic terminologies, the local policies are not ``strategyproof.''
+This could be a serious issue if, e.g., the local policies are obtained through different third-party vendors.

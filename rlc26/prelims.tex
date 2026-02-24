@@ -1,9 +1,11 @@
-\section{Compositional RL on Multi-Objective MDPs}
+\section{Preliminaries: Multi-Objective MDPs}
 
 Mainstream RL algorithms consider Markov decision processes (MDP) equipped with a \textit{single} reward function, pertaining to a single task or \textit{objective} for the system.
 In reality, a majority of real-world applications of RL requires satisfying multiple, partly contradictory objectives.
 We model such multi-objective decision-making problems using multi-objective MDPs (MO-MDP), as formally defined below.
 Intuitively, an MO-MDP has the exact same syntax as a regular MDP, except that it now has multiple reward functions pertaining to the different objectives.
+We formalize \momdp below.
+We will use the notation $\dist(\Sigma)$ to represent the set of all probability distributions over a given alphabet $\Sigma$.
 
 \begin{definition}[\momdp]
     A multi-objective Markov decision process (\momdp) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\), where
@@ -11,25 +13,83 @@ Intuitively, an MO-MDP has the exact same syntax as a regular MDP, except that i
         \item \(S\) is the set of states,
         \item \(A\) is the set of actions,
         \item \(T : S \times A \to \dist(S)\) is the transition function mapping a state-action pair to a distribution over the successor states,
-        \item \(\{R_i : S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions pertaining to different objectives, and
+        \item \(\{R^i : S \times A \times S \to \R_{\geq 0}\}_{i\in [1;m]}\) is the set of reward functions, and
         \item \(\mu_0 \in \dist(S)\) is the initial state distribution.
     \end{itemize}
 \end{definition}
 
 The notions of policies and paths induced by them are exactly the same as in classical MDPs, which we briefly recall below.
+First, we introduce some notation.
+Given an alphabet $\Sigma$, we will write $\Sigma^*$ and $\Sigma^\omega$ to denote the set of every finite and infinite word over $\Sigma$, respectively, and will write $\Sigma^\infty = \Sigma^*\cup \Sigma^\omega$.
+Given a word $w = \sigma_0\sigma_1\ldots\in \Sigma^\infty$, and given a $t\geq 0$ that is not larger than the length of $w$, we will write $w_t$ and $w_{0:t}$ to denote respectively the $t$-th element of $w$, i.e., $w_t=\sigma_t$, and the prefix of $w$ up to the $t$-th element, i.e., $w_{0:t} = \sigma_0\ldots\sigma_t$.
+
+
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions. 
-A \emph{path} on $\M$ induced by $\pi$ is a sequence $(s_0,a_0)(s_1,a_1),\ldots\in (S\times A)^\infty$ such that for every $i\geq 0$, $\pi((s_0,a_0)\ldots (s_i,a_i),s_{i+1})(a_{i+1}) > 0$ and $T(s_i,a_i)(s_{i+1})>0$.
+A \emph{path} on $\M$ induced by $\pi$ is a sequence $\rho=(s_0,a_0)(s_1,a_1),\ldots\in (S\times A)^\infty$ such that for every $t\geq 0$, (1)~the probability that the action $a_{t+1}$ is picked by $\pi$ based on the history is positive, i.e., $\pi(\rho_{0:t},s_{t+1})(a_{t+1}) > 0$, and (2)~the probability of moving to the state $s_{t+1}$ from $s_t$ due to action $a_t$ is positive, i.e., $T(s_t,a_t)(s_{t+1})>0$.
 A path can be either finite or infinite, and we will write $\paths(\M,\pi)$ to denote the set of all infinite paths fo $\M$ induced by $\pi$.
-Given a finite path $\rho=(s_0,a_0)\ldots (s_i,a_i)$, the probability that $\rho$ occurs is given by: $\mu_0(s_0)\cdot\prod_{j=0}^{i-1} T(s_j,a_j)(s_{j+1})\cdot \pi((s_0,a_0)\ldots (s_j,a_j),s_{j+1})(a_{j+1})$.
+Given a finite path $\rho=(s_0,a_0)\ldots (s_t,a_t)$, the probability that $\rho$ occurs is given by: $\mu_0(s_0)\cdot\prod_{k=0}^{t-1} T(s_k,a_k)(s_{k+1})\cdot \pi(\rho_{0:k},s_{k+1})(a_{k+1})$.
 This can be extended to a probability measure over the set of all infinite paths in $\M$ using standard constructions, which can be found in the literature~\citep{baier2008principles}.
 Given a measurable set of paths $\Omega$ and a function $f\colon \paths(\M,\pi)\to \mathbb{R}$, we will write $\P^{\M,\pi}[\Omega]$ and $\E^{\M,\pi}[f]$ to denote, respectively, the probability measure of $\Omega$ and the expected value of $f$ evaluated over random infinite paths.
 
-We will use the standard discounted reward objectives.
-Suppose $\gamma \in [0,1]$ is a fixed discounting factor.
-Let $\theta = r_0r_1\ldots\in \R^\omega$ be an infinite sequence of real numbers.
-Define the discounted sum function: $f_{\mathrm{ds}}(\theta)\coloneqq\sum_{i=0}^\infty \gamma^i\cdot r_i$.
-Then, the \emph{value} of the policy $\rho$ for $\M$ is the expected value of the discounted sum of rewards we can secure by executing $\rho$ on $\M$, i.e, $\val^{\M}(\pi) = \E^{\M,\pi}[f_{\mathrm{ds}}]$.
+We will use the standard discounted reward objectives, where we fix $\gamma \in [0,1]$ as a given discounting factor.
+Let $\rho = (s_0,a_0)(s_1,a_1),\ldots \in \paths(\M,\pi)$ be an infinite path induced by $\pi$.
+Define the discounted sum function, mapping $\rho$ to the discounted sum of the associated rewards: $f_{\mathrm{ds}}^i(\rho)\coloneqq\sum_{t=0}^\infty \gamma^t\cdot R^i(s_t,a_t)$.
+The \emph{$i$-value} of the policy $\rho$ for $\M$ is the expected value of the discounted sum of the $i$-th reward we can secure by executing $\rho$ on $\M$, written as $\val^{\M,i}(\pi) = \E^{\M,\pi}[f_{\mathrm{ds}}^i]$.
+When the reward index $i$ is unimportant, we will refer to every element of the set $\{\val^{\M,i}\}_{i\in [1;m]}$ as a \emph{value component}.
+
+When the \momdp $\M$ is clear from the context, we will drop it from all notation and will simply write $\paths(\pi)$, $\P^{\pi}$, $\E^{\pi}$, and $\val^i$.
+
+It is known that \emph{memoryless} (aka, stationary) policies suffice for maximizing single discounted reward objectives, where a policy $\pi$ is called memoryless if the proposed action only depend on the current state.
+In other words, given every pair of finite paths $\rho,\rho'$ both ending at the same state, the probability distributions $\pi(\rho)$ and $\pi(\rho')$ are identical.
+
+Unlike classical single-objective MDPs, the optimal policy synthesis problem for \momdp requires fixing one of many possible optimality criteria.
+Many possibilities exist, including pareto optimality, requiring a solution where none of the value components could be unanimously improved without hurting the others; weighted social welfare, requiring a weighted sum of the value components be maximized; and fairness, requiring the minimum attained value by any value component is maximized.
+\todo{Give some citations for each category.}
+
+\section{Auction-Based Compositional RL on Multi-Objective MDPs}
+
+We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, and the composition of all local policies gives rise to some globally optimal solution.
+The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
+Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
+\todo{running example}
+
+\subsection{The Framework}
+We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
+In our framework, not only do the local policies emit actions, but also they \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$ in future.
+The bids are all nonnegative real numbers, and the highest bidder's actions get executed for the subsequent $\tau$ steps, with ties being resolved uniformly at random.
+The policy whose actions are executed is referred to as the \emph{active} policy while the rest are called \emph{idle} policies.
+To discourage overbidding, we require the active policy to pay a one-time price---modeled as a negative reward or a \emph{penalty}---equal to its bid value.
+This way, it is against the interest of a policy to bid more than the total reward it would earn if it is active in the next $\tau$ steps; otherwise, the net earning would be negative, while bidding the zero amount would secure non-negative earnings.
+Through bidding, each policy can communicate the importance for it to execute its actions, and the composition mechanism guarantees that the most important policy is executed.
+
+The parameter $\tau$ controls how frequently the agent changes its policies.
+In practice, if $\tau$ is too small, the switching could be too frequent for any of the objectives to be fulfilled.
+For example,  \todo{running example...}
+
+We introduce three different variations of the compositional framework, based on three kinds of reward systems for the idle policies:
+\begin{enumerate}
+	\item Each idle policy earns a reward of the same amount as its bid, in addition to the default reward from the transitions in the \momdp. 
+	\item Idle policies only get the default reward specified by the original \momdp, i.e., they neither earn a reward nor pay a penalty associated to the bidding.
+	\item Just like the active policy, each idle policy pays a penalty of the same amount as its bid.
+\end{enumerate}
+Each of the three variations have their own benefits and pitfalls, which we will describe subsequently in Section~\ref{sec:theoretical comparison of the variations}.
+
+\subsection{Learning Local Policies}
+
+We show that computing each individual local policy in our framework reduces to finding the optimal policy in a stochastic game, for which we could use any standard off-the-shelf learning framework.
+In particular, given an \momdp and given the objective $i\in [1;m]$, we construct a stochastic game that captures all possible interactions of policy $i$ against the other policies.
+
+Suppose we are given the \momdp $\M = (S,A,T,R,\mu_0)$.
 
 
+\subsection{A Comparative Study of the Three Variations}\label{sec:theoretical comparison of the variations}
 
+
+%For simplicity, let us assume $\tau=1$, meaning the bidding takes place at \emph{each} step.
+%This is without loss of any generality:
+%given the \momdp $\M = (S,A,T,R,\mu_0)$, we can define the \momdp $\M' = (S',A,T',R,\mu_0)$ with an extended state space $S' = S\times [1;\tau]$ to keep track of the time left until the next bidding (alternatively, the time since the last bidding), 
+%
+%
+%At each step, not only does each local policy $\pi^i$ output an action $a^i$, but also it outputs a \emph{bid} $b^i\in \mathbb{R}$, and whoever bids the highest, their action gets executed at the current step.
+%Furthermore, to discourage overbidding, we penalize the policies 
 
