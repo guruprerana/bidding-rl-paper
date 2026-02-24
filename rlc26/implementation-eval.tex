@@ -1,0 +1,35 @@
+\section{Implementation and evaluation}
+
+\subsection{Implementation}
+Talk about:
+\begin{enumerate}
+    \item different bidding mechanisms
+    \item choice of penalty factor
+    \item action window (remarking that we could additionally allow agents to choose length of action window)
+    \item use with off-the-shelf RL algorithms
+\end{enumerate}
+
+\subsection{Environments}
+
+\subsubsection{MovingTargetsGridworld}
+Important to mention that we want to maximize \(\min(\text{targets reached})\).
+
+\subsubsection{Atari Assault}
+
+\subsection{Baselines}
+\begin{enumerate}
+    \item Weighted sum of rewards with standard RL algorithms
+    \item Deep W learning implemented on top of DQN
+\end{enumerate}
+
+\subsection{Performance comparison with baselines}
+Include plots of training steps vs performance of our algorithms vs baselines on both environments
+
+\subsection{Interpretability}
+Include plots of distribution of control steps amongst agents, table of average, median, max, min of bids of agents
+
+\subsection{Modularity}
+Plots of performance in gridworld with increasing number of objectives
+
+\subsection{Ablations}
+Impact of max bid, penalty factor
