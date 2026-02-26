@@ -1,4 +1,5 @@
 \section{Preliminaries: Multi-Objective MDPs}
+\label{sec:preliminaries}
 
 Mainstream RL algorithms consider Markov decision processes (MDP) equipped with a \textit{single} reward function, pertaining to a single task or \textit{objective} for the system.
 In reality, a majority of real-world applications of RL requires satisfying multiple, partly contradictory objectives.
@@ -7,13 +8,13 @@ Intuitively, an MO-MDP has the exact same syntax as a regular MDP, except that i
 We formalize \momdp below.
 We will use the notation $\dist(\Sigma)$ to represent the set of all probability distributions over a given alphabet $\Sigma$.
 
-\begin{definition}[\momdp]
-    A multi-objective Markov decision process (\momdp) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\), where
+\begin{definition}[\momdp]\label{def:MO-MDP}
+    A multi-objective Markov decision process (\momdp) with \(m \in \Z_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, \mathbf{R}, \mu_0)\), where
     \begin{itemize}
         \item \(S\) is the set of states,
         \item \(A\) is the set of actions,
         \item \(T : S \times A \to \dist(S)\) is the transition function mapping a state-action pair to a distribution over the successor states,
-        \item \(\{R^i : S \times A \times S \to \R_{\geq 0}\}_{i\in [1;m]}\) is the set of reward functions, and
+        \item \(\mathbf{R}=\{R^i : S \times A \times S \to \R_{\geq 0}\}_{i\in [1;m]}\) is the set of reward functions, and
         \item \(\mu_0 \in \dist(S)\) is the initial state distribution.
     \end{itemize}
 \end{definition}
@@ -31,10 +32,11 @@ Given a finite path $\rho=(s_0,a_0)\ldots (s_t,a_t)$, the probability that $\rho
 This can be extended to a probability measure over the set of all infinite paths in $\M$ using standard constructions, which can be found in the literature~\citep{baier2008principles}.
 Given a measurable set of paths $\Omega$ and a function $f\colon \paths(\M,\pi)\to \mathbb{R}$, we will write $\P^{\M,\pi}[\Omega]$ and $\E^{\M,\pi}[f]$ to denote, respectively, the probability measure of $\Omega$ and the expected value of $f$ evaluated over random infinite paths.
 
-We will use the standard discounted reward objectives, where we fix $\gamma \in [0,1]$ as a given discounting factor.
+We will use the standard discounted reward objectives, where we fix $\gamma \in (0,1)$ as a given discounting factor.
 Let $\rho = (s_0,a_0)(s_1,a_1),\ldots \in \paths(\M,\pi)$ be an infinite path induced by $\pi$.
 Define the discounted sum function, mapping $\rho$ to the discounted sum of the associated rewards: $f_{\mathrm{ds}}^i(\rho)\coloneqq\sum_{t=0}^\infty \gamma^t\cdot R^i(s_t,a_t)$.
 The \emph{$i$-value} of the policy $\rho$ for $\M$ is the expected value of the discounted sum of the $i$-th reward we can secure by executing $\rho$ on $\M$, written as $\val^{\M,i}(\pi) = \E^{\M,\pi}[f_{\mathrm{ds}}^i]$.
+The \emph{optimal} policy for $R^i$ for a given $i\in [1;m]$ is the policy that maximizes the $i$-value.
 When the reward index $i$ is unimportant, we will refer to every element of the set $\{\val^{\M,i}\}_{i\in [1;m]}$ as a \emph{value component}.
 
 When the \momdp $\M$ is clear from the context, we will drop it from all notation and will simply write $\paths(\pi)$, $\P^{\pi}$, $\E^{\pi}$, and $\val^i$.
@@ -48,7 +50,7 @@ Many possibilities exist, including pareto optimality, requiring a solution wher
 
 \section{Auction-Based Compositional RL on Multi-Objective MDPs}
 
-We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, and the composition of all local policies gives rise to some globally optimal solution.
+We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
 The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
 \todo{running example}
@@ -56,40 +58,139 @@ Importantly, the composition must be implementable in a distributed manner, mean
 \subsection{The Framework}
 We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
 In our framework, not only do the local policies emit actions, but also they \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$ in future.
-The bids are all nonnegative real numbers, and the highest bidder's actions get executed for the subsequent $\tau$ steps, with ties being resolved uniformly at random.
-The policy whose actions are executed is referred to as the \emph{active} policy while the rest are called \emph{idle} policies.
-To discourage overbidding, we require the active policy to pay a one-time price---modeled as a negative reward or a \emph{penalty}---equal to its bid value.
-This way, it is against the interest of a policy to bid more than the total reward it would earn if it is active in the next $\tau$ steps; otherwise, the net earning would be negative, while bidding the zero amount would secure non-negative earnings.
-Through bidding, each policy can communicate the importance for it to execute its actions, and the composition mechanism guarantees that the most important policy is executed.
+The bids are all nonnegative real numbers, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
+The policy whose actions are executed is referred to as the \emph{winning} policy, and it must pay a bidding \emph{penalty} that equals to its bid amount; this is to discourage overbidding.
+The policies whose actions are not executed are called the \emph{losing} policies, and we consider three different settings for the ``payment'' they must make:
+\begin{description}
+	\item[\richman:] the winning policy pays the bidding penalty and the losing policies earn bidding rewards equal to their respective bid values;
+	\item[\poorman:] the winning policy pays the bidding penalty and the losing policies are unaffected (i.e., neither earn bidding rewards nor pay bidding penalties);
+	\item[\allpay:] all policies pay bidding penalties equal to their respective bid values.
+\end{description}
+While penalizing the winner discourages overbidding, the situation with the losers is more subtle.
+In the \richman setting, by rewarding the losers, we encourage policies to bid positively if the current state has some importance to them; this way, if they lose the bidding, they will get some positive reward.
+In the \allpay setting, by penalizing all policies, we discourage policies to bid at all unless it is absolutely important.
+The \poorman setting balances these two: by neither rewarding nor penalizing the losers, we neither encourage nor discourage policies to bid.
+In Section~\ref{sec:theoretical comparison of the variations}, we will see how these three settings induce different kinds of coordination through bidding.
 
+For each policy, the bidding penalty or reward gets, respectively, subtracted or added to the \emph{nominal} reward obtained from the reward functions of the given \momdp, and the resulting reward is called the \emph{net} reward.
+
+In summary, through this novel bidding mechanism, each policy can adjust its bid in proportion to the importance for it to execute its action in the current state, and the associated bidding penalty/reward aims to incentivize policies to be truthful.
+By making the highest bidder active, it is effectively guaranteed that the most important policy is executed.
+This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
+
+\begin{remark}[On the parameter $\tau$]
 The parameter $\tau$ controls how frequently the agent changes its policies.
 In practice, if $\tau$ is too small, the switching could be too frequent for any of the objectives to be fulfilled.
 For example,  \todo{running example...}
-
-We introduce three different variations of the compositional framework, based on three kinds of reward systems for the idle policies:
-\begin{enumerate}
-	\item Each idle policy earns a reward of the same amount as its bid, in addition to the default reward from the transitions in the \momdp. 
-	\item Idle policies only get the default reward specified by the original \momdp, i.e., they neither earn a reward nor pay a penalty associated to the bidding.
-	\item Just like the active policy, each idle policy pays a penalty of the same amount as its bid.
-\end{enumerate}
-Each of the three variations have their own benefits and pitfalls, which we will describe subsequently in Section~\ref{sec:theoretical comparison of the variations}.
-
-\subsection{Learning Local Policies}
-
-We show that computing each individual local policy in our framework reduces to finding the optimal policy in a stochastic game, for which we could use any standard off-the-shelf learning framework.
-In particular, given an \momdp and given the objective $i\in [1;m]$, we construct a stochastic game that captures all possible interactions of policy $i$ against the other policies.
-
-Suppose we are given the \momdp $\M = (S,A,T,R,\mu_0)$.
+\end{remark}
 
 
-\subsection{A Comparative Study of the Three Variations}\label{sec:theoretical comparison of the variations}
+\subsection{The Design Problem and Learning Algorithms}
 
+We consider the following learning task for our auction-based compositional framework: 
+\begin{nscenter}
+Given an \momdp, a constant $\tau > 0$, and $\Delta\in \{ \richman,\poorman,\allpay \}$, compute local policies that are optimal for the net rewards obtained in the mode $\Delta$, given that all other local policies behave selfishly towards maximizing their own net rewards.
+\end{nscenter}
 
-%For simplicity, let us assume $\tau=1$, meaning the bidding takes place at \emph{each} step.
-%This is without loss of any generality:
-%given the \momdp $\M = (S,A,T,R,\mu_0)$, we can define the \momdp $\M' = (S',A,T',R,\mu_0)$ with an extended state space $S' = S\times [1;\tau]$ to keep track of the time left until the next bidding (alternatively, the time since the last bidding), 
-%
-%
-%At each step, not only does each local policy $\pi^i$ output an action $a^i$, but also it outputs a \emph{bid} $b^i\in \mathbb{R}$, and whoever bids the highest, their action gets executed at the current step.
-%Furthermore, to discourage overbidding, we penalize the policies 
+We will show how the above learning problem boils down to solving a standard learning problem in the multi-agent setting, formalized using a decentralized MDP (\decmdp) as defined below.
+The only difference between a \decmdp and an \momdp (see Definition~\ref{def:MO-MDP}) is that now each reward function $R^i$ is owned by the Agent~$i$, who now controls a separate set of actions $A^i$.
 
+\begin{definition}[\decmdp]
+	 A decentralized Markov decision process (\decmdp) with \(m \in \Z_{>0}\) agents is specified by a tuple \(\mathcal{M} = (S, \mathbf{A}, T, \mathbf{R}, \mu_0)\), where
+    \begin{itemize}
+        \item \(S\) is the set of states,
+        \item \(\mathbf{A} = \{ A^1,\ldots,A^m\} \) is a set with $A^i$ being the set of Agent~$i$'s actions,
+        \item \(T : S \times A^1\times\ldots\times A^m \to \dist(S)\) is the transition function mapping a state-action pair to a distribution over the successor states,
+        \item \(\mathbf{R}=\{R^i \colon S \times A^1\times\ldots\times A^m \times S \to \R_{\geq 0}\}_{i\in [1;m]}\) is the set of reward functions, and
+        \item \(\mu_0 \in \dist(S)\) is the initial state distribution.
+    \end{itemize}
+\end{definition}
+The definitions of policies and paths readily extend from \momdp to \decmdp.
+
+Given a \decmdp, the goal is to compute an ensemble of local (memoryless) policies for all individual agents, such that for every $i\in [1;m]$, the $i$-value cannot be increased by a unanimous change of the local policy $\pi^i$.
+In other words, the goal is to find a set of selfish local policies that are in a Nash equilibrium.
+This is an extensively studied problem in the literature.
+\todo{Do a little bit of literature survey...}
+
+Our focus is not in improved algorithms for \decmdp, but rather to show how the local policy synthesis problem for the \momdp $\M$ in our auction-based framework reduces to the multi-agent policy synthesis problem in a \decmdp $\widetilde{\M}$.
+Intuitively, for every state $s$ of $\M$, $\widetilde{\M}$ creates two kinds of copies, ones where bidding happens and are represented simply as $s$, and ones of the form $(s,t,i^*)$ that keeps track of the time $t$ elapsed since the last bidding, and the winner $i^*$ of the last bidding.
+Furthermore, bidding is facilitated by extending the action space of $\M$ to include all real-valued bids, and each agent in $\widetilde{\M}$ has an identical copy of this extended action space.
+After bidding in a state $s$, the winner $i^*$ is selected, and the state moves to $(s,0,i^*)$.
+From this point onward, only Agent~$i^*$ selects actions $a^0,a^1,\ldots,a^\tau$ to produce the sequence $(s^1,1,i^*),(s^2,2,i^*),\ldots,(s^{\tau-1},\tau-1,i^*),s^\tau$, after which the next bidding happens, and the process repeats.
+Finally, the bidding penalties or bidding rewards are only paid during the transition $s\to (s,0,i^*)$, otherwise, the rewards are inherited from the original \momdp.
+
+We formalize this below.
+Given an \momdp $\M = (S, A, T, \mathbf{R}, \mu_0)$, a constant $\tau > 0$, and the mode $\Delta\in \{ \richman,\poorman,\allpay \}$, we define the \decmdp $\widetilde{\M} = (\widetilde{S}, \widetilde{\mathbf{A}}, \widetilde{T}, \widetilde{\mathbf{R}}, \widetilde{\mu}_0)$ where
+\begin{itemize}
+	\item $\widetilde{S} \coloneqq S\cup S\times [0;\tau-1]\times [1;m]$,
+	\item $\widetilde{\mathbf{A}}\coloneqq \{ \widetilde{A}^i\}_{i\in [1;m]}$ where $\widetilde{A}^i\coloneqq A \cup \mathbb{R}$,
+	\item $\widetilde{\mu}_0\coloneqq \mu_0\times \{0\}$,
+\end{itemize} 
+and for every current state $s\in \widetilde{S}$ and every current action $(b^1,\ldots,b^m)\in\R^m$, writing the highest bidders as $I = \{ i\in [1;m] \mid \forall j\in [1;m]\;.\; b^i\geq b^j\}$,
+\begin{itemize}
+	\item $\widetilde{T}(s,b^1,\ldots,b^m) \coloneqq \text{Uniform}(\{(s,0,i)\}_{i\in I})$,
+	\item $\widetilde{R}^i(s,b^1,\ldots,b^m,(s,0,i^*))\coloneqq 
+	\begin{cases}
+		- b^i		&	i=i^* \lor \Delta = \allpay,\\
+		+ b^i		&	i\neq i^* \land \Delta = \richman,\\
+		0			&	i\neq i^* \land \Delta = \poorman,
+	\end{cases}	$
+\end{itemize}
+whereas if the current state is of the form $(s,t,i^*)\in \widetilde{S}$, for every action $(a^1,\ldots,a^m) \in A^m$,
+\begin{itemize}
+	\item $\widetilde{T}((s,t,i^*),a^1,\ldots,a^m) \coloneqq 
+		\begin{cases}
+			T(s,a^{i^*})\times \left((t+1) \mod \tau\right)	\times \{i^*\}	&	t<\tau - 1,\\
+			T(s,a^{i^*})										&	t=\tau-1,
+		\end{cases}
+	$ 
+	\item $\widetilde{R}^i((s,t,i^*),a^1,\ldots,a^m,(s',t+1,i^*))\coloneqq 
+		R^i(s,a^i,s').
+	$
+\end{itemize}
+
+\KM{A soundness theorem would be good, but what can we say concretely?}
+
+\subsection{Flavors of Cooperation through Bidding}\label{sec:theoretical comparison of the variations}
+
+We provide theoretical insights into the global behavior that emerges out of the auction-based interactions between the local policies.
+For the sake of theoretical guarantees, and to be able to convey the main essence of our results, we choose the simplest bare bone setting:
+
+\begin{assumption}
+	The given \momdp has finite state and action spaces, and for every (memoryless) policy, the bottom strongly connected component (BSCC) of the resulting Markov chain (MC) is a sink state where no reward is earned.
+	Furthermore, the time parameter $\tau=1$, meaning the bidding takes place at each time step before selecting the action.
+\end{assumption}
+
+Firstly, since the \momdp is finite, for each individual reward function, \emph{deterministic} memoryless policy suffices.
+\todo{give some citation}
+
+The following two types of global behaviors are of particular interest:
+\begin{description}
+	\item[Social welfare] is the sum (equivalently, the average) of the $i$-values for all $i$. We may ask: is the emergent global behavior guaranteed to achieve the maximal social welfare?
+	\item[Fairness] is measured by the disparity between different $i$-values, i.e., $\max_{i,j\in [1;m]} |\val^i-\val^j|$. Fairness is maximized when the disparity is minimized. We may ask: is the emergent global behavior guaranteed to achieve the maximal fairness?
+\end{description}
+
+\begin{theorem}
+	Suppose the \momdp is such that at each state $s$ and for every action $a$, there exists at most a single $i\in [1;m]$ such that the optimal policy for $R^i$ selects $a$ at $s$.
+ 	Then, the \richman setting maximizes the social welfare.
+\end{theorem}
+
+\begin{proof}[Proof sketch.]
+	First, consider the simple one-shot game, where the agents bid just one time to select an action, and the reward is based on the resulting single probabilistic transition.
+	Suppose for the index $i\in [1;m]$, the expected reward from using the action $a\in A$ is $E_{a}^i$, and define $E_+^i \coloneqq \max_{a\in A} E_a^i$ and $E_-^i \coloneqq \min_{a\in A} E_a^i$.
+	
+	We claim that the optimal bid $b^i_*$ for policy $i$ equals $(E_+^i-E_-^i)/2$, and upon winning the bidding the optimal action is $a_+=\arg\max_{a\in A} E_a^i$.
+	Notice that no matter whether policy $i$ becomes the winner or the loser, its net reward is at least $(E_+^i+E_-^i)/2$: if it wins and chooses $a_+$, after paying the bidding penalty, the net reward is $E_+^i - (E_+^i-E_-^i)/2 = (E_+^i+E_-^i)/2$; if it loses, no matter what action the opponent chooses, its nominal reward is at least $E_-^i$, and after the bidding reward, the net reward is $E_-^i + (E_+^i-E_-^i)/2 = (E_+^i+E_-^i)/2$.
+	If policy $i$ bids $b^i<b^i_*$, then upon losing, its net reward will be $E_-^i + b^i < E_-^i + b^i_* = (E_+^i+E_-^i)/2$.
+	If it bids $b^i > b^i_*$, then upon winning, its net reward will be $E_+^i - b^i < E_+^i - b^i_* = (E_+^i+E_-^i)/2$.
+	Therefore, the optimal bid is $b^i_*=(E_+^i-E_-^i)/2$, which is what each selfish policy is expected to select.
+	
+	Suppose, policy $i$ is the winner.
+	Then, for every $j\neq i$, $b^i_*\geq b^j_*$, i.e.,  $ (E_+^i-E_-^i)/2 \geq (E_+^j-E_-^j)/2$.
+	Simplifying, we get $E_+^i+E_-^j \geq E_-^i+E_+^j$.
+	It follows that $E_+^i + \sum_{j\neq i} E^j \geq E_+^i + \sum_{j\neq i} E_-^j \geq E_-^i + E_+^k + \sum_{j\neq i,k} E^j$ for every for every $k\neq i$.
+	Since the \momdp is purely competitive, there will be at least a single $k$ such that a given action is optimal for $k$, and therefore the claim follows for the single-shot case.
+	
+	Now, for the general multi-shot case, we inductively apply the above principle in the Bellman equation, which extends the claim to paths of arbitrary length. 
+	The convergence of the Bellman iteration is guaranteed because it is a contraction mapping (since $\gamma < 1$).
+\end{proof}
