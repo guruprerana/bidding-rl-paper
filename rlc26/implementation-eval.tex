@@ -25,6 +25,41 @@ Important to mention that we want to maximize \(\min(\text{targets reached})\).
 \subsection{Performance comparison with baselines}
 Include plots of training steps vs performance of our algorithms vs baselines on both environments
 
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bidding_mechanisms_learning_curves.png}
+        \caption{MovingTargetsGridworld. [Placeholder: describe convergence behavior, relative performance of mechanisms, and any notable differences in sample efficiency.]}
+        \label{fig:gridworld-bidding-mechanisms}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_learning_curves.png}
+        \caption{Atari Assault. [Placeholder: describe convergence behavior, relative performance of mechanisms, and any notable differences in sample efficiency.]}
+        \label{fig:assault-bidding-mechanisms}
+    \end{subfigure}
+    \caption{Learning curves for different bidding mechanisms across both environments.}
+    \label{fig:bidding-mechanisms}
+\end{figure}
+
+\begin{table}
+  \centering
+  \caption{Performance (mean with 95\% CI) averaged over the last 5 evaluation checkpoints.}
+  \begin{tabular}{lll}
+    \hline
+    {\bf Algorithm} & {\bf Gridworld (Min Targets Reached)} & {\bf Assault (Score)}
+    \\ \hline
+    All-Pay & $6.05$ {\small\textcolor{gray}{$[5.74,\ 6.36]$}} & $634.80$ {\small\textcolor{gray}{$[591.14,\ 678.46]$}} \\
+    Winner-Pays & $4.07$ {\small\textcolor{gray}{$[3.78,\ 4.36]$}} & $578.04$ {\small\textcolor{gray}{$[521.02,\ 635.06]$}} \\
+    Winner-Pays (Others Rewarded) & $4.20$ {\small\textcolor{gray}{$[3.92,\ 4.48]$}} & $662.60$ {\small\textcolor{gray}{$[619.09,\ 706.11]$}} \\
+    Single-Agent & $2.31$ {\small\textcolor{gray}{$[2.08,\ 2.54]$}} & $384.72$ {\small\textcolor{gray}{$[343.09,\ 426.35]$}} \\
+    \hline
+  \end{tabular}
+  \label{tab:bidding_comparison}
+\end{table}
+
 \subsection{Interpretability}
 Include plots of distribution of control steps amongst agents, table of average, median, max, min of bids of agents
 
@@ -33,3 +68,29 @@ Plots of performance in gridworld with increasing number of objectives
 
 \subsection{Ablations}
 Impact of max bid, penalty factor
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_reward_decay_learning_curves.png}
+        \caption{Reward decay. [Placeholder description.]}
+        \label{fig:gridworld-reward-decay}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bid_upper_bound_learning_curves.png}
+        \caption{Bid upper bound. [Placeholder description.]}
+        \label{fig:gridworld-bid-upper-bound}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bid_penalty_learning_curves.png}
+        \caption{Bid penalty. [Placeholder description.]}
+        \label{fig:gridworld-bid-penalty}
+    \end{subfigure}
+    \caption{Ablation studies on the MovingTargetsGridworld environment.}
+    \label{fig:ablations}
+\end{figure}
