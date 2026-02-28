@@ -1,11 +1,12 @@
 \begin{abstract}
-We study multi-objective reinforcement learning settings in which objectives may appear or disappear at runtime. 
-We propose a modular framework that incrementally updates behavior without retraining the entire system.
-Each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism: 
-policies bid for the right to execute their actions, with bids reflecting the urgency of the current state. 
-The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives. 
-To make this possible, each local policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority. 
+We study multi-objective reinforcement learning settings in which objectives appear or disappear at runtime.
+We propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
+policies bid for the right to execute their actions, with bids reflecting the urgency of the current state.
+The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
+To succeed, each policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority.
 When objectives change, the system adapts by simply adding or removing the corresponding policies.
-We instantiate this approach using proximal policy optimization (PPO). 
-Experiments on a robotic path-planning task with dynamic targets and the Atari game Assault demonstrate substantial performance gains and significantly reduced sample complexity.
+Moreover, when objectives arise from the same parameterized family---like the class of reachability objectives parameterized by target states---identical copies of a parameterized policy can be deployed.
+In our implementation, the policies are trained concurrently using proximal policy optimization (PPO).
+We evaluate on Atari Assault and a gridworld-based path-planning task with dynamic targets.
+Our method achieves substantially better performance and reduced sample complexity than a single policy trained with PPO. 
 \end{abstract}
