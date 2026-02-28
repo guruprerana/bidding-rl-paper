@@ -1,15 +1,45 @@
 \section{Introduction}
 
-\todo{I am putting this here, it will go at the end of the introduction.}
+A majority of real-world control problems require fulfilling more than one objectives simultaneously, where the objectives could be partly contradictory to each other.
+We consider the setting where objectives appear or disappear at deployment time, and no prior information about their arrival is available.
+Our running example is a coffee serving robot in an office building, where new coffee requests could appear from any place at any time, old requests could disappear even before being served, and the robot must react to updated objectives as quickly as possible.
+In general, any number of requests could be active at any time, and we do not assume any prior knowledge about their distribution.
+Our goal is to design lightweight, adaptive policies that update their behavior in light of the evolving objectives.
+Despite having been studied in the planning literature~\citep{?}, this class of problems lack support in (model-free) reinforcement learning (RL), and the existing solutions from the planning setting do not readily extend.
 
-Prior works proposed a composition technique based on Q-learning.
-Each local policy $\pi^i$ for each individual reward function $R^i$ would be designed using a Q-learning agent that disregards all reward functions other than its own.
-Along the Q-function, it also learns a W-function which maps every state to a numeric importance score~\citep{humphrys1995w}.
-Intuitively, if $W(s)$ is high, then it is highly important for the local policy to be able to execute its action in the state $s$.
-The composition of policies happens at runtime, when at each state $s$, if $W^i(s)$ is the W-value of the $i$-th local policy, for $i\in [1;m]$, and if $i^* = \arg\max_{i} W^i(s)$, then we select the action proposed by the policy $\pi^{i^*}$ at the current state $s$.
-It has been demonstrated that, interestingly, W-learning generates selfish local policies that end up cooperating in practice.
-Subsequently, this framework has been extended to deep learning and applied to realistic applications~\citep{rosero2024multi}. 
+We propose a novel policy adaptation algorithm for this class of problems.
+The heart of our approach is a compositional design of policies for multi-objective RL problems, where each objective is served using an independent local policy, and coordination is achieved via an online auction-based mechanism: 
+policies bid for the right to execute their actions, with bids reflecting the urgency of the current state for fulfilling the respective objectives.
+The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
+For example, imagine a situation that the coffee serving robot is approaching an intersection of two corridors, there are two active requests and two independent local policies for serving them, the first policy needs to go left, while the second policy needs to go right.
+Clearly a trade-off is unavoidable, and which of the policies is prioritized is decided based on auctions.
 
-A limitation of W-learning is that it assumes that all local policies will be honest while broadcasting their W-values: if any of the policies is dishonest, i.e., emits a higher W-value than the actual, then it will get undue advantages in executing its actions, potentially compromising the global performance.
-To put it in game theoretic terminologies, the local policies are not ``strategyproof.''
-This could be a serious issue if, e.g., the local policies are obtained through different third-party vendors.
+Given this compositional design, every time an objective appears or disappears, only the responsible policy needs to be added or removed, eliminating the need for modifying the whole system.
+Moreover, when the objectives come from the same parameterized family, like the set of all possible coffee requests parameterized by the request locations, we can design a single universal policy for this entire parameterized family, so that new additions require adding an identical copy of the policy, offer us instant adaptation.
+In contrast, a monolithic policy that would serve all objectives lacks this flexibility, and an attempt to train such a policy with variable number of objectives causes a dramatic degradation of training stability as well as the performance (the loss); we demonstrate this in our experiments.
+
+We show how classical RL policies can be extended with bidding capabilities.
+While the obvious first step is to extend the action space with numeric bid values, there are three key challenges:
+
+\textbf{Challenge I: enforcing honest bids.}
+We must ensure that policies bid only in proportion to their urgency, because otherwise, there is a risk of obtaining ``dishonest'' policies that constantly try to block others by overbidding.
+To circumvent this issue, during training, we require the policies to pay penalties proportional to their bid values.
+\KM{I suggest, we just stick to one kind of bidding, instead of three, if in the end all-pay remains superior in all experiments.}
+This way, it is against the interest of policies to bid too high, because otherwise, the net benefit of achieving their objectives would be lost.
+
+\textbf{Challenge II: achieving environment awareness.}
+The bidding tactic of policies should not only depend on the current state and the own objective, but also needs to account for other objectives for maximal effectiveness.
+For instance, if two coffee requests appear at nearby locations, the respective policies need not bid too high to compete against the opponent.
+Dually, if two requests arrive from opposite directions, the bid of the more urgent policy must be high enough to counteract the opponent.
+Therefore, the policies must account for the objectives of opponents to bid effectively.
+Our approach is to model the local policy synthesis problem as an instance of multi-agent nonzerosum  games, where each agent is responsible for an individual objective, and needs to learn a policy that fulfills its objective against the opponents.
+
+\textbf{Challenge III: unbounded objective count.} 
+Since the number of objectives seen during deployment cannot be predicted during training, the game-theoretic approach for environment-aware policies falls apart, because now we face a variable number of opponents for which no solution is known.
+We use an attention network that transforms an arbitrary number of opponent objectives to a fixed encoding, which is then fed as the input to the RL policy.
+Each local policy is equipped with its own attention network, which is co-trained with the actual policy for an increasing number of opponent objectives.
+\KM{If we want to make the unbounded objectives a central feature, we should restrict ourselves to objectives from the same family. Otherwise, the attention pooling and the game-theoretic training approach does not work. While this is indeed a restrictive case, it is well-motivated and I do not see it as a weakness.}
+
+We implemented our framework using the proximal policy optimization (PPO) as the base learning algorithm.
+Using the Atari Assault and a gridworld-based path-planning task, we demonstrate the superior training stability and the performance of our policies in comparison with the baseline monolithic policies.
+\todo{Summarize the main take-away: can we give some statistics, like ``the training time was 2x faster'' or the ``loss was 2x smaller''?}
