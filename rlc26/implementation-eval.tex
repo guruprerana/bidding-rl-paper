@@ -1,45 +1,13 @@
-\section{Implementation and evaluation}
+\section{Implementation}
+\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
 
-\subsection{Environments with Evolving Objectives}
-We begin by describing the multi-objective environments that we evaluate our framework on. Despite their practical relevance, environments with multiple evolving objectives have received little attention in the multi-objective RL literature.
-
-\textbf{Dynamic Targets.}\quad We implement a simple but challenging gridworld environment called Dynamic Targets which consists of an \(n \times n\) grid with \(m\) targets that are moving at a small rate and stochastically change directions. Each target stays alive for a certain number of timesteps before which the agent has to reach it. Once the target expires or the agent reaches it, another new target immediately respawns at a random position in the grid. The metric the agent has to maximize is the difference between the number of targets reached and the number of targets that expired. This flexible environment also allows us to introduce more targets at deployment time. \todo{Reference image for benchmark}
-
-\textbf{Atari Assault.}\quad We also test our method on the Atari game Assault. Here, we control a missile and shoot alien ships that move. Even though this is not a multi-objective environment, we decompose it so that we can treat each alien ship as a different objective. Since these alien ships move around and there are a variable number of ships at any point of time, it is a perfect testbed for our modular approach. We check whether we can synthesize interpretable policies that split control of the missile to target different ships. However, as the standard Atari games from the Arcade Learning Environment \citep{bellemare13arcade} either use image or raw RAM observations, we cannot decompose the game score and design rewards for the multiple policies. Instead, we turn to the Object-Centric Atari environments \citep{delfosse2023ocatari} which exposes object positions and states by decoding RAM states. This permits us to design decomposed observations and rewards for each policy to pursue and shoot the alien ships. \todo{Add image of Assault.}
-
-\subsection{Implementation and Training}
-\citet{yu2022mappo} demonstrate how we can train policies concurrently in multi-agent settings using proximal policy optimization (PPO; \cite{schulman2017ppo}). We follow their recipe and train all the policies with PPO. We also share the actor and critic network parameters across all the policies since the objectives in our environments share the same characteristics.
-
-Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. This allows the policies to generalize to arbitrary number of targets at deployment time.
+Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. This allows each local policy to access information about all targets being pursued by competing policies. It also enables competition with an arbitrary number of policies (i.e., more targets) at deployment time. Each target information vector is passed through an MLP to obtain a target embedding. We then take a weighted sum of these embedding vectors where the weights are obtained by taking the dot product of the embedding vector with a learned query vector. This weighted sum is accessible to all the policies at each step.\todo{Talk more about action windows maybe}
 
 \subsection{Baselines}
+We compare our method against two baselines: a single policy PPO with weighted rewards and the deep W-learning (DWN; \citet{rosero2024multi}). For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. The observation space remains the same as the multi-policy setting. However, we do not implement any reward shaping for the Dynamic Targets environment due to the difficulty of specifying a meaningful dense reward signal in the presence of multiple targets. DWN is another multi-policy method for multi-objective RL that performs DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. These weights indicate which policy's action should be played at each step. The W-network is trained alongside the Q-network by updating it with a gradient step to match the negative TD-error since this indicates how important it is for the policy to play its action. The implementation is borrowed from their repository.
 
-\subsection{Experimental results}
-
-\subsection{Implementation}
-Talk about:
-\begin{enumerate}
-    \item different bidding mechanisms
-    \item choice of penalty factor
-    \item action window (remarking that we could additionally allow agents to choose length of action window)
-    \item use with off-the-shelf RL algorithms
-\end{enumerate}
-
-\subsection{Environments}
-
-\subsubsection{MovingTargetsGridworld}
-Important to mention that we want to maximize \(\min(\text{targets reached})\).
-
-\subsubsection{Atari Assault}
-
-\subsection{Baselines}
-\begin{enumerate}
-    \item Weighted sum of rewards with standard RL algorithms
-    \item Deep W learning implemented on top of DQN
-\end{enumerate}
-
-\subsection{Performance comparison with baselines}
-Include plots of training steps vs performance of our algorithms vs baselines on both environments
+\section{Experimental results}
+We conduct experiments to show the superior performance of our method against the baselines. We also perform ablations with respect to all the key components of the framework and draw insights on how we can tune them.
 
 \begin{figure}[h]
     \centering
@@ -76,15 +44,6 @@ Include plots of training steps vs performance of our algorithms vs baselines on
   \end{tabular}
   \label{tab:bidding_comparison}
 \end{table}
-
-\subsection{Interpretability}
-Include plots of distribution of control steps amongst agents, table of average, median, max, min of bids of agents
-
-\subsection{Modularity}
-Plots of performance in gridworld with increasing number of objectives
-
-\subsection{Ablations}
-Impact of max bid, penalty factor
 
 \begin{figure}[h]
     \centering
