@@ -1,15 +1,62 @@
 \section{Multi-Policy Bidding for Multi-Objective RL}
 The base environment model that we consider is described by a multi-objective Markov decision process (\momdp). 
-An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \to \dist(S)\) is the transition function mapping a state-action pair to a distribution over states, \(\mathbf{R}=\{R^i \colon S \times A^1\times\ldots\times A^m \times S \to \R_{\geq 0}\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, and finally \(\mu_0 \in \dist(S)\) is the initial state distribution. 
+An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \in S \mapsto T(s, a, s')\) is a distribution over \(S\). \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, and finally \(\mu_0 \in \dist(S)\) is the initial state distribution. 
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions.
 A policy naturally induces a distribution over sequences of state-action pairs that we denote \(\pi_{\mathcal{M}}\).
+The \textit{value} of \(\pi_\mathcal{M}\) denoted \(V(\pi_\mathcal{M})\) is a vector in \(\R^m\) so that \(V_i(\pi_\mathcal{M}) \coloneqq \expectation_{(s_i, a_i) \sim \pi_{\mathcal{M}}}[ \sum_{t=0}^\infty \gamma^t R_i(s_i, a_i, s_{i+1})]\) where \(\gamma \in (0, 1)\) is the discount factor.
+In the multi-objective setting, we are interested in finding a policy in the pareto-frontier of the value function which balances the tradeoffs between the objectives according to domain requirements.
 
-In this work, we focus on maximizing the sum of rewards across the objectives. Concretely, we seek to find \(\arg\max_{\pi}J(\pi)\) where
-\begin{equation}
-    J(\pi) = \expectation_{(s_i, a_i) \sim \pi_{\mathcal{M}}}\left[ \sum_{t=0}^\infty \gamma^t \sum_{i = 1}^m R^i(s_i, a_i, s_{i+1})\right]
-\end{equation}
-and \(\gamma \in (0, 1)\) is the discount factor.
+We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
+The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
+Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
+\todo{running example}
 
+We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
+In our framework, not only do the local policies emit actions, but also they \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$ in future.
+The bids are all nonnegative real numbers, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
+To discourage policies from always bidding high, we penalize the policies proportional to their bids.
+Thus, each policy can adjust its bid in proportion to the importance for it to execute its action in the current state, and the associated bidding penalty/reward aims to incentivize policies to be truthful.
+By making the highest bidder active, it is effectively guaranteed that the most important policy is executed.
+This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
+
+\begin{remark}[On the parameter $\tau$]
+The parameter $\tau$ controls how frequently the agent changes its policies.
+In practice, if $\tau$ is too small, the switching could be too frequent for any of the objectives to be fulfilled.
+For example,  \todo{running example...}
+\end{remark}
+
+We formalize this approach by viewing the \momdp as an \(m\)-player general-sum Markov game(\todo{citation}) in which \(m\) players, one corresponding to each objective, compete with each other to take control of the agent and maximize their objectives. We define the game as follows:
+
+\begin{definition}[Markov bidding game]
+    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives.
+    We define the \(m\)-player Markov bidding game as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat S, \hat{A}, \hat{T}, P, \hat{R}, \hat \mu_0, \tau, \rho)\) where
+    \begin{itemize}
+        \item \(\hat S = S \times [1;m] \times [0;\tau]\) is the new state space augmented with the index of a player and the number of remaining timesteps in the range \([0;\tau-1]\) where \(\tau \in \N_{>0}\) is the control horizon. An element of \(\hat S\) is denoted \((s, k, t)\).
+        \item \(\hat{A} = (A \times \R_{>0})^m\) represents the action space of the \(m\) players in which each player selects an action from \(A\) and a positive bid. We denote a set of actions chosen by the \(m\) players with \((\vec a, \vec b) = (a_i, b_i)_{i \in [1;m]}\).
+        \item \(\hat{T} : \hat S \times \hat{A} \times \hat S \to \R\) is the new transition function defined as,
+        \begin{equation*}
+            \hat T((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq \begin{cases}
+                T(s, a_k) & k=k' \land t' = t-1 \\
+                \frac{1}{\abs{\vec{b}_{\max}}} T(s, a_{k'}, s') & t = 0 \wedge t' = \tau - 1 \wedge k' \in \vec{b}_{\max} \\
+                0 & \text{otherwise}
+            \end{cases}
+        \end{equation*}
+        where \(\vec b_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with maximal bids.
+        \item \(\{\hat{R}_i : \hat S \times \hat{A} \times \hat S \to \R\}_{i \in [1; m]}\) is the set of reward functions for the \(m\) agents with
+        \begin{equation*}
+            \hat{R}_i((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq \begin{cases}
+                R_i(s, a_k, s') & t > 0 \land i = k \\
+                R_i(s, a_{k'}, s') - \rho \cdot b_{k'} & t = 0 \land i = k'
+            \end{cases}
+        \end{equation*}
+        where \(\rho \in \R_{>0}\) is the bid penalty factor.
+        \item \(\hat \mu_0 \coloneqq (\mu_0, 1, 0)\) is the initial state distribution over \(\hat S\) induced by \(\mu_0\) and the second and third components are fixed to be \(1, 0\) respectively, without loss of generality.
+    \end{itemize}
+\end{definition}
+
+\todo{explain the definition a bit more either before or after}
+
+\todo{maybe have a few short comments about literature around multi-agent RL.}
 
 % \section{A Multi-Agent Bidding Approach for Multi-Objective RL}
 % \begin{definition}[\momdp]
