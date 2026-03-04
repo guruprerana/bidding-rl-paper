@@ -61,6 +61,7 @@ We conduct experiments to show the superior performance of our method against th
 \end{figure}
 
 \input{dyn_targets_table}
+\input{assault_table}
 
 \begin{figure}[h]
     \centering
@@ -87,3 +88,50 @@ We conduct experiments to show the superior performance of our method against th
     \caption{Ablation studies on the MovingTargetsGridworld environment.}
     \label{fig:ablations}
 \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_control_timesteps.png}
+        \caption{MovingTargetsGridworld control timesteps per policy.}
+        \label{fig:gridworld-bidding-mechanisms-control}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_bid_distribution.png}
+        \caption{Bid distribution per mechanism in MovingTargetsGridworld.}
+        \label{fig:bidding-mechanisms-bid-distribution}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_control_timesteps.png}
+        \caption{Atari Assault control timesteps per policy.}
+        \label{fig:assault-bidding-mechanisms-control}
+    \end{subfigure}
+    \caption{Comparison of bidding mechanisms: control timesteps per policy in MovingTargetsGridworld (left) and Atari Assault (center), and bid value distributions (right).}
+    \label{fig:bidding-mechanisms-analysis}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_action_window_bar_chart.png}
+        \caption{MovingTargetsGridworld.}
+        \label{fig:gridworld-action-window}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_action_window_bar_chart.png}
+        \caption{Atari Assault.}
+        \label{fig:assault-action-window}
+    \end{subfigure}
+    \caption{Effect of action window size on performance across both environments.}
+    \label{fig:action-window}
+\end{figure}
+
+
