@@ -3,11 +3,43 @@
 
 Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. This allows each local policy to access information about all targets being pursued by competing policies. It also enables competition with an arbitrary number of policies (i.e., more targets) at deployment time. Each target information vector is passed through an MLP to obtain a target embedding. We then take a weighted sum of these embedding vectors where the weights are obtained by taking the dot product of the embedding vector with a learned query vector. This weighted sum is accessible to all the policies at each step.\todo{Talk more about action windows maybe}
 
-\subsection{Baselines}
-We compare our method against two baselines: a single policy PPO with weighted rewards and the deep W-learning (DWN; \citet{rosero2024multi}). For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. The observation space remains the same as the multi-policy setting. However, we do not implement any reward shaping for the Dynamic Targets environment due to the difficulty of specifying a meaningful dense reward signal in the presence of multiple targets. DWN is another multi-policy method for multi-objective RL that performs DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. These weights indicate which policy's action should be played at each step. The W-network is trained alongside the Q-network by updating it with a gradient step to match the negative TD-error since this indicates how important it is for the policy to play its action. The implementation is borrowed from their repository.
+\todo{explain different bidding mechanisms, only self target visible variants, reward shaping.}
 
-\section{Experimental results}
+\subsection{Baselines}
+We compare our method against two baselines: a single policy PPO with weighted rewards and the deep W-learning (DWN; \citet{rosero2024multi}). 
+For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. 
+The observation space remains the same as the multi-policy setting. 
+However, we do not implement any reward shaping for the Dynamic Targets environment due to the difficulty of specifying a meaningful dense reward signal in the presence of multiple targets. 
+We borrow the PPO implementation from CleanRL~\citep{huang2022cleanrl}.
+We use the specified PPO hyperparameters from CleanRL for Atari Assault and we tune the hyperparameters for the Dynamic Targets environment with 40 Optuna iterations~\citep{akiba2019optuna}.
+
+DWN is another multi-policy method for multi-objective RL that performs DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. These weights indicate which policy's action should be played at each step. The W-network is trained alongside the Q-network by updating it with a gradient step to match the negative TD-error since this indicates how important it is for the policy to play its action. The implementation is borrowed from their repository.
+
+\section{Experimental Results}
 We conduct experiments to show the superior performance of our method against the baselines. We also perform ablations with respect to all the key components of the framework and draw insights on how we can tune them.
+
+\subsection{Comparison with Baselines}
+\textbf{Dynamic Targets.}\quad
+
+\textbf{Atari Assault.}\quad
+
+\subsection{Interpretability, Fairness, and Generalizability}
+\textbf{Interpretability.}\quad
+
+\textbf{Fairness.}\quad
+
+\textbf{Scaling number of targets.}\quad
+
+\subsection{Design Choices and Ablations}
+\textbf{Bid penalty factor.}\quad
+
+\textbf{Bidding range.}\quad
+
+\textbf{Local vs. global observations.}\quad
+
+\textbf{Bidding mechanisms.}\quad
+
+\textbf{Action window.}\quad
 
 \begin{figure}[h]
     \centering
@@ -28,22 +60,7 @@ We conduct experiments to show the superior performance of our method against th
     \label{fig:bidding-mechanisms}
 \end{figure}
 
-\begin{table}
-  \centering
-  \caption{Performance (mean with 95\% CI) averaged over the last 5 evaluation checkpoints.}
-  \begin{tabular}{lll}
-    \hline
-    {\bf Algorithm} & {\bf Gridworld (Min Targets Reached)} & {\bf Assault (Score)}
-    \\ \hline
-    All-Pay & $6.05$ {\small\textcolor{gray}{$[5.74,\ 6.36]$}} & $634.80$ {\small\textcolor{gray}{$[591.14,\ 678.46]$}} \\
-    Winner-Pays & $4.07$ {\small\textcolor{gray}{$[3.78,\ 4.36]$}} & $578.04$ {\small\textcolor{gray}{$[521.02,\ 635.06]$}} \\
-    Winner-Pays (Others Rewarded) & $4.20$ {\small\textcolor{gray}{$[3.92,\ 4.48]$}} & $662.60$ {\small\textcolor{gray}{$[619.09,\ 706.11]$}} \\
-    Single-Agent & $2.31$ {\small\textcolor{gray}{$[2.08,\ 2.54]$}} & $384.72$ {\small\textcolor{gray}{$[343.09,\ 426.35]$}} \\
-    DWN & $0.98$ {\small\textcolor{gray}{$[0.75,\ 1.21]$}} & $256.20$ {\small\textcolor{gray}{$[205.12,\ 307.28]$}} \\
-    \hline
-  \end{tabular}
-  \label{tab:bidding_comparison}
-\end{table}
+\input{dyn_targets_table}
 
 \begin{figure}[h]
     \centering
@@ -56,24 +73,17 @@ We conduct experiments to show the superior performance of our method against th
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/gridworld_bid_upper_bound_learning_curves.png}
+        \includegraphics[width=\textwidth]{img/gridworld_bid_upper_bound_bar_chart.png}
         \caption{Bid upper bound. [Placeholder description.]}
         \label{fig:gridworld-bid-upper-bound}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{img/gridworld_bid_penalty_learning_curves.png}
+        \includegraphics[width=\textwidth]{img/gridworld_bid_penalty_bar_chart.png}
         \caption{Bid penalty. [Placeholder description.]}
         \label{fig:gridworld-bid-penalty}
     \end{subfigure}
     \caption{Ablation studies on the MovingTargetsGridworld environment.}
     \label{fig:ablations}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{img/gridworld_reward_decay_learning_curves.png}
-    \caption{Reward decay. [Placeholder description.]}
-    \label{fig:gridworld-reward-decay}
 \end{figure}

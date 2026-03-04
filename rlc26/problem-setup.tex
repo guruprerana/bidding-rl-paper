@@ -1,6 +1,6 @@
 \section{Multi-Policy Bidding for Multi-Objective RL}
-The base environment model that we consider is described by a multi-objective Markov decision process (\momdp). 
-An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \in S \mapsto T(s, a, s')\) is a distribution over \(S\). \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, and finally \(\mu_0 \in \dist(S)\) is the initial state distribution. 
+In this work, we consider multi-objective Markov decision processes (\momdp). 
+An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \in S \mapsto T(s, a, s')\) forms a probability distribution over \(S\) for all \((s,a) \in S \times A\). \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, and finally \(\mu_0 \in \dist(S)\) is the initial state distribution. 
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions.
 A policy naturally induces a distribution over sequences of state-action pairs that we denote \(\pi_{\mathcal{M}}\).
 The \textit{value} of \(\pi_\mathcal{M}\) denoted \(V(\pi_\mathcal{M})\) is a vector in \(\R^m\) so that \(V_i(\pi_\mathcal{M}) \coloneqq \expectation_{(s_i, a_i) \sim \pi_{\mathcal{M}}}[ \sum_{t=0}^\infty \gamma^t R_i(s_i, a_i, s_{i+1})]\) where \(\gamma \in (0, 1)\) is the discount factor.
@@ -25,7 +25,7 @@ In practice, if $\tau$ is too small, the switching could be too frequent for any
 For example,  \todo{running example...}
 \end{remark}
 
-We formalize this approach by viewing the \momdp as an \(m\)-player general-sum Markov game(\todo{citation}) in which \(m\) players, one corresponding to each objective, compete with each other to take control of the agent and maximize their objectives. We define the game as follows:
+We formalize this approach by viewing the \momdp as an \(m\)-player general-sum Markov game~\citep{littman1994markov} in which \(m\) players, one corresponding to each objective, compete with each other to take control of the agent and maximize their objectives. We define the game as follows:
 
 \begin{definition}[Markov bidding game]
     Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives.
@@ -50,7 +50,7 @@ We formalize this approach by viewing the \momdp as an \(m\)-player general-sum 
             \end{cases}
         \end{equation*}
         where \(\rho \in \R_{>0}\) is the bid penalty factor.
-        \item \(\hat \mu_0 \coloneqq (\mu_0, 1, 0)\) is the initial state distribution over \(\hat S\) induced by \(\mu_0\) and the second and third components are fixed to be \(1, 0\) respectively, without loss of generality.
+        \item \(\hat \mu_0 \coloneqq (\mu_0, 1, 0)\) is the initial state distribution over \(\hat S\) induced by \(\mu_0\) and the second and third components are fixed to be \(1, 0\) respectively without loss of generality.
     \end{itemize}
 \end{definition}
 
