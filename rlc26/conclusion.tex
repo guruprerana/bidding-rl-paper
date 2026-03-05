@@ -1,1 +1,12 @@
-\section{Limitations, Conclusion, and Future Directions}
+\section{Conclusion and Future Directions}
+In this work, we consider a special class of multi-objective RL environments in which objectives appear and disappear over time.
+We proposed an auction-based mechanism for multi-policy coordination in multi-objective Markov decision processes. 
+Multiple selfish policies---each optimizing its own objective---compete with each other to take control of the agent by placing bids.
+The mechanism penalizes the policies for placing large bids thereby ensuring that they only bid when necessary.
+Also, decomposing the objectives makes the credit assignment problem easier and allows us to design dense reward signals with respect to each objective
+We train the policies concurrently using proximal policy optimization (PPO) and evaluate it on a challenging gridworld environment as well as the Atari Assault game.
+Our method outperforms baselines under the same compute budget and produces interpretable policies enabling us to determine the current objective that the agent is pursuing.
+We also showed that the policies are able to compete with more policies than they were trained with which lets us scale up the number of objectives at deployment time.
+
+While we have only considered multi-objective environments in which the objectives share similar characteristics, we believe that the auction-based mechanism can be adapted to more complex combinations of objectives.
+For example, we could train navigation and safety policies that complete reach-avoid objectives.

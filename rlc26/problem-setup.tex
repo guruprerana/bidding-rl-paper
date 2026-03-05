@@ -1,62 +1,96 @@
-\section{Multi-Policy Bidding for Multi-Objective RL}
+\section{Auction-Based Multi-Policy Framework for Multi-Objective RL}
+
+\textbf{Preliminaries: multi-objective RL.}
 We use multi-objective Markov decision processes (\momdp) to model uncertain environments and multiple objectives. 
 An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \gamma, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \mapsto T(s, a, s')\) forms a probability distribution over \(S\) for all \((s,a) \in S \times A\), \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, $\gamma\in (0,1)$ is the discount factor, and \(\mu_0 \in \dist(S)\) is the initial state distribution. 
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions.
-The policy $\pi$ gives rise to a random sequence of states and actions $s^0,a^0,s^1,a^1,\ldots$, that produces a random sequence of rewards $r^0_ir^1_i\ldots$ for each objective $i\in [1;m]$, where $r^t_i = R_i(s^t,a^t,a^{t+1})$ for every $t\in \mathbb{N}$.
-The \textit{value} of $\pi$, denoted $V(\pi)$, is a vector in $\R^m$ such that $V(\pi)_i = \sum_{t=0}^\infty r^t_i$.
+The policy $\pi$ gives rise to a random sequence of states and actions $s^0,a^0,s^1,a^1,\ldots$, that produces a sequence of rewards $r^0_ir^1_i\ldots$ for each objective $i\in [1;m]$, where $r^t_i = R_i(s^t,a^t,a^{t+1})$ for every $t\in \mathbb{N}$.
+The \textit{value} of $\pi$, denoted $V^\pi$, is a vector in $\R^m$ such that $V^\pi_i = \E_{s_t,a_t}[ \sum_{t=0}^\infty \gamma^t r^t_i]$.
 In the multi-objective setting, a commonly studied problem is to find a policy in the pareto-frontier of the value function which balances the tradeoffs between the objectives according to domain requirements~\citep{van2014multi}.
 
+\textbf{The auction-based multi-policy framework.}
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
 The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
-\todo{running example}
 
 We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
 In our framework, not only do the local policies emit actions, but also they \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$ in future.
-The bids are all nonnegative real numbers, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
-To discourage policies from always bidding high, we penalize the policies proportional to their bids.
-Thus, each policy can adjust its bid in proportion to the importance for it to execute its action in the current state, and the associated bidding penalty/reward aims to incentivize policies to be truthful.
-By making the highest bidder active, it is effectively guaranteed that the most important policy is executed.
+The bids are all nonnegative integers bounded by a given constant $\beta\in \mathbb{Z}_{\geq 0}$, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
+To discourage policies from always bidding high, we penalize the policies proportional to their bids with a given proportionality constant $\rho\in (0,1)$.
+We consider two penalty models, namely \poorman and \allpay:
+in the \poorman setting, only the executed policy (one of the highest bidders) pays the penalty, whereas in the \allpay setting, all policies pay penalties.
+Consequently, \poorman encourages policies to bid when necessary, while \allpay discourages unnecessary bidding.
+Through this mechanism, each policy can adjust its bid in proportion to the importance for it to execute its action in the current state, and the associated bidding penalty/reward aims to incentivize policies to bid in proportion to their true urgency.
+Since one of the highest bidders obtains control, the policy with the greatest immediate importance is selected.
 This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
 
-\begin{remark}[On the parameter $\tau$]
-The parameter $\tau$ controls how frequently the agent changes its policies.
-In practice, if $\tau$ is too small, the switching could be too frequent for any of the objectives to be fulfilled.
-For example,  \todo{running example...}
-\end{remark}
+The parameters $\tau$, $\beta$, and $\rho$ will be called the \emph{bidding interval}, the \emph{maximum bid}, and the \emph{bid penalty coefficient}, respectively.
+Through ablation studies in Section~\ref{sec:experimental results}, we demonstrate the importance of selecting these parameters appropriately.
+If $\tau$ is too small, the switching between local policies could be too frequent, risking suboptimal outcome for all objectives.
+If $\beta$ is too small, the policies will lose their ability to express the strength of their preferences, risking a random assignment of control in most cases.
+Finally, if $\rho$ is too large, the policies will abstain from bidding in most situations.
 
-We formalize this approach by viewing the \momdp as an \(m\)-player general-sum Markov game~\citep{littman1994markov} in which \(m\) players, one corresponding to each objective, compete with each other to take control of the agent and maximize their objectives. We define the game as follows:
+\textbf{Local bidding policies via multiplayer Markov games.}
+We formalize our new learning framework by modeling it as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player is concerned about on of the $m$ objectives of the original \momdp.
+The transitions and the objectives in the game encodes the aforementioned bidding mechanism, and therefore, we call it a \emph{Markov bidding game}.
+Each state of the game records the current state in the \momdp, the index of the policy selected from the last bidding, and the time until the next bidding.
+Based on the current state in the game, each player independently selects its preferred action and its bid.
+The resulting transitions encode the selection of one of the policies based on the bid value.
+Finally, the reward of each player encodes the payment of the bidding penalties.
+We formalize this below.
 
-\begin{definition}[Markov bidding game]
-    Let \(\mathcal{M} = (S, A, T, R, \mu_0)\) be an \momdp~with \(m\) objectives.
-    We define the \(m\)-player Markov bidding game as a tuple \(\mathcal{B}_{\mathcal{M}} = (\hat S, \hat{A}, \hat{T}, P, \hat{R}, \hat \mu_0, \tau, \rho)\) where
+\begin{definition}[Markov bidding games]\label{def:markov game}
+    Let \(\mathcal{M} = (S, A, T, R, \gamma, \mu_0)\) be an \momdp with \(m\) objectives, $\tau$ be the bidding interval, $\beta$ be the maximum bid, $\rho$ be the bid penalty coefficient, and $\Delta\in \{ \poorman,\allpay\}$ be the used penalty model.
+    We define the \(m\)-player Markov bidding game as a tuple \(\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho} = (\hat S, \hat{A}, \hat{T}, \hat{R}, \gamma, \hat \mu_0)\) where
     \begin{itemize}
-        \item \(\hat S = S \times [1;m] \times [0;\tau]\) is the new state space augmented with the index of a player and the number of remaining timesteps in the range \([0;\tau-1]\) where \(\tau \in \N_{>0}\) is the control horizon. An element of \(\hat S\) is denoted \((s, k, t)\).
-        \item \(\hat{A} = (A \times \R_{>0})^m\) represents the action space of the \(m\) players in which each player selects an action from \(A\) and a positive bid. We denote a set of actions chosen by the \(m\) players with \((\vec a, \vec b) = (a_i, b_i)_{i \in [1;m]}\).
+        \item \(\hat S = S \times [1;m] \times [0;\tau - 1]\) is the state space. An element of \(\hat S\) is denoted \((s, k, t)\).
+        \item \(\hat{A} = (A \times \Z_{\geq 0})^m\) represents the joint extended action space of the \(m\) players, where each player independently selects an action from \(A\) and a nonnegative bid from $\Z_{\geq 0}$. We denote a set of actions chosen by the \(m\) players with \((\vec a, \vec b) = (a_i, b_i)_{i \in [1;m]} \in \hat{A}\).
         \item \(\hat{T} : \hat S \times \hat{A} \times \hat S \to \R\) is the new transition function defined as,
         \begin{equation*}
-            \hat T((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq \begin{cases}
-                T(s, a_k, s') & k=k' \land t' = t-1 \\
-                \frac{1}{\abs{\vec{b}_{\max}}} T(s, a_{k'}, s') & t = 0 \wedge t' = \tau - 1 \wedge k' \in \vec{b}_{\max} \\
-                0 & \text{otherwise}
+            \hat T((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq 
+            \begin{cases}
+                T(s, a_{k'}, s') & t >0\land t' = t-1 \land k'=k,  \\
+                \frac{1}{\abs{\vec{b}_{\max}}} T(s, a_{k'}, s') & t = 0 \wedge t' = \tau-1 \wedge k' \in \vec{b}_{\max}, \\
+                0 & \text{otherwise},
             \end{cases}
         \end{equation*}
-        where \(\vec b_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with maximal bids.
+        where \(\vec b_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with the highest bid.
         \item \(\{\hat{R}_i : \hat S \times \hat{A} \times \hat S \to \R\}_{i \in [1; m]}\) is the set of reward functions for the \(m\) agents with
         \begin{equation*}
-            \hat{R}_i((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq \begin{cases}
-                R_i(s, a_k, s') & t > 0 \land i = k \\
-                R_i(s, a_{k'}, s') - \rho \cdot b_{k'} & t = 0 \land i = k'
+            \hat{R}_i((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq 
+            \begin{cases}
+                R_i(s, a_{k'}, s') - \rho \cdot b_{i} & t = 0 \land \left( i = k' \lor \Delta = \allpay \right),\\
+                R_i(s, a_{k'}, s') & \text{otherwise}.
             \end{cases}
         \end{equation*}
-        where \(\rho \in \R_{>0}\) is the bid penalty factor.
-        \item \(\hat \mu_0 \coloneqq (\mu_0, 1, 0)\) is the initial state distribution over \(\hat S\) induced by \(\mu_0\) and the second and third components are fixed to be \(1, 0\) respectively without loss of generality.
+        \item $\hat \mu_0$ is the initial state distribution over \(\hat S\) defined as,
+        \begin{equation*}
+        	\hat \mu_0(s,k,t) \coloneqq
+        		\begin{cases}
+        			\mu_0(s)	&	t=0 \land k=i, \\
+        			0			&	\text{otherwise},
+        		\end{cases}
+        \end{equation*}
+        where $i\in [1;m]$ is an arbitrary agent.
     \end{itemize}
 \end{definition}
 
-\todo{explain the definition a bit more either before or after}
+In the Markov game $\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho}$, each player $i$ aims to compute its own selfish local policy of the form $\pi_i\colon (\hat{S}\times\hat{A})^*\times \hat{S}\mapsto (a_i,b_i)\in A\times \mathbb{Z}_{\geq 0}$, such that the discounted sum of its own reward is maximized, given that the other players are selfishly fulfilling their own objectives.
+It follows from the construction that the optimal local policy of player $i$ in the Markov bidding game can be used as a bidding policy in the original \momdp.
 
-\todo{maybe have a few short comments about literature around multi-agent RL.}
+\textbf{Learning policies in Markov bidding games.}
+Since the transitions of the original \momdp is unknown, the transitions of the constructed Markov game in Definition~\ref{def:markov game} will also be unknown.
+Our goal is to learn the local policy of each player using RL.
+\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. 
+Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. 
+At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
+
+Additionally, to cope with varying number of objectives and varying number of players in the resulting Markov game, we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding. 
+This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time. 
+Each objective information vector is first processed by a multilayer perceptron (MLP) to produce a target embedding. 
+These embeddings are then aggregated through a weighted sum, where the weights are computed by taking the dot product between each embedding and a learned query vector. 
+This attention mechanism produces a fixed-dimensional representation that summarizes the set of objectives while allowing the model to adapt to varying objective counts.
+
 
 % \section{A Multi-Agent Bidding Approach for Multi-Objective RL}
 % \begin{definition}[\momdp]

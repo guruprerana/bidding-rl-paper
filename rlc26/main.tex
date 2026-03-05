@@ -1,4 +1,4 @@
-% RLJ main.tex Version 2025.1
+% RLJ main.tex Version 2026.1
 
 \documentclass[10pt]{article} % For LaTeX2e
 
@@ -112,11 +112,11 @@ $^{2}$\textbf{IMDEA Software Institute, Spain}
 
 \contribution{
     % Contribution
-    \textit{{[}Example of one contribution and corresponding contextual note for the paper ``Policy gradient methods for reinforcement learning with function approximation'' \citep{Sutton2000}.]}\\ This paper presents an expression for the policy gradient when using function approximation to represent the action-value function.
+    \textit{{[}Example of one contribution and corresponding contextual note for the paper ``Policy gradient methods for reinforcement learning with function approximation'' .]}\\ This paper presents an expression for the policy gradient when using function approximation to represent the action-value function.
     }
     {
     % Context:
-    Prior work established expressions for the policy gradient without function approximation \citep{Williams1992}.
+    Prior work established expressions for the policy gradient without function approximation.
     }
 
 % Include a list of keywords for the topic of the paper:
@@ -135,11 +135,12 @@ $^{2}$\textbf{IMDEA Software Institute, Spain}
 
 \makeCover  % Create the cover page
 \maketitle  % Make the title section
+\KM{Looking at the title again, ``auction-based'' sounds nicer than ``bidding-based''}
 
 \input{abstract}
 \input{intro}
 \input{related-work}
-\input{prelims}
+%\input{prelims}
 \input{problem-setup}
 \input{envs}
 \input{implementation-eval}
