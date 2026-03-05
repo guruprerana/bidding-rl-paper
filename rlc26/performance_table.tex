@@ -1,0 +1,18 @@
+\begin{table}
+  \centering
+  \caption{Performance of all methods (mean with 95\% CI) at the best evaluation iteration. The metric for the Dynamic Targets environment is the Performance and Score for Atari Assault.}
+  \begin{tabular}{lll}
+    \hline
+    {\bf Method} & {\bf Dynamic Targets} & {\bf Atari Assault} \\
+    \hline
+    Winner-Pays & $53.90$ {\small\textcolor{gray}{$[48.84,\ 58.96]$}} & $740.20$ {\small\textcolor{gray}{$[660.53,\ 819.87]$}} \\
+    All-Pay & $75.60$ {\small\textcolor{gray}{$[71.12,\ 80.08]$}} & $642.20$ {\small\textcolor{gray}{$[536.39,\ 748.01]$}} \\
+    % Winner-Pays (Others Rewarded) & $24.75$ {\small\textcolor{gray}{$[20.42,\ 29.08]$}} & $594.00$ {\small\textcolor{gray}{$[420.50,\ 767.50]$}} \\
+    All-Pay w. Local Obs & $64.85$ {\small\textcolor{gray}{$[59.72,\ 69.98]$}} & $629.40$ {\small\textcolor{gray}{$[513.95,\ 744.85]$}} \\
+    All-Pay w. No Reward Shaping & $-40.20$ {\small\textcolor{gray}{$[-43.06,\ -37.34]$}} & --- \\
+    DWN (Baseline) & $-41.40$ {\small\textcolor{gray}{$[-45.48,\ -37.32]$}} & $294.00$ {\small\textcolor{gray}{$[134.32,\ 453.68]$}} \\
+    Single-Policy PPO (Baseline) & $-51.65$ {\small\textcolor{gray}{$[-54.50,\ -48.80]$}} & $546.00$ {\small\textcolor{gray}{$[440.08,\ 651.92]$}} \\
+    \hline
+  \end{tabular}
+  \label{tab:all_methods_comp}
+\end{table}

@@ -1,118 +1,154 @@
 \section{Implementation}
-\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
+\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. 
+Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. 
+At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
 
-Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. This allows each local policy to access information about all targets being pursued by competing policies. It also enables competition with an arbitrary number of policies (i.e., more targets) at deployment time. Each target information vector is passed through an MLP to obtain a target embedding. We then take a weighted sum of these embedding vectors where the weights are obtained by taking the dot product of the embedding vector with a learned query vector. This weighted sum is accessible to all the policies at each step.\todo{Talk more about action windows maybe}
+Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. 
+This architecture enables competition with an arbitrary number of policies (i.e., more targets) at deployment time. 
+Each target information vector is passed through an MLP to obtain a target embedding. 
+We then take a weighted sum of these embedding vectors where the weights are obtained by taking the dot product of the embedding vector with a learned query vector. 
 
-\todo{explain different bidding mechanisms, only self target visible variants, reward shaping.}
+We implement the \(m\)-player Markov bidding game as a wrapper around the environments. 
+This wrapper serves as an intermediary to translate the bids and actions played by the policies into actions in the environment. 
+It also handles the action windows and bid penalties for the two bidding mechanisms. 
+We refer to the instantiation of our method with the Winner-Pays bidding mechanism simply as Winner-Pays and similarly for All-Pay. We also consider two variants of All-Pay: All-Pay w. Local Obs and All-Pay w. No Reward Shaping. The former is the variant where each policy can only see its own target in its observation and the latter is one where we remove reward shaping in the Dynamic Targets environment.
 
 \subsection{Baselines}
-We compare our method against two baselines: a single policy PPO with weighted rewards and the deep W-learning (DWN; \citet{rosero2024multi}). 
+We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citet{rosero2024multi}). 
 For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. 
 The observation space remains the same as the multi-policy setting. 
 However, we do not implement any reward shaping for the Dynamic Targets environment due to the difficulty of specifying a meaningful dense reward signal in the presence of multiple targets. 
 We borrow the PPO implementation from CleanRL~\citep{huang2022cleanrl}.
 We use the specified PPO hyperparameters from CleanRL for Atari Assault and we tune the hyperparameters for the Dynamic Targets environment with 40 Optuna iterations~\citep{akiba2019optuna}.
 
-DWN is another multi-policy method for multi-objective RL that performs DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. These weights indicate which policy's action should be played at each step. The W-network is trained alongside the Q-network by updating it with a gradient step to match the negative TD-error since this indicates how important it is for the policy to play its action. The implementation is borrowed from their repository.
+DWN is another multi-policy method for multi-objective RL that uses DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. 
+These weights are used to choose which policy's action should be played at each step. 
+The W-network is trained alongside the Q-network by updating it with a gradient step to predict the negative TD-error when the policy does not get to play its action.
+The assertion here is that the negative TD-error quantifies how important it is for the policy to play its action. 
+The implementation is borrowed from their repository.
 
 \section{Experimental Results}
-We conduct experiments to show the superior performance of our method against the baselines. We also perform ablations with respect to all the key components of the framework and draw insights on how we can tune them.
-
-\subsection{Comparison with Baselines}
-\textbf{Dynamic Targets.}\quad
-
-\textbf{Atari Assault.}\quad
-
-\subsection{Interpretability, Fairness, and Generalizability}
-\textbf{Interpretability.}\quad
-
-\textbf{Fairness.}\quad
-
-\textbf{Scaling number of targets.}\quad
-
-\subsection{Design Choices and Ablations}
-\textbf{Bid penalty factor.}\quad
-
-\textbf{Bidding range.}\quad
-
-\textbf{Local vs. global observations.}\quad \todo{Also talk about attention mechanism here.}
-
-\textbf{Bidding mechanisms.}\quad
-
-\textbf{Action window.}\quad
+We conduct experiments to show the superior performance of our method compared to the baselines. We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
 
 \begin{figure}[h]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/gridworld_bidding_mechanisms_learning_curves.png}
-        \caption{MovingTargetsGridworld. [Placeholder: describe convergence behavior, relative performance of mechanisms, and any notable differences in sample efficiency.]}
-        \label{fig:gridworld-bidding-mechanisms}
+        % \caption{Dynamic Targets: Learning curves}
+        % \label{fig:dyntar-learning-curves}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_learning_curves.png}
-        \caption{Atari Assault. [Placeholder: describe convergence behavior, relative performance of mechanisms, and any notable differences in sample efficiency.]}
-        \label{fig:assault-bidding-mechanisms}
+        % \caption{Atari Assault: Learning curves}
+        % \label{fig:assault-learning-curves}
     \end{subfigure}
-    \caption{Learning curves for different bidding mechanisms across both environments.}
-    \label{fig:bidding-mechanisms}
+    \caption{Learning curves for different methods on Dynamic Targets (left) and Atari Assault (right).}
+    \label{fig:learning-curves}
 \end{figure}
 
-\input{dyn_targets_table}
-\input{assault_table}
+\paragraph{Learning dynamics.} \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the two environments. 
+While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal curves with Dynamic Targets. 
+The curves for All-Pay and Winner-Pays methods start growing around the same time.
+Meanwhile, the All-Pay method with only local observations for each policy starts growing much earlier but plateaus below All-Pay.
+The All-Pay variant with no attention pooling for targets only starts growing much later.
+This validates the use of the attention pooling architecture to learn useful embeddings of other targets.
+We also remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
+
+\input{performance_table}
+
+\paragraph{Comparison with baselines} \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
+Our bidding-based multi-policy approaches outperform the baselines by a big margin.
+Across both the environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
+In the Dynamic Targets environment, we observe that the All-Pay multi-policy method with no reward shaping performs poorly.
+This indicates the difficulty of learning to navigate in the large state space with only a sparse reward signal.
+In the Atari Assault environment, there is a delay between shooting a missile until it reaches the alien ship and destroys it. 
+Since we only supply information from one frame in the observation, the learner could find it hard to associate a firing of a missile and the reward from the death of a ship, especially if there is subsequent firing.
+On the other hand, the credit assignment becomes easier when we separate the objectives and each learner only has to focus on one target.
+
+Next, let us try to reason about the poor performance of the DWN baseline.
+We recall that this method learns a W-network trained to predict the negative TD-error for each policy when the policy does not play its action.
+However, in our environments, we have a long horizon and all the objectives are symmetric with similar Q-values.
+This means that the TD-error is small and does not provide a strong signal to choose between policies at most timesteps.
+In contrast, our approach allows the policies themselves to indicate the importance of playing an action.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_control_timesteps.png}
+        \caption{Dynamic Targets: Control distribution}
+        \label{fig:dyntar-control-dist}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_bid_distribution.png}
+        \caption{Dynamic Targets: Bid distribution}
+        \label{fig:dyntar-bid-dist}
+    \end{subfigure}
+
+    \vspace{1em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_control_timesteps.png}
+        \caption{Atari Assault: Control distribution}
+        \label{fig:assault-control-dist}
+    \end{subfigure}
+    \qquad
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bid_distribution_winner-pays.png}
+        \caption{Atari Assault: Bid Distribution (Winner-Pays)}
+        \label{fig:assault-bid-dist}
+    \end{subfigure}
+    \caption{Comparison of control and bid distributions across environments and methods. The control distribution is the number of timesteps controller by each policy, while the bid distribution is the distribution over bids by the policies.}
+    \label{fig:control-bid-dist}
+\end{figure}
+
+\paragraph{Interpretability of policies and bidding behaviors.} 
+Video rollouts of the bidding-based policies in both environments, included in the supplementary material, demonstrate that the policies bid to take control of the agent when they can accumulate rewards in the action window.
+We can also observe that each policy only seeks to fulfill its own objectives, which is what we desire.
+\Cref{fig:control-bid-dist} shows the distribution of the number of timesteps that each policy was in control and the distribution over bids placed by the policies.
+We observe that there is a good spread of control amongst all the agents.
+With respect to the bid distribution, we observe different behaviors in the two environments.
+In the Atari Assault environment, all the policies bid 0 most of the time indicating that the agents are able to maximize their rewards through random assignment of control amongst the agents and do not need to place bids.
+This also intuitively makes sense as the alien ships do not automatically expire unlike the targets in Dynamic Targets.
+In contrast, with the Dynamic Targets environment, there is a wider spread of bids between 0 and 6. 
+Here, we see that the All-Pay mechanism produces more conservative policies that tend to bid 0 most of the time with decreasing number of bids between 1-6.
+Meanwhile, the Winner-Pays mechanism has an even spread across all the possible bids indicating that the policies are willing to take risks and bid higher more often.
+
+\paragraph{Scaling number of targets.} We conduct an experiment with the Dynamic Targets environment in which we scale the number of targets at deployment time, i.e., we create more copies of the policy to compete with each other. 
+\Cref{fig:bidding-mechanism-scaling} shows that the policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.
+The attention pooling mechanism plays a crucial role here as it can flexibly generate useful embeddings of an arbitrary number of competing targets.
 
 \begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/bidding_mechanism_scaling.png}
-        \caption{Bidding mechanism scaling. [Placeholder description.]}
+        \caption{Scaling number of targets at deployment time.}
         \label{fig:bidding-mechanism-scaling}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/gridworld_bid_upper_bound_bar_chart.png}
-        \caption{Bid upper bound. [Placeholder description.]}
+        \caption{Ablation: Bid upper bound}
         \label{fig:gridworld-bid-upper-bound}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/gridworld_bid_penalty_bar_chart.png}
-        \caption{Bid penalty. [Placeholder description.]}
+        \caption{Ablation: Bid penalty}
         \label{fig:gridworld-bid-penalty}
     \end{subfigure}
-    \caption{Ablation studies on the MovingTargetsGridworld environment.}
+    \caption{Scaling number of targets and ablations on the Dynamic Targets environment.}
     \label{fig:ablations}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/bidding_mechanisms_control_timesteps.png}
-        \caption{MovingTargetsGridworld control timesteps per policy.}
-        \label{fig:gridworld-bidding-mechanisms-control}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/bidding_mechanisms_bid_distribution.png}
-        \caption{Bid distribution per mechanism in MovingTargetsGridworld.}
-        \label{fig:bidding-mechanisms-bid-distribution}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_control_timesteps.png}
-        \caption{Atari Assault control timesteps per policy.}
-        \label{fig:assault-bidding-mechanisms-control}
-    \end{subfigure}
-    \caption{Comparison of bidding mechanisms: control timesteps per policy in MovingTargetsGridworld (left) and Atari Assault (center), and bid value distributions (right).}
-    \label{fig:bidding-mechanisms-analysis}
 \end{figure}
 
 \begin{figure}[h]
@@ -120,18 +156,27 @@ We conduct experiments to show the superior performance of our method against th
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/gridworld_action_window_bar_chart.png}
-        \caption{MovingTargetsGridworld.}
-        \label{fig:gridworld-action-window}
+        % \caption{Dynamic Targets.}
+        % \label{fig:gridworld-action-window}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.48\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/assault_action_window_bar_chart.png}
-        \caption{Atari Assault.}
-        \label{fig:assault-action-window}
+        % \caption{Atari Assault.}
+        % \label{fig:assault-action-window}
     \end{subfigure}
-    \caption{Effect of action window size on performance across both environments.}
+    \caption{Effect of action window on performance: Dynamic Targets (left) and Atari Assault (right).}
     \label{fig:action-window}
 \end{figure}
 
-
+\paragraph{Further ablations.} \Cref{fig:gridworld-bid-upper-bound} plots the performance of policies trained with different ranges of bids. 
+We see that we need at least 2 levels of bids to achieve good performance.
+Up to just 1 bid level, the policies are unable to effectively compete with each other.
+Similarly, \Cref{fig:gridworld-bid-penalty} tries different values for the bid penalty factor.
+Without any penalty, the performance is low since all the policies always bid the highest trying to take control.
+However, if it is too big, then the policies are not willing to take the risk of placing the bid. 
+Finally, \Cref{fig:action-window} compares policies trained with varying sizes of action windows.
+In both environments, we observe an ideal size maximizing the performance.
+When it is lower than this value, the control is switching between policies too fast before they are able to reach their targets.
+On the other hand, if it is too high, then there is not enough switching between policies to maximize all the objectives.
