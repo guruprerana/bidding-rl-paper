@@ -15,10 +15,8 @@
 *.cb2
 .*.lb
 *.vtc
+rlc26/main.pdf
 
-TaylorPrediction/04_L4DC_cam_ready/main.pdf
-TaylorPrediction/02_L4DC/main.pdf
-PredictiveBarrier/main.pdf
 ## Intermediate documents:
 *.dvi
 *.xdv
