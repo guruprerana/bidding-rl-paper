@@ -1,4 +1,4 @@
-% RLC rlc.bst Version 2025.1
+% RLC rlc.bst Version 2026.1
 
 %% A copy of tmlr.bst, which is a copy of iclm2010.bst, which is a modification of `plainnl.bst' for use with natbib package 
 %%

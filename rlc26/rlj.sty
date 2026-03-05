@@ -1,13 +1,13 @@
-% RLC rlj.sty Version 2025.1
+% RLC rlj.sty Version 2026.1
 
 % This style file was adapted from previous style files in the following reverse-chronological order:
-% Adapted by Marlos C. Machado and Philip Thomas for RLJ/RLC 2025
+% Adapted by Marlos C. Machado and Philip Thomas for RLJ/RLC 2026
 % Adapted by Philip Thomas and Glen Berseth for RLJ/RLC 2024
 % Adapted by Hugo Larochelle and Fabian Pedregosa for TMLR
 % Adapted by ICLR, borrowing from JMLR.
 
-% Last edited, October 2025 by Marlos C. Machado and Philip Thomas
-%   - Implemented several changes for RLJ/RLC 2025
+% Last edited, October 2026 by Marlos C. Machado and Philip Thomas
+%   - Implemented several changes for RLJ/RLC 2026
 
 % First, include the packages we require
 \RequirePackage{fancyhdr}   % For modifying the header
@@ -182,11 +182,11 @@
                 \fancyhead[L]{}
             \else
                 % Accepted
-                \fancyhead[L]{Reinforcement Learning Journal 2025}
+                \fancyhead[L]{Reinforcement Learning Journal 2026}
             \fi
         \else
             % Under review
-            \fancyhead[L]{Under review for RLC 2025, to be published in RLJ}
+            \fancyhead[L]{Under review for RLC 2026, to be published in RLJ}
         \fi
         \thispagestyle{fancy}   % Apply the header and footer
         \setcounter{page}{1}    % Ensure page number starts from 1 after the cover page
@@ -296,7 +296,7 @@
         \lhead{}
     \else
         \fancyhf{} % Clear all header and footer fields
-        \fancyhead[L]{\ifodd\value{page}\relax \therunningtitle \else Reinforcement Learning Journal \hfill2025\fi}
+        \fancyhead[L]{\ifodd\value{page}\relax \therunningtitle \else Reinforcement Learning Journal \hfill2026\fi}
         \fancyfoot{}
     \fi
 \else
@@ -305,7 +305,7 @@
             \fancyfoot[C]{\thepage} % Add this line to show page numbers centrally
         \else
             \fancyhf{} % Clear all header and footer fields
-            \fancyhead[L]{\ifodd\value{page}\relax \therunningtitle \else Under review for RLC 2025, to be published in RLJ 2025\fi}
+            \fancyhead[L]{\ifodd\value{page}\relax \therunningtitle \else Under review for RLC 2026, to be published in RLJ 2026\fi}
             \fancyfoot[C]{\thepage}
         \fi
 \fi
