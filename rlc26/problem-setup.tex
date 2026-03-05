@@ -1,10 +1,10 @@
 \section{Multi-Policy Bidding for Multi-Objective RL}
-In this work, we consider multi-objective Markov decision processes (\momdp). 
-An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \in S \mapsto T(s, a, s')\) forms a probability distribution over \(S\) for all \((s,a) \in S \times A\). \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, and finally \(\mu_0 \in \dist(S)\) is the initial state distribution. 
+We use multi-objective Markov decision processes (\momdp) to model uncertain environments and multiple objectives. 
+An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, R, \gamma, \mu_0)\) where \(S\) is the set of states, \(A\) is the set of actions, \(T : S \times A \times S \to \R\) is the transition function so that \(s' \mapsto T(s, a, s')\) forms a probability distribution over \(S\) for all \((s,a) \in S \times A\), \(\mathbf{R}=\{R_i \colon S \times A \times S \to \R\}_{i\in [1;m]}\) is the set of reward functions corresponding to the \(m\) objectives, $\gamma\in (0,1)$ is the discount factor, and \(\mu_0 \in \dist(S)\) is the initial state distribution. 
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions.
-A policy naturally induces a distribution over sequences of state-action pairs that we denote \(\pi_{\mathcal{M}}\).
-The \textit{value} of \(\pi_\mathcal{M}\) denoted \(V(\pi_\mathcal{M})\) is a vector in \(\R^m\) so that \(V_i(\pi_\mathcal{M}) \coloneqq \expectation_{(s_i, a_i) \sim \pi_{\mathcal{M}}}[ \sum_{t=0}^\infty \gamma^t R_i(s_i, a_i, s_{i+1})]\) where \(\gamma \in (0, 1)\) is the discount factor.
-In the multi-objective setting, we are interested in finding a policy in the pareto-frontier of the value function which balances the tradeoffs between the objectives according to domain requirements.
+The policy $\pi$ gives rise to a random sequence of states and actions $s^0,a^0,s^1,a^1,\ldots$, that produces a random sequence of rewards $r^0_ir^1_i\ldots$ for each objective $i\in [1;m]$, where $r^t_i = R_i(s^t,a^t,a^{t+1})$ for every $t\in \mathbb{N}$.
+The \textit{value} of $\pi$, denoted $V(\pi)$, is a vector in $\R^m$ such that $V(\pi)_i = \sum_{t=0}^\infty r^t_i$.
+In the multi-objective setting, a commonly studied problem is to find a policy in the pareto-frontier of the value function which balances the tradeoffs between the objectives according to domain requirements~\citep{van2014multi}.
 
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
 The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
@@ -36,7 +36,7 @@ We formalize this approach by viewing the \momdp as an \(m\)-player general-sum 
         \item \(\hat{T} : \hat S \times \hat{A} \times \hat S \to \R\) is the new transition function defined as,
         \begin{equation*}
             \hat T((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq \begin{cases}
-                T(s, a_k) & k=k' \land t' = t-1 \\
+                T(s, a_k, s') & k=k' \land t' = t-1 \\
                 \frac{1}{\abs{\vec{b}_{\max}}} T(s, a_{k'}, s') & t = 0 \wedge t' = \tau - 1 \wedge k' \in \vec{b}_{\max} \\
                 0 & \text{otherwise}
             \end{cases}

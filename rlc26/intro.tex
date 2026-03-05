@@ -1,45 +1,59 @@
 \section{Introduction}
 
-A majority of real-world control problems require fulfilling more than one objectives simultaneously, where the objectives could be partly contradictory to each other.
-We consider the setting where objectives appear or disappear at deployment time, and no prior information about their arrival is available.
-Our running example is a coffee serving robot in an office building, where new coffee requests could appear from any place at any time, old requests could disappear even before being served, and the robot must react to updated objectives as quickly as possible.
-In general, any number of requests could be active at any time, and we do not assume any prior knowledge about their distribution.
-Our goal is to design lightweight, adaptive policies that update their behavior in light of the evolving objectives.
-Despite having been studied in the planning literature~\citep{?}, this class of problems lack support in (model-free) reinforcement learning (RL), and the existing solutions from the planning setting do not readily extend.
+A large class of real-world control problems requires the simultaneous fulfillment of multiple objectives, which may be partially conflicting. 
+We study a setting in which objectives can appear or disappear during deployment, without any prior information about their arrival process.
+As a running example, consider a table-serving robot in a coffee shop.
+\todo{change this} 
+Each coffee request is modeled as a discounted payoff objective. 
+New requests may arise at arbitrary locations and times, while existing requests may be canceled before being served. 
+At any moment, an arbitrary number of requests may be active, and no assumptions are made about their distribution. 
+The robot’s policy must therefore adapt dynamically to achieve an optimal trade-off among the payoffs associated with the currently active requests. 
+Our goal is to design lightweight, adaptive policies that update their behavior seamlessly as objectives change.
 
-We propose a novel policy adaptation algorithm for this class of problems.
-The heart of our approach is a compositional design of policies for multi-objective RL problems, where each objective is served using an independent local policy, and coordination is achieved via an online auction-based mechanism: 
-policies bid for the right to execute their actions, with bids reflecting the urgency of the current state for fulfilling the respective objectives.
-The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
-For example, imagine a situation that the coffee serving robot is approaching an intersection of two corridors, there are two active requests and two independent local policies for serving them, the first policy needs to go left, while the second policy needs to go right.
-Clearly a trade-off is unavoidable, and which of the policies is prioritized is decided based on auctions.
+This problem is of significant practical importance and has been extensively studied in the planning literature~\citep{?}. 
+However, most existing approaches assume a precise environment model and the absence of uncertainty. 
+In contrast, within reinforcement learning (RL) settings—where the environment may be uncertain and a model may not be available—this problem has received little attention.
 
-Given this compositional design, every time an objective appears or disappears, only the responsible policy needs to be added or removed, eliminating the need for modifying the whole system.
-Moreover, when the objectives come from the same parameterized family, like the set of all possible coffee requests parameterized by the request locations, we can design a single universal policy for this entire parameterized family, so that new additions require adding an identical copy of the policy, offer us instant adaptation.
-In contrast, a monolithic policy that would serve all objectives lacks this flexibility, and an attempt to train such a policy with variable number of objectives causes a dramatic degradation of training stability as well as the performance (the loss); we demonstrate this in our experiments.
+We propose a novel policy adaptation algorithm tailored to this class of problems. 
+The central idea is a compositional design for multi-objective RL, in which each objective is supported by an independent policy, and coordination is achieved through an online auction-based mechanism. 
+At every decision step, policies submit bids for the right to execute their actions, where bids reflect the urgency of the current state with respect to their objective. T
+he highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
 
-We show how classical RL policies can be extended with bidding capabilities.
-While the obvious first step is to extend the action space with numeric bid values, there are three key challenges:
+Returning to the coffee shop example, suppose the robot approaches an intersection with two active requests. 
+The policy for the first request recommends turning left, while the policy for the second recommends turning right. 
+Since both actions cannot be executed simultaneously, a trade-off is unavoidable. The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
 
-\textbf{Challenge I: enforcing honest bids.}
-We must ensure that policies bid only in proportion to their urgency, because otherwise, there is a risk of obtaining ``dishonest'' policies that constantly try to block others by overbidding.
-To circumvent this issue, during training, we require the policies to pay penalties proportional to their bid values.
+This compositional design yields strong modularity. When an objective appears or disappears, only the corresponding policy needs to be added or removed, without modifying the remainder of the system. 
+Furthermore, when objectives belong to the same parameterized family---for example, coffee requests parameterized by their locations---a single universal policy can be trained for the entire family. 
+New objectives can then be instantiated as identical copies of this policy, enabling immediate adaptation. 
+In contrast, a monolithic policy serving all objectives lacks this flexibility. 
+Training such a policy under a variable number of objectives leads to substantial degradation in both training stability and performance, as we demonstrate empirically.
+
+We show how classical RL policies can be augmented with bidding capabilities. 
+A natural approach is to extend the action space with numeric bid values; however, this introduces three key challenges.
+
+\textbf{Challenge I: Enforcing honest bids.}
+Policies must bid in proportion to their true urgency. 
+Otherwise, they may learn to overbid systematically in order to suppress competitors, resulting in dysfunctional behavior. 
+To prevent this, we impose penalties during training that are proportional to the bid values. 
 \KM{I suggest, we just stick to one kind of bidding, instead of three, if in the end all-pay remains superior in all experiments.}
-This way, it is against the interest of policies to bid too high, because otherwise, the net benefit of achieving their objectives would be lost.
+As a consequence, excessive bidding reduces the net return of a policy, aligning its incentives with truthful urgency estimation.
 
-\textbf{Challenge II: achieving environment awareness.}
-The bidding tactic of policies should not only depend on the current state and the own objective, but also needs to account for other objectives for maximal effectiveness.
-For instance, if two coffee requests appear at nearby locations, the respective policies need not bid too high to compete against the opponent.
-Dually, if two requests arrive from opposite directions, the bid of the more urgent policy must be high enough to counteract the opponent.
-Therefore, the policies must account for the objectives of opponents to bid effectively.
-Our approach is to model the local policy synthesis problem as an instance of multi-agent nonzerosum  games, where each agent is responsible for an individual objective, and needs to learn a policy that fulfills its objective against the opponents.
+\textbf{Challenge II: Achieving environment awareness.}
+Effective bidding depends not only on the current state and the local objective, but also on the configuration of competing objectives. 
+For example, if two requests are spatially close, their policies need not compete aggressively. Conversely, if requests lie in opposite directions, the more urgent policy must bid sufficiently high to prevail. 
+To enable such environment-aware bidding, we formulate local policy learning as a multi-agent nonzero-sum game, where each agent represents an objective and learns to optimize its payoff in the presence of competing agents.
 
-\textbf{Challenge III: unbounded objective count.} 
-Since the number of objectives seen during deployment cannot be predicted during training, the game-theoretic approach for environment-aware policies falls apart, because now we face a variable number of opponents for which no solution is known.
-We use an attention network that transforms an arbitrary number of opponent objectives to a fixed encoding, which is then fed as the input to the RL policy.
-Each local policy is equipped with its own attention network, which is co-trained with the actual policy for an increasing number of opponent objectives.
+\textbf{Challenge III: Unbounded objective count.}
+During deployment, the number of active objectives may exceed those observed during training. 
+This invalidates standard game-theoretic training formulations, which assume a fixed number of opponents. 
+To address this issue, we employ an attention mechanism that aggregates an arbitrary number of competing objectives into a fixed-dimensional representation. 
+This encoding is then provided as input to the policy network. 
+Each local policy is equipped with its own attention module, co-trained with the policy across progressively increasing numbers of objectives. 
+To ensure scalability, we focus on objectives drawn from a common parameterized family, which allows shared structure across instances.
 \KM{If we want to make the unbounded objectives a central feature, we should restrict ourselves to objectives from the same family. Otherwise, the attention pooling and the game-theoretic training approach does not work. While this is indeed a restrictive case, it is well-motivated and I do not see it as a weakness.}
 
-We implemented our framework using the proximal policy optimization (PPO) as the base learning algorithm.
-Using the Atari Assault and a gridworld-based path-planning task, we demonstrate the superior training stability and the performance of our policies in comparison with the baseline monolithic policies.
+
+We implement our framework using proximal policy optimization (PPO) as the base learning algorithm. On the coffee-serving robot benchmark, modeled using a gridworld-based path-planning problem, and on the Atari Assault benchmark, our approach demonstrates significantly improved training stability and superior performance compared to monolithic baselines. 
+In particular, compositional training converges faster and exhibits substantially lower variance in returns, highlighting the practical benefits of modular auction-based coordination.
 \todo{Summarize the main take-away: can we give some statistics, like ``the training time was 2x faster'' or the ``loss was 2x smaller''?}
