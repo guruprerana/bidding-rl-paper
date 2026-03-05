@@ -55,12 +55,12 @@
 \input{macros.tex}
 
 % Enter the title of your paper:
-\title{Bidding-Based Online Policy Adaptation\\for Evolving Objectives}
+\title{Auction-Based Online Policy Adaptation\\for Evolving Objectives}
 
 % The "running title" will be displayed in the header on every-other page.
 % It is typically either the same as the title or a shorter version of the title.
 % Enter your running title here:
-\setrunningtitle{Bidding-Based Online Policy Adaptation for Evolving Objectives}
+\setrunningtitle{Auction-Based Online Policy Adaptation for Evolving Objectives}
 
 % WARNING: Authors must not appear in the submitted version. They should be hidden
 % as long as the rlj package is used without the [accepted] or [preprint] options.
@@ -94,38 +94,50 @@ $^{2}$\textbf{IMDEA Software Institute, Spain}
 
 \contribution{
     % Contribution
-    Provide a succinct but precise list of the contribution(s) of the paper. Use contextual notes to avoid implications of contributions more significant than intended and to clarify and situate the contribution relative to prior work (see the examples below). If there is no additional context, enter ``None''. Try to keep each contribution to a single sentence, although multiple sentences are allowed when necessary. If using complete sentences, include punctuation. If using a single sentence fragment, you may omit the concluding period. A single contribution can be sufficient, and there is no limit on the number of contributions. Submissions will be judged mostly on the contributions claimed on their cover pages and the evidence provided to support them. Major contributions should not be claimed in the main text if they do not appear on the cover page. Overclaiming can lead to a submission being rejected, so it is important to have well-scoped contribution statements on the cover page.
+    We present a novel, interpretable framework for designing adaptive RL policies for multi-objective problems in which objectives are drawn from the same family (here, discounted cumulative reward), they may appear or disappear during runtime, and an arbitrary number of them may be active at any time.
     }
     {
     % Caveat/Context:
     None
     }
 
-\contribution{
-    % Contribution
-    The submission template for submissions to RLJ/RLC 2025
-    }
-    {
-    % Caveat/Context:
-    Built from previous RLC/RLJ, ICLR, and TMLR submission templates
-    }
-
-\contribution{
-    % Contribution
-    \textit{{[}Example of one contribution and corresponding contextual note for the paper ``Policy gradient methods for reinforcement learning with function approximation'' .]}\\ This paper presents an expression for the policy gradient when using function approximation to represent the action-value function.
-    }
-    {
-    % Context:
-    Prior work established expressions for the policy gradient without function approximation.
-    }
+%\contribution{
+%    % Contribution
+%    The submission template for submissions to RLJ/RLC 2025
+%    }
+%    {
+%    % Caveat/Context:
+%    Built from previous RLC/RLJ, ICLR, and TMLR submission templates
+%    }
+%
+%\contribution{
+%    % Contribution
+%    \textit{{[}Example of one contribution and corresponding contextual note for the paper ``Policy gradient methods for reinforcement learning with function approximation'' .]}\\ This paper presents an expression for the policy gradient when using function approximation to represent the action-value function.
+%    }
+%    {
+%    % Context:
+%    Prior work established expressions for the policy gradient without function approximation.
+%    }
 
 % Include a list of keywords for the topic of the paper:
 \keywords{Multi-Objective RL, Multi-Agent RL} % Your keywords
 
 % Define the summary that appears on the cover page.
-\summary{The summary appears on the cover page. Although it can be identical to the abstract, it does not have to be. One might choose to omit the stated contributions in the Summary, given that they will be stated in the box below. The original abstract may also be extended to two paragraphs. The authors should ensure that the contents of the cover page fit entirely on a single page. The cover page does \textbf{not} count towards the 8--12 page limit.
+\summary{
+We consider multi-objective reinforcement learning problems where objectives come from an identical family---such as discounted cumulative reward or reachability---and may appear or disappear at runtime.
+At any moment, an arbitrary number of objectives may be active, and we make no assumptions about their distribution or arrival pattern.
+Our goal is to design adaptive policies that can efficiently adjust their behaviors as the set of active objectives changes.
+This problem has many practical use cases, like online replanning of paths for warehouse robots under dynamically arriving tasks. While similar problems have been extensively studied in the planning literature---typically assuming that a precise model of the environment (e.g., a graph) is available---in reinforcement learning settings, where the environment may be uncertain and its model unavailable, this problem has received little attention to the best of our knowledge.
 
-\lipsum[1]
+
+We propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
+policies bid for the right to execute their actions, with bids reflecting the urgency of the current state.
+The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
+To succeed, each policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority.
+When objectives change, the system adapts by simply adding or removing the corresponding policies.
+Moreover, as objectives arise from the same family, identical copies of a generalized policy can be reused, facilitating immediate adaptation.
+In contrast, a monolithic policy serving all objectives lacks this flexibility. 
+Training such a policy under a variable number of objectives leads to substantial degradation in both training stability and performance, as we demonstrate empirically.
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

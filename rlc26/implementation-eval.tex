@@ -1,31 +1,3 @@
-\section{Implementation}
-\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. 
-Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. 
-At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
-
-Additionally, in the Dynamic Targets environments, we employ an attention pooling architecture to encode information about all the targets. 
-This architecture enables competition with an arbitrary number of policies (i.e., more targets) at deployment time. 
-Each target information vector is passed through an MLP to obtain a target embedding. 
-We then take a weighted sum of these embedding vectors where the weights are obtained by taking the dot product of the embedding vector with a learned query vector. 
-
-We implement the \(m\)-player Markov bidding game as a wrapper around the environments. 
-This wrapper serves as an intermediary to translate the bids and actions played by the policies into actions in the environment. 
-It also handles the action windows and bid penalties for the two bidding mechanisms. 
-We refer to the instantiation of our method with the Winner-Pays bidding mechanism simply as Winner-Pays and similarly for All-Pay. We also consider two variants of All-Pay: All-Pay w. Local Obs and All-Pay w. No Reward Shaping. The former is the variant where each policy can only see its own target in its observation and the latter is one where we remove reward shaping in the Dynamic Targets environment.
-
-\textbf{Baselines.}\quad We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citet{rosero2024multi}). 
-For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. 
-The observation space remains the same as the multi-policy setting. 
-However, we do not implement any reward shaping for the Dynamic Targets environment due to the difficulty of specifying a meaningful dense reward signal in the presence of multiple targets. 
-We borrow the PPO implementation from CleanRL~\citep{huang2022cleanrl}.
-We use the specified PPO hyperparameters from CleanRL for Atari Assault and we tune the hyperparameters for the Dynamic Targets environment with 40 Optuna iterations~\citep{akiba2019optuna}.
-
-DWN is another multi-policy method for multi-objective RL that uses DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. 
-These weights are used to choose which policy's action should be played at each step. 
-The W-network is trained alongside the Q-network by updating it with a gradient step to predict the negative TD-error when the policy does not get to play its action.
-The assertion here is that the negative TD-error quantifies how important it is for the policy to play its action. 
-The implementation is borrowed from their repository.
-
 \section{Experimental Results}
 We conduct experiments to show the superior performance of our method compared to the baselines. We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
 
