@@ -13,7 +13,7 @@ Consider the problem of controlling a robot deployed in a cat shelter where it i
 As cats become hungry, new requests may arrive at arbitrary times and locations, while existing requests may disappear if a cat wanders away before being served.
 % Any number of feeding requests may be active at a given time, and we make no assumptions about their spatial distribution or arrival pattern \GS{The previous sentence does not belong in this paragraph. We should skip it.}.
 Since the robot can serve only one cat at a time, fulfilling one request may delay others, potentially allowing some cats to move farther away. 
-Thus, the robot must dynamically adapt to the set of active requests to maximize the number of cats fed before they disappear. \GS{maybe we move the cat environment image inline here.}
+Thus, the robot must dynamically adapt to the set of active requests to maximize the number of cats fed before they disappear.
 
 In this work, we model the above control problem as a multi-objective reinforcement learning task in which all the objectives come from an identical family.
 These objectives can be conflicting and any number of them may be active at a given time.

@@ -1,5 +1,5 @@
 \begin{abstract}
-We consider multi-objective reinforcement learning problems where objectives come from the identical family---such as discounted cumulative reward or reachability---and may appear or disappear at runtime.
+We consider multi-objective reinforcement learning problems where objectives come from an identical family---such as the class of reachability objectives---and may appear or disappear at runtime.
 \GS{Discounted cumulative reward is too broad of a class (see comment in intro) just mention reachability.}
 Our goal is to design adaptive policies that can efficiently adjust their behaviors as the set of active objectives changes.
 We propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
@@ -10,5 +10,5 @@ When objectives change, the system adapts by simply adding or removing the corre
 Moreover, as objectives arise from the same family, identical copies of a parameterized policy can be deployed.
 In our implementation, the policies are trained concurrently using proximal policy optimization (PPO).
 We evaluate on Atari Assault and a gridworld-based path-planning task with dynamic targets.
-Our method achieves substantially better performance and reduced sample complexity than a single policy trained with PPO. 
+Our method achieves substantially better performance than monolithic policies trained with PPO. 
 \end{abstract}
