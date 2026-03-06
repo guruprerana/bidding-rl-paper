@@ -1,5 +1,6 @@
 \begin{abstract}
 We consider multi-objective reinforcement learning problems where objectives come from the identical family---such as discounted cumulative reward or reachability---and may appear or disappear at runtime.
+\GS{Discounted cumulative reward is too broad of a class (see comment in intro) just mention reachability.}
 Our goal is to design adaptive policies that can efficiently adjust their behaviors as the set of active objectives changes.
 We propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
 policies bid for the right to execute their actions, with bids reflecting the urgency of the current state.

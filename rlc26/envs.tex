@@ -4,40 +4,33 @@
 We consider two multi-objective environments for our empirical studies, namely a mobile cat feeder and the Atari game called Assault.
 These environments are described below.
 
-\textbf{Mobile cat feeder.} 
-The environment is described in Section~\ref{sec:introduction} and is modeled using a $30\times 30$ grid with up to $m$ cats that are moving continuously according to unknown stochastic processes.
-The value of $m$ was set as $3$ during the training time, whereas it was varied up to $8$ during the testing time.
+\textbf{Cat Feeder.} 
+The environment is as described in Section~\ref{sec:introduction} and is modeled using a $30\times 30$ grid with up to $m$ cats that are moving continuously according to unknown stochastic processes.
+The value of $m$ was set as $8$ during the training time, whereas it was varied up to $14$ during the testing time.
 Each cat disappears after a given number of time steps.
 If the agent reaches a cat before it disappears, it receives a reward, and otherwise it receives a penalty of equal magnitude.
-To avoid sparsity of the reward function, we follow standard reward shaping techniques where the agent is also given rewards that are inversely proportional to its distance from the respective cat.
+To avoid sparsity of the reward function, we provide each policy a small reward for going closer to its target.
+Performance is measured as the difference between the number of feeding requests completed and the number of those that expired.
 
 In our modular framework, each cat will be chased by a dedicated local policy.
 The observation space of each local policy includes the current position of the robot, the current locations of the active requests, and the time steps until the expiration of the requests.
 \KM{Check if ``expiration'' of request is the correct modeling. I thought we are using discounting all along.}
-
-
-\begin{figure}[h]
-  \centering
-  \begin{subfigure}[t]{0.4\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{img/grid_preview.png}
-    \caption{Coffee Shop}
-  \end{subfigure}
-  \qquad
-  \begin{subfigure}[t]{0.3\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{img/assault_preview.png}
-    \caption{Atari Assault}
-  \end{subfigure}
-  \caption{Preview of the two evaluation environments.}
-\end{figure}
+\GS{No, we have cumulative rewards without discounting.}
 
 %\textbf{Coffee Shop.}\quad We implement a simple but challenging gridworld environment which consists of an \(n \times n\) grid with \(m\) targets that are moving at a small rate and stochastically change directions. Each target stays alive for a certain number of timesteps before which the agent has to reach it. Once the target expires or the agent reaches it, another new target immediately respawns at a random position in the grid. The metric the agent has to maximize is the difference between the number of targets reached and the number of targets that expired. This flexible environment also allows us to introduce more targets at deployment time.
 %
 %In our experiments, we choose a \(30 \times 30\) grid with \(8\) targets. The observations for all the local policies includes information about all the targets (positions and expiry times) and the agent; but they are reordered so that the specific target of a policy is present at the first index. This enables sharing the same actor network across policies. When the agent reaches a target before the expiration, we reward the corresponding policy and penalize it if not. Both the reward and the penalty are equal in magnitude. Furthermore, we include a distance based reward shaping for each policy with respect to its target which is crucial to the learning. \todo{Include this as an advantage of our framework in introduction because there is no sensible reward shaping we can do in a single-policy approach.}
 
-\textbf{Atari Assault.} 
-We consider the Atari game called Assault, where the agent controls a missile launcher to shoot oncoming alien ships while avoiding enemy missiles. The standard approach is to view this as a single-objective environment, where the agent's policy observes the entire image or the raw RAM \KM{ full name?} observations to determine the optimal actions \citep{bellemare13arcade}. This approach lacks transparency and interpretability, because the user will not know why the agent behaved in a certain way. 
+\begin{wrapfigure}[14]{r}{0.25\textwidth}
+  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
+    \includegraphics[width=\linewidth]{img/assault_preview.png}
+    \caption{Atari Assault env.}
+    \label{fig:assault_preview}
+  \end{minipage}
+\end{wrapfigure}
+
+\textbf{Atari Assault.} We consider the Atari game called Assault, where the agent controls a missile launcher to shoot oncoming alien ships while avoiding enemy missiles. The standard approach is to view this as a single-objective environment, where the agent's policy observes the entire image or the 128 byte raw RAM state observations to determine the optimal actions \citep{bellemare13arcade}. 
+% This approach lacks transparency and interpretability, because the user will not know why the agent behaved in a certain way. \GS{This is not a good claim.}
 
 For our modular framework, we break the objective down to a multi-objective problem, where each oncoming alien ship is viewed as a separate objective, and each local policy attempts to destroy its assigned target while avoiding enemy missiles. Not only does this facilitate an improvement in the performance, as we will demonstrate, but also we obtain a transparent design, because which target is being chased is revealed at each point. This modular design is made possible by the object-centric variant of the Atari environment \citep{delfosse2023ocatari}, which exposes the states of each individual target and the missiles by decoding the RAM states. The full observation space of each local policy also include the current position of the missile launcher, the current health, and the number of remaining lives. The local policy gets a reward or a penalty upon destroying its target enemy ship or losing a life, respectively. 
 

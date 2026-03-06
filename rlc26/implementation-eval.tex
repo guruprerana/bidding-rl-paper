@@ -28,7 +28,9 @@ The All-Pay variant with no attention pooling for targets only starts growing mu
 This validates the use of the attention pooling architecture to learn useful embeddings of other targets.
 We also remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
 
-\input{performance_table}
+% \input{tables/gridworld_results_table}
+% \input{tables/assault_results_table}
+\input{tables/performance_table}
 
 \textbf{Comparison with baselines}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our bidding-based multi-policy approaches outperform the baselines by a big margin.

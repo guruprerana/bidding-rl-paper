@@ -1,54 +1,75 @@
 \section{Introduction}
 \label{sec:introduction}
 
-A large class of real-world control problems requires the simultaneous fulfillment of multiple, partially conflicting objectives from the identical family.
-We study a setting in which objectives come from the cumulative discounted rewards family, and during deployment, they can appear or disappear without any prior information about their arrival process.
-Our goal is to design lightweight, adaptive policies that update their behavior seamlessly as objectives appear or disappear.
+\begin{wrapfigure}[12]{r}{0.3\textwidth}
+  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
+    \includegraphics[width=\linewidth]{img/grid_preview.png}
+    \caption{Cat Feeder env.}
+    \label{fig:grid_preview_intro}
+  \end{minipage}
+\end{wrapfigure}
+Consider the problem of controlling a robot deployed in a cat shelter where it is responsible for delivering food to cats roaming around the facility. 
+% Each feeding request is modeled as a reachability objective. 
+As cats become hungry, new requests may arrive at arbitrary times and locations, while existing requests may disappear if a cat wanders away before being served.
+% Any number of feeding requests may be active at a given time, and we make no assumptions about their spatial distribution or arrival pattern \GS{The previous sentence does not belong in this paragraph. We should skip it.}.
+Since the robot can serve only one cat at a time, fulfilling one request may delay others, potentially allowing some cats to move farther away. 
+Thus, the robot must dynamically adapt to the set of active requests to maximize the number of cats fed before they disappear. \GS{maybe we move the cat environment image inline here.}
 
-As a running example, consider a mobile feeding robot deployed in a large cat shelter. The robot is responsible for delivering food to cats roaming freely around the facility. Each feeding request is modeled as a discounted payoff objective, reflecting the fact that serving a hungry cat sooner yields higher reward than serving it later. New requests may arise at arbitrary locations and times as cats become hungry and start meowing, while existing requests may disappear if a cat wanders away before being served.
-At any moment, an arbitrary number of feeding requests may be active, and we make no assumptions about their spatial distribution or arrival pattern. Since the robot can serve only one cat at a time, fulfilling one request may delay others, potentially allowing some cats to move farther away. The robot’s policy must therefore adapt dynamically to achieve an optimal trade-off among the payoffs associated with the currently active requests. 
-
-This problem is of significant practical importance and has been extensively studied in the planning literature~\citep{fox2006plan}. 
-However, most existing approaches assume a precise environment model and the absence of uncertainty. 
+In this work, we model the above control problem as a multi-objective reinforcement learning task in which all the objectives come from an identical family.
+These objectives can be conflicting and any number of them may be active at a given time.
+Our goal is to design adaptive policies that update their behavior seamlessly as objectives appear or disappear.
+This is a natural problem relevant to many real-world scenarios and has been extensively studied in the planning literature~\citep{fox2006plan}. 
+However, most works assume access to an environment model and the absence of uncertainty. 
 In contrast, within reinforcement learning (RL) settings---where the environment may be uncertain and a model may not be available---this problem has not been studied to the best of our knowledge.
 
-We propose a novel policy adaptation algorithm tailored to this class of problems. 
-The central idea is a compositional design for multi-objective RL, in which each objective is supported by an independent policy, and coordination is achieved through an online auction-based mechanism. 
+\GS{Discounted cumulative reward is too broad of a class because most RL literature only concerns itself with discounted cumulative reward and reviewers would think why is this specifically mentioned. I suggest switching to just reachability objectives (also in the abstract) since technically both our environments consider reachability. I switched the order of paragraphs 1 and 2 since the reader already has a vague idea by reading the title and abstract. Also think this flows better.}
+
+We propose a compositional policy learning framework tailored to this class of problems. 
+We cast a multi-objective problem into a game between multiple policies: one for each objective. 
+Each policy seeks to maximize their assigned objective by competing to take control of the agent.
+Coordination between these policies is achieved through a novel auction-based mechanism.
 At every decision step, policies submit bids for the right to execute their actions, where bids reflect the urgency of the current state with respect to their objective. 
 The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
-
 Returning to the cat feeder example, suppose the robot approaches an intersection with two active requests. 
-The policy for the first request recommends turning left, while the policy for the second recommends turning right. 
-Since both actions cannot be executed simultaneously, a trade-off is unavoidable. The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
+Here, the policy for the first request recommends turning left, while the policy for the second recommends turning right. 
+Since both actions cannot be executed simultaneously, a trade-off is unavoidable. 
+The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
 
-This compositional design yields strong modularity. When an objective appears or disappears, only the corresponding policy needs to be added or removed, without modifying the remainder of the system. 
-Furthermore, when objectives belong to the identical family---which in our case is discounted cumulative rewards---a single generalized policy can be trained for the entire family. 
-New objectives can then be instantiated as identical copies of this policy, enabling immediate adaptation. 
+This compositional design yields interpretability and strong modularity. 
+At any moment, we can observe the policy in control, and thereby the objective being pursued by the agent. 
+Meanwhile, modularity means that when an objective appears or disappears, only the corresponding policy needs to be added or removed, without modifying the remaining policies. 
+Furthermore, when objectives belong to the identical family---reachability objectives in our case---a single generalized policy can be trained for the entire family. 
+We can deploy identical \emph{copies} of this policy when new objectives arrive, enabling immediate adaptation. 
+Yet another advantage of modularity is that it allows us to define objective-specific reward signals while the auction mechanism takes care of the tradeoffs between objectives.
+For example, we can easily define a distance-based dense reward signal for each policy controlling the cat feeder to move closer to its assigned cat.
 In contrast, a monolithic policy serving all objectives lacks this flexibility. 
-Training such a policy under a variable number of objectives leads to substantial degradation in both training stability and performance, as we demonstrate empirically.
+We demonstrate empirically that it is extremely challenging to train a monolithic policy that can balance multiple objectives with only a single reward signal.
 
-We show how classical RL policies can be augmented with bidding capabilities. 
-A natural approach is to extend the action space with numeric bid values; however, this introduces three key challenges.
+Our framework is simple to implement as a wrapper around existing multi-objective environments. 
+For each policy, the action space is augmented with an additional numeric bidding dimension. 
+The wrapper controls the game between the policies and picks the action proposed by the highest bidder. 
+However, we still face three challenges.
 
 \textbf{Challenge I: Enforcing honest bids.}
-Policies must bid in proportion to their true urgency. 
-Otherwise, they may learn to overbid systematically in order to suppress competitors, resulting in dysfunctional behavior. 
+While the auction mechanism treats all the policies fairly, the policies must still place honest bid in proportion to their urgency. 
+Otherwise, they may learn to overbid and suppress competitors, resulting in suboptimal results. 
 To prevent this, we impose penalties during training that are proportional to the bid values. 
-As a consequence, excessive bidding reduces the net return of a policy, aligning its incentives with truthful urgency estimation.
+As a consequence, excessive bidding reduces the net return of a policy, aligning its incentives with truthful urgency estimation---a policy only bids high when it is sure to receive a reward (when it feeds the cat) or to avoid a penalty (when a cat is close to disappearing).
 
 \textbf{Challenge II: Achieving environment awareness.}
 Effective bidding depends not only on the current state and the local objective, but also on the configuration of competing objectives. 
-For example, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. Conversely, if requests lie in opposite directions, the more urgent policy must bid sufficiently high to prevail. 
-To enable such environment-aware bidding, we formulate local policy learning as a multi-agent nonzero-sum game, where each agent represents an objective and learns to optimize its payoff in the presence of competing agents.
+For example, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. 
+Conversely, if requests lie in opposite directions, the urgent policy must bid sufficiently high to win. 
+To enable such environment-aware bidding, we allow the policies to observe all the objectives---policies have global information. 
+Additionally we train all the policies together so that they learn to optimize payoffs in the presence of competing players.
 
 \textbf{Challenge III: Unbounded objective count.}
 During deployment, the number of active objectives may exceed those observed during training. 
 This invalidates standard game-theoretic training formulations, which assume a fixed number of opponents. 
-To address this issue, we employ an attention mechanism that aggregates an arbitrary number of competing objectives from the given family into a fixed-dimensional representation. 
-This encoding is then provided as input to the policy network. 
-Each local policy is equipped with its own attention module, co-trained with the policy across progressively increasing numbers of objectives. 
+To address this issue, we employ an attention pooling mechanism that aggregates information about an arbitrary number of competing objectives into a fixed-dimensional representation. 
+Each local policy is equipped with its own pooling module which co-trained with the policy. 
 
-
-We implement our framework using proximal policy optimization (PPO) as the base learning algorithm. On the cat feeder benchmark, modeled using a gridworld-based path-planning problem, and on the Atari Assault benchmark, our approach demonstrates significantly improved training stability and superior performance compared to monolithic baselines. 
-In particular, compositional training converges faster and exhibits substantially lower variance in returns, highlighting the practical benefits of modular auction-based coordination.
-\todo{Summarize the main take-away: can we give some statistics, like ``the training time was 2x faster'' or the ``loss was 2x smaller''?}
+We test our framework on two multi-objective environments: the cat feeder environment implemented as a gridworld, and the Atari Assault game from the Arcade Learning Environment~\citep{bellemare13arcade}.
+To train our policies, we take inspiration from \citet{yu2022mappo} who provide guidance on using proximal policy optimization (PPO; \citet{schulman2017ppo}) in multi-agent systems, albeit in cooperative settings.  
+We observe empirical convergence of training and substantially better performance compared baselines in both environments.
+Lastly, to aid interpretability in renderings of rollouts, we implement visualization of the policy in control and the objective being pursued.
