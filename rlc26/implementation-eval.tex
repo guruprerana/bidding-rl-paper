@@ -35,12 +35,11 @@ This validates the use of the attention pooling architecture to learn useful emb
 We remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
 
 \textbf{Comparison with baselines}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
-Our bidding-based multi-policy approaches outperform the baselines by a big margin.
+Our multi-policy methods outperform the baselines by a big margin.
 Across both the environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
-In the Cat Feeder environment, we observe that the \allpay multi-policy method with no reward shaping performs poorly.
-This indicates the difficulty of learning to navigate in the large state space with only a sparse reward signal.
+Additional reward shaping only provides moderate gains.
 In the Atari Assault environment, there is a delay between shooting a missile until it reaches the alien ship and destroys it. 
-Since we only supply information from one frame in the observation, the learner could find it hard to associate a firing of a missile and the reward from the death of a ship, especially if there is subsequent firing.
+Since we only supply information from one frame in the observation, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
 On the other hand, the credit assignment becomes easier when we separate the objectives and each learner only has to focus on one target.
 
 Next, let us try to reason about the poor performance of the DWN baseline.
@@ -85,7 +84,7 @@ In contrast, our approach allows the policies themselves to indicate the importa
 \end{figure}
 
 \textbf{Interpretability of policies and bidding behaviors.}\quad
-Video rollouts of the bidding-based policies in both environments, included in the supplementary material, demonstrate that the policies bid to take control of the agent when they can accumulate rewards in the action window.
+Video rollouts of the bidding-based policies in both environments demonstrate that the policies bid to take control of the agent when they can accumulate rewards in the action window.
 We can also observe that each policy only seeks to fulfill its own objectives, which is what we desire.
 \Cref{fig:control-bid-dist} shows the distribution of the number of timesteps that each policy was in control and the distribution over bids placed by the policies.
 We observe that there is a good spread of control amongst all the agents.
@@ -96,7 +95,7 @@ In contrast, with the Cat Feeder environment, there is a wider spread of bids be
 Here, we see that the \allpay mechanism produces more conservative policies that tend to bid 0 most of the time with decreasing number of bids between 1-6.
 Meanwhile, the \poorman mechanism has an even spread across all the possible bids indicating that the policies are willing to take risks and bid higher more often.
 
-\textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which we scale the number of targets at deployment time, i.e., we create more copies of the policy to compete with each other. 
+\textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which we scale the number of targets at evaluation time, i.e., the policies have to compete with more policies than during training. 
 \Cref{fig:bidding-mechanism-scaling} shows that the policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.
 The attention pooling mechanism plays a crucial role here as it can flexibly generate useful embeddings of an arbitrary number of competing targets.
 
@@ -105,7 +104,7 @@ The attention pooling mechanism plays a crucial role here as it can flexibly gen
     \begin{subfigure}[b]{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/bidding_mechanism_scaling.png}
-        \caption{Scaling number of targets at deployment time.}
+        \caption{Scaling number of targets.}
         \label{fig:bidding-mechanism-scaling}
     \end{subfigure}
     \hfill
@@ -146,8 +145,8 @@ The attention pooling mechanism plays a crucial role here as it can flexibly gen
 \end{figure}
 
 \textbf{Further ablations.}\quad \Cref{fig:gridworld-bid-upper-bound} plots the performance of policies trained with different ranges of bids. 
-We see that we need at least 2 levels of bids to achieve good performance.
-Up to just 1 bid level, the policies are unable to effectively compete with each other.
+We see that we need at least two levels of bids to achieve good performance.
+With one bid level, the policies are unable to effectively compete with each other.
 Similarly, \Cref{fig:gridworld-bid-penalty} tries different values for the bid penalty factor.
 Without any penalty, the performance is low since all the policies always bid the highest trying to take control.
 However, if it is too big, then the policies are not willing to take the risk of placing the bid. 
