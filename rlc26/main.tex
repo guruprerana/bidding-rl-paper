@@ -94,7 +94,7 @@ $^{2}$\textbf{IMDEA Software Institute, Spain}
 
 \contribution{
     % Contribution
-    We present a novel, interpretable framework for designing adaptive RL policies for multi-objective problems in which objectives are drawn from the same family (here, reachability objectives)\GS{Let's just go with reachability here}, they may appear or disappear during runtime, and an arbitrary number of them may be active at any time.
+    We present a novel, interpretable framework for designing \emph{adaptive} RL policies for multi-objective problems in which objectives are drawn from the same family (here, reachability objectives), may appear or disappear during runtime, and an arbitrary number of them may be active at any time.
     }
     {
     % Caveat/Context:
@@ -130,14 +130,13 @@ Our goal is to design adaptive policies that can efficiently adjust their behavi
 This problem has many practical use cases, like online replanning of paths for warehouse robots under dynamically arriving tasks. While similar problems have been extensively studied in the planning literature---typically assuming that a precise model of the environment (e.g., a graph) is available---in reinforcement learning settings, where the environment may be uncertain and its model unavailable, this problem has received little attention to the best of our knowledge.
 
 
-We propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
+To solve this problem, we propose a novel modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel \emph{auction}-based mechanism:
 policies bid for the right to execute their actions, with bids reflecting the urgency of the current state.
 The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
-To succeed, each policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority.
-When objectives change, the system adapts by simply adding or removing the corresponding policies.
+Going back to the adaptation problem, when objectives change, the system adapts by simply adding or removing the corresponding policies.
 Moreover, as objectives arise from the same family, identical copies of a generalized policy can be reused, facilitating immediate adaptation.
-In contrast, a monolithic policy serving all objectives lacks this flexibility. 
-Training such a policy under a variable number of objectives leads to substantial degradation in both training stability and performance, as we demonstrate empirically.
+In contrast, monolithic policies serving all objectives lacks this flexibility.
+Additionally, when the objective count varies, we empirically demonstrate that both in terms of training stability and performance, our modular approach significantly outperforms the monolithic baseline.
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -153,7 +152,7 @@ Training such a policy under a variable number of objectives leads to substantia
 \input{related-work}
 %\input{prelims}
 \input{problem-setup}
-\input{envs}
+%\input{envs}
 \input{implementation-eval}
 \input{conclusion}
 
@@ -191,6 +190,7 @@ Training such a policy under a variable number of objectives leads to substantia
 %         the supplementary materials.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \beginSupplementaryMaterials
+\input{envs-appendix}
 \input{hyperparameters}
 
 % Content that appears after the references are not part of the ``main text,'' have no page limits, are not necessarily reviewed, and should not contain any claims or material central to the paper. 

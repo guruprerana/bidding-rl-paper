@@ -6,7 +6,7 @@ An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M
 A \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi : (S \times A)^* \times S \to \dist(A)\) that maps a history of state-action pairs and the current state to a distribution over actions.
 The policy $\pi$ gives rise to a random sequence of states and actions $s^0,a^0,s^1,a^1,\ldots$, that produces a sequence of rewards $r^0_ir^1_i\ldots$ for each objective $i\in [1;m]$, where $r^t_i = R_i(s^t,a^t,a^{t+1})$ for every $t\in \mathbb{N}$.
 The \textit{value} of $\pi$, denoted $V^\pi$, is a vector in $\R^m$ such that $V^\pi_i = \E_{s_t,a_t}[ \sum_{t=0}^\infty \gamma^t r^t_i]$.
-In the multi-objective setting, a commonly studied problem is to find a policy in the pareto-frontier of the value function which balances the tradeoffs between the objectives according to domain requirements~\citep{van2014multi}.
+In the multi-objective setting, a commonly studied problem is to find a policy in the pareto-frontier of the value function which balances the trade-offs between the objectives~\citep{van2014multi}.
 
 \textbf{The auction-based multi-policy framework.}
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
@@ -17,26 +17,16 @@ We present a novel \textit{auction}-based RL framework for compositional policy 
 In our framework, not only do the local policies emit actions, but they also \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{Z}_{>0}$ in future.
 The bids are all non-negative integers bounded by a given constant $\beta\in \mathbb{Z}_{\geq 0}$, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
 To discourage policies from always bidding high, we penalize the policies proportional to their bids scaled with a constant $\rho\in (0,1)$.
-We consider two penalty models, namely \poorman and \allpay:
+We consider two intuitive alternatives for the penalty model, namely \poorman and \allpay:
 in the \poorman setting, only the executed policy (one of the highest bidders) pays the penalty, whereas in the \allpay setting, all policies pay penalties.
-Consequently, \poorman encourages policies to bid when necessary, while \allpay discourages unnecessary bidding.
-Through this mechanism, policies scale their bids to reflect how critical their action is in the current state, and the bidding penalty incentivizes truthful urgency.
+Through this mechanism, policies select their bids to reflect how critical their action is in the current state, and the bidding penalty incentivizes truthful urgency.
 This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
 
-The parameters $\tau$, $\beta$, and $\rho$ will be called the \emph{bidding interval}, the \emph{maximum bid}, and the \emph{bid penalty coefficient}, respectively.
-Through ablation studies in Section~\ref{sec:experimental-results}, we demonstrate the importance of selecting these parameters appropriately.
-If $\tau$ is too small, the switching between local policies could be too frequent, risking suboptimal outcome for all objectives.
-If $\beta$ is too small, the policies will lose their ability to express the strength of their preferences, risking a random assignment of control in most cases.
-Finally, if $\rho$ is too large, the policies will abstain from bidding in most situations.
+The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \emph{maximum bid}, and \emph{bid penalty coefficient}, respectively. Ablation studies in Section~\ref{sec:experimental-results} highlight their importance. If $\tau$ is too small, policies switch too frequently, risking suboptimal outcomes. If $\beta$ is too small, policies cannot express preference strength, leading to near-random control. If $\rho$ is too large, policies tend to abstain from bidding.
 
-\textbf{Local bidding policies via multiplayer Markov games.}
-We formalize our new learning framework by modeling it as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player seeks to optimize one of the $m$ objectives of the original \momdp.
-The transitions and the objectives in the game encodes the aforementioned bidding mechanism, and therefore, we call it a \emph{Markov bidding game}.
-Each state of the game records the current state in the \momdp, the index of the policy selected from the last bidding, and the time until the next bidding.
-Based on the current state in the game, each player independently selects its preferred action and its bid.
-The resulting transitions encode the selection of one of the policies based on the bid value.
-Finally, the reward of each player encodes the payment of the bidding penalties.
-We formalize this below.
+\textbf{Local policies via multiplayer Markov games.}
+We formalize our framework as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player optimizes one of the $m$ objectives of the original \momdp. The game encodes the bidding mechanism in its transitions and rewards, and we therefore call it a \textit{Markov bidding game}. Each state records the current \momdp state, the policy selected in the last bidding round, and the remaining time until the next bidding. At each state, players independently choose an action and a bid; transitions determine the winning policy based on the bids, while rewards capture the corresponding bidding penalties. 
+
 
 \begin{definition}[Markov bidding games]\label{def:markov game}
     Let \(\mathcal{M} = (S, A, T, R, \gamma, \mu_0)\) be an \momdp with \(m\) objectives, $\tau$ be the bidding interval, $\beta$ be the maximum bid, $\rho$ be the bid penalty coefficient, and $\Delta\in \{ \poorman,\allpay\}$ be the used penalty model.
@@ -75,10 +65,9 @@ We formalize this below.
 \end{definition}
 
 In the Markov game $\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho}$, each player $i$ aims to compute its own selfish local policy of the form $\pi_i\colon (\hat{S}\times\hat{A})^*\times \hat{S}\mapsto (a_i,b_i)\in A\times \mathbb{Z}_{\geq 0}$, such that the discounted sum of its own reward is maximized, given that the other players are selfishly fulfilling their own objectives.
-It follows from the construction that the optimal local policy of player $i$ in the Markov bidding game can be used as a bidding policy in the original \momdp.\GS{Not sure what this means.}
 
 \textbf{Learning policies in Markov bidding games.}
-Since the transitions of the original \momdp is unknown, the transitions of the constructed Markov game in Definition~\ref{def:markov game} will also be unknown.
+Since the transitions of the original \momdp are unknown, the transitions of the constructed Markov game in Definition~\ref{def:markov game} will also be unknown.
 Our goal is to learn the local policy of each player using RL.
 \citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. 
 Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. 

@@ -1,11 +1,10 @@
 \section{Conclusion and Future Directions}
-In this work, we consider a special class of multi-objective RL environments in which objectives appear and disappear over time.
-We proposed an auction-based mechanism for multi-policy coordination in multi-objective Markov decision processes. 
-Multiple selfish policies---each optimizing its own objective---compete with each other to take control of the agent by placing bids.
-The mechanism penalizes the policies for placing large bids thereby ensuring that they only bid when necessary.
-Also, decomposing the objectives makes the credit assignment problem easier and allows us to design dense reward signals with respect to each objective
-We train the policies concurrently using proximal policy optimization (PPO) and evaluate it on a challenging gridworld environment as well as the Atari Assault game.
-Our method outperforms baselines under the same compute budget and produces interpretable policies enabling us to determine the current objective that the agent is pursuing.
-We also showed that the policies are able to compete with more policies than they were trained with which lets us scale up the number of objectives at deployment time.
+We consider the problem of adapting RL policies due to evolving objectives, where any number of objectives may appear or disappear at runtime, and the agent must adapt as swiftly as possible.
+We present a compositional solution where each objective is served using a dedicated local policy, and each local policy competes against the other policies through an auction-based mechanism to select its preferred action.
+The training is formulated as a nonzerosum game between the local policies, and it is implemented using PPO in our framework.
+Using two challenging benchmarks, we demonstrate that our framework produces interpretable policies that achieve superior learning rate and  dramatic performance improvement compared to the baseline approaches.
 
-While we have only considered multi-objective environments in which the objectives share similar characteristics, we believe that the auction-based mechanism can be flexibly adapted to more complex combinations of objectives. There are also many variations of the auction mechanism that can be designed to elicit desired behaviors through policy composition. For instance, suppose we have reachability and safety objectives. Here, it can be desirable to always choose the safety policy if both policies bid the same value instead of randomly choosing amongst them.
+While we have only considered multi-objective environments in which the objectives belong to the same family, we will extend the framework to combinations of objective classes. 
+The difficulty lies in the fact that a policy learned to compete against opponents from a given class may not work against opponents for a novel class of objectives seen at runtime.
+Additionally, richer bidding mechanisms might be necessary. 
+For instance, while combining reachability and safety objectives, usually safety needs to get the priority when there is a tie in the bidding, instead of a random resolution.
