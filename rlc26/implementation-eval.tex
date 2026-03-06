@@ -1,6 +1,10 @@
 \section{Experimental Results}
 We conduct experiments to show the superior performance of our method compared to the baselines. We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
 
+% \input{tables/gridworld_results_table}
+% \input{tables/assault_results_table}
+\input{tables/performance_table}
+
 \begin{figure}[h]
     \centering
     \begin{subfigure}{0.48\textwidth}
@@ -16,7 +20,7 @@ We conduct experiments to show the superior performance of our method compared t
         % \caption{Atari Assault: Learning curves}
         % \label{fig:assault-learning-curves}
     \end{subfigure}
-    \caption{Learning curves for different methods on Dynamic Targets (left) and Atari Assault (right).}
+    \caption{Learning curves for different methods on Dynamic Targets (left) and Atari Assault (right). We plot mean over 5 seeds at each evaluation iteration and the shaded region is \(\pm\) standard deviation.}
     \label{fig:learning-curves}
 \end{figure}
 
@@ -27,10 +31,6 @@ Meanwhile, the All-Pay method with only local observations for each policy start
 The All-Pay variant with no attention pooling for targets only starts growing much later.
 This validates the use of the attention pooling architecture to learn useful embeddings of other targets.
 We also remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
-
-% \input{tables/gridworld_results_table}
-% \input{tables/assault_results_table}
-\input{tables/performance_table}
 
 \textbf{Comparison with baselines}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our bidding-based multi-policy approaches outperform the baselines by a big margin.
