@@ -8,5 +8,4 @@ We train the policies concurrently using proximal policy optimization (PPO) and 
 Our method outperforms baselines under the same compute budget and produces interpretable policies enabling us to determine the current objective that the agent is pursuing.
 We also showed that the policies are able to compete with more policies than they were trained with which lets us scale up the number of objectives at deployment time.
 
-While we have only considered multi-objective environments in which the objectives share similar characteristics, we believe that the auction-based mechanism can be adapted to more complex combinations of objectives.
-For example, we could train navigation and safety policies that complete reach-avoid objectives.
+While we have only considered multi-objective environments in which the objectives share similar characteristics, we believe that the auction-based mechanism can be flexibly adapted to more complex combinations of objectives. There are also many variations of the auction mechanism that can be designed to elicit desired behaviors through policy composition. For instance, suppose we have reachability and safety objectives. Here, it can be desirable to always choose the safety policy if both policies bid the same value instead of randomly choosing amongst them.

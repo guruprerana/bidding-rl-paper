@@ -14,24 +14,23 @@ The main crux is in the composition process, where each local policy may propose
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
 
 We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
-In our framework, not only do the local policies emit actions, but also they \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$ in future.
-The bids are all nonnegative integers bounded by a given constant $\beta\in \mathbb{Z}_{\geq 0}$, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
-To discourage policies from always bidding high, we penalize the policies proportional to their bids with a given proportionality constant $\rho\in (0,1)$.
+In our framework, not only do the local policies emit actions, but they also \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{Z}_{>0}$ in future.
+The bids are all non-negative integers bounded by a given constant $\beta\in \mathbb{Z}_{\geq 0}$, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
+To discourage policies from always bidding high, we penalize the policies proportional to their bids scaled with a constant $\rho\in (0,1)$.
 We consider two penalty models, namely \poorman and \allpay:
 in the \poorman setting, only the executed policy (one of the highest bidders) pays the penalty, whereas in the \allpay setting, all policies pay penalties.
 Consequently, \poorman encourages policies to bid when necessary, while \allpay discourages unnecessary bidding.
-Through this mechanism, each policy can adjust its bid in proportion to the importance for it to execute its action in the current state, and the associated bidding penalty/reward aims to incentivize policies to bid in proportion to their true urgency.
-Since one of the highest bidders obtains control, the policy with the greatest immediate importance is selected.
+Through this mechanism, policies scale their bids to reflect how critical their action is in the current state, and the bidding penalty incentivizes truthful urgency.
 This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
 
 The parameters $\tau$, $\beta$, and $\rho$ will be called the \emph{bidding interval}, the \emph{maximum bid}, and the \emph{bid penalty coefficient}, respectively.
-Through ablation studies in Section~\ref{sec:experimental results}, we demonstrate the importance of selecting these parameters appropriately.
+Through ablation studies in Section~\ref{sec:experimental-results}, we demonstrate the importance of selecting these parameters appropriately.
 If $\tau$ is too small, the switching between local policies could be too frequent, risking suboptimal outcome for all objectives.
 If $\beta$ is too small, the policies will lose their ability to express the strength of their preferences, risking a random assignment of control in most cases.
 Finally, if $\rho$ is too large, the policies will abstain from bidding in most situations.
 
 \textbf{Local bidding policies via multiplayer Markov games.}
-We formalize our new learning framework by modeling it as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player is concerned about on of the $m$ objectives of the original \momdp.
+We formalize our new learning framework by modeling it as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player seeks to optimize one of the $m$ objectives of the original \momdp.
 The transitions and the objectives in the game encodes the aforementioned bidding mechanism, and therefore, we call it a \emph{Markov bidding game}.
 Each state of the game records the current state in the \momdp, the index of the policy selected from the last bidding, and the time until the next bidding.
 Based on the current state in the game, each player independently selects its preferred action and its bid.
@@ -76,7 +75,7 @@ We formalize this below.
 \end{definition}
 
 In the Markov game $\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho}$, each player $i$ aims to compute its own selfish local policy of the form $\pi_i\colon (\hat{S}\times\hat{A})^*\times \hat{S}\mapsto (a_i,b_i)\in A\times \mathbb{Z}_{\geq 0}$, such that the discounted sum of its own reward is maximized, given that the other players are selfishly fulfilling their own objectives.
-It follows from the construction that the optimal local policy of player $i$ in the Markov bidding game can be used as a bidding policy in the original \momdp.
+It follows from the construction that the optimal local policy of player $i$ in the Markov bidding game can be used as a bidding policy in the original \momdp.\GS{Not sure what this means.}
 
 \textbf{Learning policies in Markov bidding games.}
 Since the transitions of the original \momdp is unknown, the transitions of the constructed Markov game in Definition~\ref{def:markov game} will also be unknown.
@@ -87,7 +86,7 @@ At each iteration of PPO, we collect all the rollouts from each policy's perspec
 
 Additionally, to cope with varying number of objectives and varying number of players in the resulting Markov game, we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding. 
 This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time. 
-Each objective information vector is first processed by a multilayer perceptron (MLP) to produce a target embedding. 
+Each objective information vector is first processed by a fully connected neural network to produce a target embedding. 
 These embeddings are then aggregated through a weighted sum, where the weights are computed by taking the dot product between each embedding and a learned query vector. 
 This attention mechanism produces a fixed-dimensional representation that summarizes the set of objectives while allowing the model to adapt to varying objective counts.
 
