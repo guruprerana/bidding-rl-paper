@@ -1,6 +1,7 @@
 \section{Experimental Results}\label{sec:experimental-results}
 We conduct experiments to show the superior performance of our method compared to the baselines. We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
-In this section, our auction-based methods are \poorman and \allpay. We two variants of each: one without the attention pooling module (only used with Cat Feeder) and another in which the local policies can only observe their own objectives (denoted Local Obs).
+In this section, our auction-based methods are denoted by \poorman and \allpay. 
+We also consider two variants of each: one without the attention pooling module (only for Cat Feeder; we do not use attention pooling for Atari Assault since there are only up to 3 targets) and another in which the local policies can only observe their own objectives (denoted Local Obs). Additionally, the supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
 
 % \input{tables/gridworld_results_table}
 % \input{tables/assault_results_table}
@@ -28,9 +29,9 @@ In this section, our auction-based methods are \poorman and \allpay. We two vari
 \textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the two environments. 
 While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal curves with Cat Feeder. 
 The curves for \allpay and \poorman methods start growing around the same time.
-Meanwhile, the variants with only local observations for each policy starts growing much earlier but plateau below the global observation methods.
-The variants with no attention pooling for targets only starts growing much later.
-This validates the use of the attention pooling architecture to learn useful embeddings of other targets.
+Meanwhile, the variants with only local observations for each policy start growing much earlier.
+The variants with no attention pooling for targets only start growing much later.
+This validates the use of the attention pooling architecture to learn useful embeddings of targets.
 We remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
 
 \textbf{Comparison with baselines}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 

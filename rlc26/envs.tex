@@ -37,6 +37,7 @@ Not only does this facilitate an improvement in the performance, as we will demo
 This modular design is made possible by the object-centric variant of the Atari environment \citep{delfosse2023ocatari}, which exposes the states of each individual target and the missiles by decoding the RAM states. 
 The full observation space of each local policy also include the current position of the missile launcher, the current health, and the number of remaining lives. 
 The local policy gets a reward or a penalty upon destroying its target enemy ship or losing a life, respectively. 
+Lastly, we use the game score as the metric for evaluation.
 
 %\textbf{Atari Assault.}\quad We also test our method on the Atari game Assault in which we control a missile and shoot alien ships that move. Even though this is not seen as a multi-objective environment, we decompose it so that we can treat each alien ship as a different objective. Since these alien ships move around and there are a variable number of ships at any point of time, it is a perfect testbed for our modular approach. We check whether we can synthesize interpretable policies that split control of the missile to target different ships. However, as the standard Atari games from the Arcade Learning Environment \citep{bellemare13arcade} either use image or raw RAM observations, we cannot decompose the game score and design rewards for the multiple policies. Instead, we turn to the Object-Centric Atari environments \citep{delfosse2023ocatari} which exposes object positions and states by decoding RAM states. This permits us to design decomposed observations and rewards for each policy to pursue and shoot the alien ships. However, the metric we optimize is still the game score.
 %
@@ -45,9 +46,10 @@ The local policy gets a reward or a penalty upon destroying its target enemy shi
 \subsection{Baseline Approaches}
 
 We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citet{rosero2024multi}). 
-For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function. 
+For the PPO baseline, since all the objectives have the same importance across the two environments, we use the total reward across objectives at each step as the reward function.
+We note that in the Atari Assault environment we do not use the game score as a reward and instead use the same rewards perceived by the bidding-based policies to ensure a fair comparison.
 The observation space remains the same as the multi-policy setting. 
-In the Cat Feeder environment, we use three reward mechanisms: one only with the sparse rewards from the environment, one with distance-based dense reward with respect to the nearest feeding request (denoted Nearest Shaping/NS in the experiments), and finally one where we provide distance-based reward with respect to the request that has the least amount of time until expiration (denoted Expiry Shaping/ES).
+In the Cat Feeder environment, we implement three reward mechanisms to help guide learning: one only with the sparse rewards from the environment, one with distance-based dense reward with respect to the nearest feeding request (denoted Nearest Shaping/NS in the experiments), and finally one where we provide distance-based reward with respect to the request that has the least amount of time until expiration (denoted Expiry Shaping/ES).
 The PPO implementation is taken from CleanRL~\citep{huang2022cleanrl}.
 We use the specified PPO hyperparameters from CleanRL for Atari Assault and we tune the hyperparameters for the Cat Feeder environment with 40 Optuna iterations~\citep{akiba2019optuna}.
 
