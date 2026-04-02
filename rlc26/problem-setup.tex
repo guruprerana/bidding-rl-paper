@@ -10,7 +10,7 @@ In the multi-objective setting, a commonly studied problem is to find a policy i
 
 \textbf{The auction-based multi-policy framework.}
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
-The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
+The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide the action that will actually be executed.
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
 
 We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.

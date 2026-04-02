@@ -18,7 +18,11 @@ We evaluate our approach on two environments: a mobile cat feeder, introduced in
 
 In Assault (Figure~\ref{fig:assault_preview}), the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. We treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. Destroying a target yields reward, losing a life incurs a penalty, and performance is measured using the game score.
 
-We also consider two variants of each environment: one without the attention pooling module (only for Cat Feeder; we do not use attention pooling for Atari Assault since there are only up to 3 targets) and another in which the local policies can only observe their own objectives (denoted Local Obs). Additionally, the supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
+We also consider two variants of each environment: one without the attention pooling module (only for Cat Feeder; we do not use attention pooling for Atari Assault since there are only up to 3 targets) and another in which the local policies can only observe their own objectives (denoted Local Obs). \ifpreprint
+Our codebase\footnote{\url{https://github.com/guruprerana/bidding-rl}} includes recorded rollouts of our bidding-based policies on the two environments.
+\else
+Additionally, the supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
+\fi
 
 
 \textbf{Baseline approaches.}
@@ -78,7 +82,7 @@ In contrast, our approach allows the policies themselves to indicate the importa
         \caption{Cat Feeder: Control distribution}
         \label{fig:dyntar-control-dist}
     \end{subfigure}
-    \hfill
+    \hspace{1em}
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/bidding_mechanisms_bid_distribution.png}
@@ -94,7 +98,7 @@ In contrast, our approach allows the policies themselves to indicate the importa
         \caption{Atari Assault: Control distribution}
         \label{fig:assault-control-dist}
     \end{subfigure}
-    \hfill
+    \hspace{1em}
     \begin{subfigure}[b]{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{img/assault_bid_distribution_winner-pays.png}
@@ -133,8 +137,8 @@ In contrast, our approach allows the policies themselves to indicate the importa
 
 
 \begin{wrapfigure}{r}{0.3\textwidth}
-        \includegraphics[width=0.3\textwidth]{img/gridworld_action_window_bar_chart.png}
-        \includegraphics[width=0.3\textwidth]{img/assault_action_window_bar_chart.png}
+        \includegraphics[width=\linewidth]{img/gridworld_action_window_bar_chart.png}
+        \includegraphics[width=\linewidth]{img/assault_action_window_bar_chart.png}
     \caption{Effect of action window on performance: Cat Feeder (top) and Atari Assault (bottom).}
     \label{fig:action-window}
 \end{wrapfigure}
