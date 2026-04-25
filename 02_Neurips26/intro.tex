@@ -29,42 +29,46 @@ Since both actions cannot be executed simultaneously, a trade-off is unavoidable
 The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
 
 This compositional design yields strong modularity, facilitating fast adaptation:
-when an objective appears or disappears, only the corresponding policy needs to be added or removed, without modifying the remaining policies. 
+when an objective appears or disappears, only the corresponding policy needs to be added or removed.
 Furthermore, when objectives belong to the identical family---which is reachability in our case---a single generalized policy can be trained for the entire family. 
 We can deploy identical \emph{copies} of this policy when new objectives arrive, enabling immediate adaptation. 
-Another advantage of modularity is that it allows us to define objective-specific reward signals while the auction mechanism takes care of the trade-offs between objectives.
+Modularity also permits us to define objective-specific reward signals while the auction mechanism takes care of the trade-offs between objectives.
 For example, we can easily define a distance-based dense reward signal for each policy controlling the cat feeder to move closer to its assigned cat.
-In contrast, a monolithic policy serving multiple objectives would require additional machinery to impose a dense preference ordering over the multi-dimensional reward vector, which is typically complex and often subject to debate.
-Even when the rewards can be aggregated into a single dense scalar signal, our experiments show that training such monolithic policies remains challenging, and their performance still falls short of that achieved by our modular approach.
+In contrast, it is challenging to define such a dense reward signal to train a monolithic policy to trade-off between the multiple objectives.
+We have to resort to imposing a preference ordering over the multi-dimensional reward vector, or stick to sparse rewards.
+% In contrast, a monolithic policy serving multiple objectives would require additional machinery to impose a dense preference ordering over the multi-dimensional reward vector, which is typically complex and often subject to debate.
+We show in our experiments that monolithic policies, trained with both sparse rewards and different types of scalarized dense rewards, fall much short of the payoffs achieved by our modular approach.
 
+Yet another advantage of our modular framework is interpretability.
+At any moment, we can determine the policy in control, and thereby the objective currently being pursued by the agent. 
+This explanation is beneficial in a range of real-world situations, like providing post-hoc explanations of failures, and also feedback on biases in pursuing different objectives.
 
-Another advantage of our modular framework is interpretability.
-At any moment, we can observe which policy is in control, and thereby which objective is currently being pursued by the agent. 
-This kind of explanation is beneficial in a range of real-world situations, like providing post-hoc explanations of failures, and providing feedback on biases in pursuing different objectives.
-
-
-We implement our modular framework as a nonzerosum game between agents that control the local policies to fulfill their assigned objectives, and this game can be set up using a simple wrapper around existing multi-objective environments. 
+We implement our modular framework as a general-sum game between agents that control the local policies to fulfill their assigned objectives, and this game is set up using a simple wrapper around existing multi-objective environments. 
 Each agent's action space is augmented with an additional numeric variable representing the bids, and the transitions between the game's states encode the execution of the action selected by the highest bidder.
-However, this introduces some new challenges, and below we explain them with our proposed remedies.
+However, we still need to address some challenges.
 
 \textbf{Challenge I: Enforcing honest bids.}
-While the auction mechanism treats all the policies fairly, the policies must still place honest bid in proportion to their urgency. 
+While the auction mechanism treats all policies fairly, the policies must still place honest bid in proportion to their urgency. 
 Otherwise, they may learn to overbid and suppress competitors, resulting in suboptimal results. 
-To prevent this, we impose penalties during training that are proportional to the bid values. 
-As a consequence, excessive bidding reduces the net return of a policy, aligning its incentives with truthful urgency estimation---a policy only bids high when it is sure to receive a reward (when it feeds the cat) or to avoid a penalty (when a cat is close to disappearing).
+To prevent this, we impose penalties during training that scale with the bid values. 
+As a consequence, excessive bidding reduces the net return of a policy, thus aligning its incentives with truthful urgency estimation---a policy only bids high when it is sure to receive a reward (when it feeds the cat) or to avoid a penalty (when a cat is close to disappearing).
 
 \textbf{Challenge II: Achieving environment awareness.}
 Effective bidding depends not only on the current state and the local objective, but also on the configuration of competing objectives. 
-For example, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. 
+For instance, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. 
 Conversely, if requests lie in opposite directions, the urgent policy must bid sufficiently high to win. 
 To enable such environment-aware bidding, we allow the policies to observe all the objectives, i.e., the policies have information about the global state. 
-Additionally we train the policies against each other so that they learn to optimize payoffs in the presence of opponents.
+Additionally, the policies are trained concurrently so that they learn to optimize payoffs in the presence of opponents.
 
 \textbf{Challenge III: Unbounded objective count.}
-During deployment, the number of active objectives may exceed those observed during training. 
-This invalidates standard game-theoretic training formulations, which assume a fixed number of opponents. 
-To address this issue, we employ an attention pooling mechanism that aggregates information about an arbitrary number of competing objectives into a fixed-dimensional representation. 
-Each local policy is equipped with its own pooling module which is co-trained with the policy. 
+When policies have to compete with many objectives, providing each with the global state results in a very high dimensional observation space.
+This makes training slow with a standard neural network policy.
+We address this with an attention pooling mechanism that aggregates information about an arbitrary number of competing objectives into a fixed-dimensional representation. 
+Each local policy is equipped with its own pooling module which is co-trained with the policy.
+A bonus of this architecture is that it allows policies to compete with more objectives than those during training, since the pooling mechanism can extract useful features from an arbitrary number of objective states.
+
+% During deployment, there may be more active objectives than during training. 
+% This invalidates standard game-theoretic training formulations which assume a fixed number of opponents. 
 
 We test our framework on two multi-objective environments: the cat feeder environment implemented as a gridworld, and the Atari Assault game from the Arcade Learning Environment~\citep{bellemare13arcade}.
 To train our policies, we take inspiration from \citet{yu2022mappo} who provide guidance on using proximal policy optimization (PPO; \citet{schulman2017ppo}) in multi-agent systems.

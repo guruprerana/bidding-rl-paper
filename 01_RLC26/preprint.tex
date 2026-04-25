@@ -1,0 +1,81 @@
+\documentclass[10pt]{article}
+
+% Standard packages
+\usepackage[T1]{fontenc}
+\usepackage{palatino}
+\usepackage[margin=1in]{geometry}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\parindent}{0pt}
+
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\definecolor{titleboxcolor}{HTML}{DFE6E6}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[space]{grffile}
+\usepackage{url}
+\input{additional_preamble.tex}
+\input{macros.tex}
+\preprinttrue
+
+% Convert wrapfigure to regular figure to avoid layout issues
+\usepackage{etoolbox}
+\let\oldwrapfigure\wrapfigure
+\let\oldendwrapfigure\endwrapfigure
+\renewenvironment{wrapfigure}[3][]{%
+  \begin{figure}[htbp]\centering\minipage{0.4\textwidth}\centering
+}{%
+  \endminipage\end{figure}
+}
+
+% Resolve to rlc26/ for all \includegraphics
+\graphicspath{{./}}
+
+\title{Auction-Based Online Policy Adaptation\\for Evolving Objectives}
+
+\author{
+Guruprerana Shabadi\textsuperscript{1} \and Kaushik Mallik\textsuperscript{2} \\[6pt]
+\textsuperscript{1}University of Pennsylvania, United States \\
+\textsuperscript{2}IMDEA Software Institute, Spain \\[4pt]
+\texttt{shabadi@seas.upenn.edu, kaushik.mallik@imdea.org}
+}
+
+\date{}
+
+% Render abstract inside the title box
+\renewenvironment{abstract}{\par\vskip 0.5em\noindent\ignorespaces}{\par}
+
+\begin{document}
+
+\begin{tcolorbox}[colback=titleboxcolor, coltext=black, colframe=titleboxcolor, boxrule=0pt, arc=0pt, left=12pt, right=12pt, top=12pt, bottom=12pt]
+{\LARGE\bfseries Auction-Based Online Policy Adaptation\\for Evolving Objectives\par}
+\vskip 1em
+{\normalsize Guruprerana Shabadi\textsuperscript{1}, Kaushik Mallik\textsuperscript{2}\par}
+\vskip 0.5em
+{\small \textsuperscript{1}University of Pennsylvania, United States,
+\textsuperscript{2}IMDEA Software Institute, Spain}
+\vskip 1em
+\input{./abstract}
+\end{tcolorbox}
+\input{./intro}
+\input{./related-work}
+\input{./problem-setup}
+\input{./implementation-eval}
+\input{./conclusion}
+
+\appendix
+
+\FloatBarrier
+\bibliographystyle{plainnat}
+\bibliography{./main}
+
+\input{./envs-appendix}
+\input{./hyperparameters}
+
+\end{document}

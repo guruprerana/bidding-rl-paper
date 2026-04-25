@@ -6,7 +6,7 @@ policies bid for the right to execute their actions, with bids reflecting the ur
 The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
 Going back to the original adaptation problem, when objectives change, the system adapts by simply adding or removing the corresponding policies.
 Moreover, as objectives arise from the same family, identical copies of a parameterized policy can be deployed, facilitating immediate adaptation at runtime.
-We show how the selfish local policies can be computed by turning the problem into a nonzerosum game, where the policies compete against each other to fulfill their own objectives.
+We show how the selfish local policies can be computed by turning the problem into a general-sum game, where the policies compete against each other to fulfill their own objectives.
 To succeed, each policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority.
 In our implementation, the policies are trained concurrently using proximal policy optimization (PPO).
 We evaluate on Atari Assault and a gridworld-based path-planning task with dynamic targets.
