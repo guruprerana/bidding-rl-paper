@@ -1,0 +1,25 @@
+\subsection*{Related Work}
+
+A large body of work in multi-objective reinforcement learning (MORL) relies on \textit{scalarization}, where multiple reward functions are aggregated into a single scalar objective so that standard RL algorithms can be applied. The simplest approach uses weighted sums of rewards~\citep{gass1955computational}, though nonlinear scalarization methods have also been proposed~\citep{van2013scalarized}. A key limitation is that the induced importance among rewards may not reflect the designer’s intent, often leading to a tedious debugging process~\citep{hayes2022practicalguidemorl}. In contrast, our approach achieves a trade-off among reward components without collapsing them into a fixed scalar objective.
+
+Other works address trade-offs by adopting a specific optimality notion, such as Pareto optimality~\citep{van2014multi} and its approximations~\citep{pirotta2015multi}, or fairness-based criteria across rewards~\citep{park2024max,byeon2025multi,siddique2020learning}. These approaches typically learn a single monolithic policy satisfying the chosen criterion. By contrast, we learn independent, selfish policies for each reward component and compose them at runtime, preserving modularity while achieving a coherent global trade-off.
+
+Only a few works consider distributed policies for multiple rewards. W-learning~\citep{humphrys1995w} and its deep RL extension~\citep{rosero2024multi} train separate policies alongside meta-functions that score states by urgency, selecting the policy with the highest score at runtime. Other methods aggregate decisions through ranked voting~\citep{mendez2019multi} or fixed rules such as summing action values~\citep{russell2003q}. Our approach is simpler: it uses an engineered reward structure that enables standard RL algorithms (e.g., PPO) without additional meta-policies or complex aggregation. Moreover, to the best of our knowledge, we are the first to study the incremental MORL setting, where reward components can be added or removed at runtime.
+
+The idea of bidding-based selfish policies is inspired by auction mechanisms for multi-objective path planning on graphs~\citep{avni2024auction} and by the literature on bidding games~\citep{lazarus1999combinatorial,avni2019infinite,avni2025bidding}. These works use explicit model-based approaches and do not readily extend to the model-free setting of RL.
+Besides, they are restricted to the setting with two objectives.
+
+
+
+%%% ------- List of all related works collected by Guru --------------------
+%\begin{enumerate}
+%    \item Fairly comprehensive reference survey of multi-objective RL:~\citet{hayes2022practicalguidemorl}
+%    \item Reference for definitions of multi agent RL:~\citet{bucsoniu2010multiagentoverview}.
+%    \item W-learning and more recent Deep W learning:~\citet{humphrys1995w,rosero2024multi}
+%    \item General multi-objective deep RL works.~\citet{nguyen2020multi} introduce a multi-policy DQN algorithm to learn multiple policies in parallel such that they have access to any possible linear weighting of the objectives. Also has a good lit review from where I got a few of these other citations.
+%    \item Multi objective Q learning (tabular):~\citet{van2013scalarized},~\citet{van2014multi} for pareto Q learning (maintains a set of policies and updates them), local search after normal learning:~\citet{van2014novel}
+%    \item Use gradient approximation to iteratively build parametrized policies representing pareto frontier~\citet{pirotta2015multi}
+%    \item Maximin (fairness) MORL:~\citet{park2024max,byeon2025multi}, fair deep RL:~\citet{siddique2020learning}.
+%    \item These two are only vaguely related and look at decomposing an objective into multiple smaller objectives: Q-function decomposition for a single agent with multiple reward components:~\citet{russell2003q} and on a similar note hybrid reward architecture:~\citet{van2017hybrid}
+%\end{enumerate}
+%%% --------------------------------------------------------------------------

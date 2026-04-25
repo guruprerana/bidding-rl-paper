@@ -1,0 +1,72 @@
+\section{Introduction}
+\label{sec:introduction}
+
+\begin{wrapfigure}[12]{r}{0.3\textwidth}
+  \hspace*{0.6em}\begin{minipage}{\dimexpr\linewidth-1em}
+    \includegraphics[width=\linewidth]{img/grid_preview.png}
+    \caption{Cat Feeder env.}
+    \label{fig:grid_preview_intro}
+  \end{minipage}
+\end{wrapfigure}
+Consider the problem of controlling a mobile robot deployed in a cat shelter whose task is to deliver food to cats roaming around the facility (Figure~\ref{fig:grid_preview_intro}). 
+New food requests from hungry cats may arrive at arbitrary times and locations, while existing requests may disappear if a cat wanders away before being served.
+Since the robot can serve only one cat at a time, fulfilling one request may delay others, potentially allowing some cats to move farther away. 
+Thus, the robot must dynamically adapt to the set of active requests to maximize the number of cats fed before they disappear.
+
+In this work, we model the above control problem as a multi-objective reinforcement learning task in which all the objectives come from an identical family, such as reachability in this case.
+These objectives can be conflicting and any number of them may be active at a given time.
+Moreover, we make no assumptions about their distribution or arrival pattern.
+Our goal is to design adaptive policies that update their behavior seamlessly as objectives appear or disappear.
+This is a natural problem relevant to many real-world scenarios and has been extensively studied in the planning literature~\citep{fox2006plan}, typically assuming that a precise environment model (like a graph) is available and there is no uncertainties. 
+In contrast, within reinforcement learning (RL) settings---where the environment may be uncertain and a model may not be available---this problem has not been studied to the best of our knowledge.
+
+To solve this problem, we propose a compositional RL framework, where each objective is served using a local policy, selfishly maximizing its assigned objective by competing against the other policies.
+Coordination between these policies is achieved through a novel auction-based mechanism:
+at every decision step, policies submit bids for the right to execute their actions, where bids reflect the urgency of the current state with respect to their objectives. 
+The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives.
+Returning to the cat feeder example, suppose the robot approaches an intersection with two active requests, the policy for the first request recommends turning left, while the policy for the second recommends turning right. 
+Since both actions cannot be executed simultaneously, a trade-off is unavoidable. 
+The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
+
+This compositional design yields strong modularity, facilitating fast adaptation:
+when an objective appears or disappears, only the corresponding policy needs to be added or removed, without modifying the remaining policies. 
+Furthermore, when objectives belong to the identical family---which is reachability in our case---a single generalized policy can be trained for the entire family. 
+We can deploy identical \emph{copies} of this policy when new objectives arrive, enabling immediate adaptation. 
+Another advantage of modularity is that it allows us to define objective-specific reward signals while the auction mechanism takes care of the trade-offs between objectives.
+For example, we can easily define a distance-based dense reward signal for each policy controlling the cat feeder to move closer to its assigned cat.
+In contrast, a monolithic policy serving multiple objectives would require additional machinery to impose a dense preference ordering over the multi-dimensional reward vector, which is typically complex and often subject to debate.
+Even when the rewards can be aggregated into a single dense scalar signal, our experiments show that training such monolithic policies remains challenging, and their performance still falls short of that achieved by our modular approach.
+
+
+Another advantage of our modular framework is interpretability.
+At any moment, we can observe which policy is in control, and thereby which objective is currently being pursued by the agent. 
+This kind of explanation is beneficial in a range of real-world situations, like providing post-hoc explanations of failures, and providing feedback on biases in pursuing different objectives.
+
+
+We implement our modular framework as a nonzerosum game between agents that control the local policies to fulfill their assigned objectives, and this game can be set up using a simple wrapper around existing multi-objective environments. 
+Each agent's action space is augmented with an additional numeric variable representing the bids, and the transitions between the game's states encode the execution of the action selected by the highest bidder.
+However, this introduces some new challenges, and below we explain them with our proposed remedies.
+
+\textbf{Challenge I: Enforcing honest bids.}
+While the auction mechanism treats all the policies fairly, the policies must still place honest bid in proportion to their urgency. 
+Otherwise, they may learn to overbid and suppress competitors, resulting in suboptimal results. 
+To prevent this, we impose penalties during training that are proportional to the bid values. 
+As a consequence, excessive bidding reduces the net return of a policy, aligning its incentives with truthful urgency estimation---a policy only bids high when it is sure to receive a reward (when it feeds the cat) or to avoid a penalty (when a cat is close to disappearing).
+
+\textbf{Challenge II: Achieving environment awareness.}
+Effective bidding depends not only on the current state and the local objective, but also on the configuration of competing objectives. 
+For example, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. 
+Conversely, if requests lie in opposite directions, the urgent policy must bid sufficiently high to win. 
+To enable such environment-aware bidding, we allow the policies to observe all the objectives, i.e., the policies have information about the global state. 
+Additionally we train the policies against each other so that they learn to optimize payoffs in the presence of opponents.
+
+\textbf{Challenge III: Unbounded objective count.}
+During deployment, the number of active objectives may exceed those observed during training. 
+This invalidates standard game-theoretic training formulations, which assume a fixed number of opponents. 
+To address this issue, we employ an attention pooling mechanism that aggregates information about an arbitrary number of competing objectives into a fixed-dimensional representation. 
+Each local policy is equipped with its own pooling module which is co-trained with the policy. 
+
+We test our framework on two multi-objective environments: the cat feeder environment implemented as a gridworld, and the Atari Assault game from the Arcade Learning Environment~\citep{bellemare13arcade}.
+To train our policies, we take inspiration from \citet{yu2022mappo} who provide guidance on using proximal policy optimization (PPO; \citet{schulman2017ppo}) in multi-agent systems.
+We observe empirical convergence of training and substantially better performance compared to baselines in both environments.
+Lastly, to aid interpretability in renderings of rollouts, we implement visualization of the policy in control and the objective being pursued.

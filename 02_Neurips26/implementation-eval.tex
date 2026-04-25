@@ -1,0 +1,175 @@
+\section{Experimental Results}\label{sec:experimental-results}
+\begin{wrapfigure}[14]{r}{0.25\textwidth}
+  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
+    \includegraphics[width=\linewidth]{img/assault_preview.png}
+    \caption{Atari Assault env.}
+    \label{fig:assault_preview}
+  \end{minipage}
+\end{wrapfigure}
+We conduct experiments to show the superior performance of our method compared to the baselines. We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
+A detailed description of the environments and the baseline approaches is provided in Appendix~\ref{app:experimental setup}, below we include a summary.
+
+
+
+\textbf{Environments.}
+We evaluate our approach on two environments: a mobile cat feeder, introduced in Section~\ref{sec:introduction}, and the Atari game Assault. In the Cat Feeder environment, a robot moves on a $30\times 30$ grid to feed up to $m$ cats that move according to unknown stochastic processes. Each cat disappears after a fixed number of steps; feeding it yields a reward, while expiration incurs a penalty of equal magnitude. We train with $m=7$ cats and test with up to $14$. Each cat is served by a dedicated policy whose observation includes the robot position, the locations of active cats, and their remaining lifetimes.
+
+
+
+In Assault (Figure~\ref{fig:assault_preview}), the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. We treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. Destroying a target yields reward, losing a life incurs a penalty, and performance is measured using the game score.
+
+We also consider two variants of each environment: one without the attention pooling module (only for Cat Feeder; we do not use attention pooling for Atari Assault since there are only up to 3 targets) and another in which the local policies can only observe their own objectives (denoted Local Obs). Additionally, the supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
+
+
+\textbf{Baseline approaches.}
+We compare against two baselines: a single PPO policy with aggregated rewards and deep W-learning (DWN)~\citep{rosero2024multi}. The PPO baseline is implemented using CleanRL~\citep{huang2022cleanrl}; for the Cat Feeder environment (with variable objective count) we additionally test sparse rewards and two shaping strategies. DWN trains one DQN policy per objective together with W-networks that estimate urgency scores of states. Hyperparameters are provided in~\Cref{sec:reprod-details}, with Cat Feeder tuned using Optuna~\citep{akiba2019optuna}.
+
+
+% \input{tables/gridworld_results_table}
+% \input{tables/assault_results_table}
+\input{tables/performance_table}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bidding_mechanisms_learning_curves.png}
+        % \caption{Cat Feeder: Learning curves}
+        % \label{fig:dyntar-learning-curves}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_learning_curves.png}
+        % \caption{Atari Assault: Learning curves}
+        % \label{fig:assault-learning-curves}
+    \end{subfigure}
+    \caption{Learning curves for different methods on Cat Feeder (left) and Atari Assault (right). We plot mean over 5 seeds at each evaluation iteration and the shaded region is \(\pm\) standard deviation.}
+    \label{fig:learning-curves}
+\end{figure}
+
+\textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the two environments. 
+While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal shapes with Cat Feeder. 
+The curves for \allpay and \poorman methods start growing around the same time.
+Meanwhile, the variants with only local observations for each policy start growing much earlier.
+The variants with no attention pooling for targets only start growing much later.
+This validates the use of the attention pooling architecture to learn useful embeddings of targets.
+We remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
+
+\textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
+Our multi-policy methods outperform the baselines by a substantial margin.
+Across both the environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
+Additional reward shaping only provides moderate gains.
+In the Atari Assault environment, there is a delay between shooting a missile and it reaching its target.
+Since we only supply information from one frame in the observation, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
+On the other hand, the credit assignment becomes easier when we separate the objectives and each learner only has to focus on one target.
+
+DWN performs poorly in all experiments.
+We recall that this method learns a W-network trained to predict the negative TD-error for each policy when the policy does not play its action.
+However, in our environments, we have a long horizon and all the objectives are symmetric with similar Q-values.
+This means that the TD-error is small and does not provide a strong signal to choose between policies at most timesteps.
+In contrast, our approach allows the policies themselves to indicate the importance of playing an action.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_control_timesteps.png}
+        \caption{Cat Feeder: Control distribution}
+        \label{fig:dyntar-control-dist}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanisms_bid_distribution.png}
+        \caption{Cat Feeder: Bid distribution}
+        \label{fig:dyntar-bid-dist}
+    \end{subfigure}
+
+    \vspace{1em}
+
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bidding_mechanisms_control_timesteps.png}
+        \caption{Atari Assault: Control distribution}
+        \label{fig:assault-control-dist}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/assault_bid_distribution_winner-pays.png}
+        \caption{Atari Assault: Bid Distribution (\poorman)}
+        \label{fig:assault-bid-dist}
+    \end{subfigure}
+    \caption{Comparison of control and bid distributions across environments and methods. The control distribution is the number of timesteps controlled by each policy, while the bid distribution is the distribution over bids picked by the policies.}
+    \label{fig:control-bid-dist}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/bidding_mechanism_scaling.png}
+        \caption{Scaling number of targets.}
+        \label{fig:bidding-mechanism-scaling}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bid_upper_bound_bar_chart.png}
+        \caption{Ablation: Bid upper bound}
+        \label{fig:gridworld-bid-upper-bound}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{img/gridworld_bid_penalty_bar_chart.png}
+        \caption{Ablation: Bid penalty}
+        \label{fig:gridworld-bid-penalty}
+    \end{subfigure}
+    \caption{Scaling number of targets and ablations on the Cat Feeder environment.}
+    \label{fig:ablations}
+\end{figure}
+
+
+\begin{wrapfigure}{r}{0.3\textwidth}
+        \includegraphics[width=0.3\textwidth]{img/gridworld_action_window_bar_chart.png}
+        \includegraphics[width=0.3\textwidth]{img/assault_action_window_bar_chart.png}
+    \caption{Effect of action window on performance: Cat Feeder (top) and Atari Assault (bottom).}
+    \label{fig:action-window}
+\end{wrapfigure}
+\textbf{Interpretability of policies and bidding behaviors.}\quad
+Video rollouts show that bidding-based policies take control when they can accumulate reward within the action window, while each policy pursues only its own objective. \Cref{fig:control-bid-dist} presents the distribution of control time and bids. Control is well distributed among policies. In Assault, bids are usually 0, indicating that random control assignment suffices since targets do not expire. In contrast, the Cat Feeder environment shows a wider bid spread (0--6). Here, \allpay yields more conservative policies with mostly low bids, while \poorman produces a more even distribution, reflecting greater willingness to bid high.
+
+
+
+
+\textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which the number of cats seen during testing is larger than that during training. 
+\Cref{fig:bidding-mechanism-scaling} shows that the policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.
+The attention pooling mechanism plays a critical role as it can generate useful embeddings of an arbitrary number of competing targets.
+
+
+
+%\begin{figure}[h]
+%    \centering
+%    \begin{subfigure}[b]{0.48\textwidth}
+%        \centering
+%        \includegraphics[width=\textwidth]{img/gridworld_action_window_bar_chart.png}
+%        % \caption{Cat Feeder.}
+%        % \label{fig:gridworld-action-window}
+%    \end{subfigure}
+%    \hfill
+%    \begin{subfigure}[b]{0.48\textwidth}
+%        \centering
+%        \includegraphics[width=\textwidth]{img/assault_action_window_bar_chart.png}
+%        % \caption{Atari Assault.}
+%        % \label{fig:assault-action-window}
+%    \end{subfigure}
+%    \caption{Effect of action window on performance: Cat Feeder (left) and Atari Assault (right).}
+%    \label{fig:action-window}
+%\end{figure}
+
+
+
+\textbf{Further ablations.}\quad \Cref{fig:gridworld-bid-upper-bound} shows that at least two bid levels are needed for good performance; with only one level, policies cannot compete effectively. \Cref{fig:gridworld-bid-penalty} evaluates the bid penalty factor: without penalties all policies overbid, hurting performance, while overly large penalties discourage bidding. Finally, \Cref{fig:action-window} studies the action window size, revealing an optimal value. Smaller windows cause excessive switching between policies, while larger ones prevent sufficient switching to serve all objectives.
+
