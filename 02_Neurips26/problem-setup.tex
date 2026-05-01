@@ -89,6 +89,9 @@ The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \
 
 \smallskip
 \noindent\textbf{Theoretical analysis of the bidding schemes.}
+We are now going to show that both \poorman and \allpay mimics LSTM whenever any one of the goal becomes critically urgent.
+To streamline the theoretical results and keep the focus on the bidding aspect, we consider the simplified setting of deterministic agent and stationary goals.
+
 Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every agent state $s\in S$ and time $t$ to a bid $b_i$ and an action $a_i$.
 For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\colon (s,t)\mapsto a_i$ as two separate components of the policy.
 From Proposition~\ref{prop:scheduling is the optimal choice}, it follows that $\pi_i^a$  is unique, namely it proceeds towards its goal $g_i$ by following the shortest path, and we write $T^\tau(s,\pi_i^a)$ to denote the state reached by applying $\pi_i^a$ for $\tau$ steps starting at $s$. 
@@ -187,9 +190,9 @@ The following theorem establishes that the \allpay setting simulates LSTM, whene
 \begin{theorem}
 	In the \allpay setting with $m\geq 3$, consider a single bidding round at the agent state $s\in S$ and time $t$.
 	Let $i^*$ and $j^*$ be policies for which the following gross gain order holds:
-	\begin{align*}
+	\begin{align}\label{eqn:allpay urgency gap}
 		\Delta_{i^*}^{\mathrm{gross}} > \Delta_{j^*}^{\mathrm{gross}} > \max_{k\notin \{i^*,j^*\}}\Delta_k^{\mathrm{gross}}.
-	\end{align*}
+	\end{align}
 	Then there is no Nash equilibrium with pure strategies, although a unique Nash equilibrium exists with mixed strategies.
 	In this Nash equilibrium, policy $i^*$ wins control with probability $1-\sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.	
 \end{theorem}
@@ -213,6 +216,14 @@ The following theorem establishes that the \allpay setting simulates LSTM, whene
 		&= 1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}
 	\end{align*}
 \end{proof}
+
+Since $M > r_{\max}$, from Lemma~\ref{lem:critical regime gap} it follows that the first inequality in \eqref{eqn:allpay urgency gap} will be satisfied whenever $i^*$ is in the critical regime but all other policies are in their non-critical regimes.
+If the second inequality in \eqref{eqn:allpay urgency gap} becomes an equality, then it is known that the Nash equilibrium is no longer unique, and in fact, there will be a continuoum of Nash equilibria~\cite{baye1996all}, and reaching the desirable equilibrium will require separate mechanisms.
+Instead, we argue that the event of any of the inequalities in \eqref{eqn:allpay urgency gap} becoming an equality is a measure zero event, and therefore it is vanishingly unlikely in practice.
+
+As we have already seen in the proof of Lemma~\ref{lem:critical regime gap}, when $i^*$ is in the critical regime, $\Delta_{i^*}^{\mathrm{gross}}\approx M$, and when $j^*$ is non-critical, then $\Delta_{j^*}^{\mathrm{gross}}\approx \gamma^{\tau+1} r_{\max}$.
+Assuming both inequalities in \eqref{eqn:allpay urgency gap} remains strict, it follows that the probability that $i^*$ wins control is approximately $1-(\gamma^{\tau+1} r_{\max})/M$, which converges to $1$ with $(\gamma^{\tau+1} r_{\max})/M \to 0$.
+\KM{I rushed through this, do it slowly. It'll be roughly like this.}
 
 %For each objective $i$, define its urgency at the agent state $s \in S$ and time $t$ as:
 %$\Delta_i(s,t) \coloneqq V_i^{\win}(s,t) - V_i^{\wait}(s,t,\tau)$, where $V_i^{\win}(s,t)$ is the optimum payoff for winning the bidding now, and $V_i^{\wait}(s,t,\tau)$ is the optimum payoff for waiting for one bidding interval ($\tau$ steps) and then winning.
