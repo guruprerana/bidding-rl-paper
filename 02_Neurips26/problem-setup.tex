@@ -123,25 +123,24 @@ The \emph{net gain} for bidding $b_i$ at $(s,t)$ is defined as:
 	&=  \gamma^\tau \left[V_i^{\cont}(T(s,\pi_i^a),t+\tau)  -  V_i^{\cont}(T(s,\pi_j^a),t+\tau)\right] - \rho b_i\cdot \mathbf{1}[\text{\poorman}],
 \end{align*}
 and by writing the \emph{gross gain} $\Delta^{\mathrm{gross}}_i(s,t)\coloneqq \gamma^\tau\left[ V_i^{\cont}(T(s,\pi_i^a),t+\tau)  - V_i^{\cont}(T(s,\pi_j^a),t+\tau)\right]$, we obtain $\Delta_i^{\mathrm{net}}(s,t,b_i) = \Delta^{\mathrm{gross}}_i(s,t) - \rho b_i\cdot \mathbf{1}[\text{\poorman}]$.
-We are going to show that $\Delta^{\mathrm{gross}}_i$ is proportional to the bidding urgency of policy $i$, but before that, we establish the connection between gross gains and slacks that are used to measure urgency in the LSTM algorithm.
+Below, we show a connection between scheduling urgencies and the gross gains of policies.
 
 \begin{lemma}\label{lem:critical regime gap}
-	In both \poorman and \allpay settings, if the policy $i^*$ is in the critical regime, i.e., $\slack_{i^*}(s,t) \in [0,\tau]$, and every other policy $j\neq i^*$ is in the safe regime, i.e., $\slack_{j}>\tau$, then 
-	\begin{align*}
-		\Delta_{i^*}^{\mathrm{gross}}(s,t) - \max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t) > M - r_{\max}.
-	\end{align*}	
+	In both \poorman and \allpay settings, if the policy $i^*$ is in the critical regime, i.e., $\slack_{i^*}(s,t) \in [0,\tau]$, and every other policy $j\neq i^*$ is in the safe regime, i.e., $\slack_{j}(s,t)>\tau$, then 
+	\begin{align}\label{eq:gross gain and urgency}
+		\Delta_{i^*}^{\mathrm{gross}}(s,t) - \max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t) > M - r_{\max} > 0.
+	\end{align}	
 \end{lemma}
 
-\begin{proof}
-	Firstly, since we assumed that $M>r_{\max}$, it follows that $\rho$'s upper bound $M - r_{\max}$ is positive, and therefore a feasible $\rho$ exists.
-	
-	Now, since $\slack_{i^*}(s,t) < \tau$, if $i^*$ loses the bidding and assuming the highest bidding policy is not helping $i^*$ to reach its goal, by the next $\tau$ steps, it will have surely missed the deadline to reach its goal, and therefore $V_{i^*}^{\lose}(s,t,b_{i^*}) = -M - \rho b_{i^*}\cdot \mathbf{1}[\allpay]$.
+\begin{proof}	
+	Since $\slack_{i^*}(s,t) < \tau$, if $i^*$ loses the bidding and assuming the highest bidding policy is not helping $i^*$ to reach its goal, by the next $\tau$ steps, it will have surely missed the deadline to reach its goal, and therefore $V_{i^*}^{\lose}(s,t,b_{i^*}) = -M - \rho b_{i^*}\cdot \mathbf{1}[\allpay]$.
 	On the other hand, if $i^*$ wins the bidding, $V_{i^*}^{\win}(s,t,b_{i^*})\geq -\rho b_{i^*}$, with the inequality being strict if the goal is reached within the next $\tau$ steps.
 	We obtain: $\Delta_{i^*}(s,t,b_{i^*}) = V_{i^*}^{\win}(s,t,b_{i^*}) - V_{i^*}^{\lose}(s,t,b_{i^*}) \geq -\rho b_{i^*} + M + \rho b_{i^*}\cdot \mathbf{1}[\allpay] = -\rho b_{i^*}\cdot \mathbf{1}[\poorman] + M$, implying $\Delta_{i^*}^{\mathrm{gross}}(s,t) \geq M$.
 	
 	Using similar technique, we obtain: for every $j\neq i^*$, since $\slack_j(s,t) > \tau$, $V_j^{\win}(s,t,b_j) \leq \gamma r_j -\rho b_j$ and $V_j^{\lose}(s,t,b_j) \geq -\rho b_j\cdot \mathbf{1}[\allpay]$, so that $\Delta_j^{\mathrm{gross}}(s,t)\leq \gamma^{\tau+1} r_j - \rho b_j\cdot \mathbf{1}[\poorman] < r_j$ (the large slack helps because even if the bidding is lost,  the goal remains achievable after time $\tau$ and penalty $-M$ remains avoidable).
 	
-	Combining, $\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)  > M - r_j \geq M - r_{\max}$. 
+	Combining, $\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)  > M - r_j \geq M - r_{\max}$, which is the first inequality in \eqref{eq:gross gain and urgency}. 
+	Finally, since we assumed that $M>r_{\max}$, the second inequality follows in \eqref{eq:gross gain and urgency}.
 \end{proof}
 
 The following theorem establishes that the \poorman setting simulates LSTM, whenever the urgency gap between the two most urgent tasks is sufficiently large.
@@ -193,7 +192,7 @@ The following theorem establishes that the \allpay setting simulates LSTM, whene
 	\begin{align}\label{eqn:allpay urgency gap}
 		\Delta_{i^*}^{\mathrm{gross}} > \Delta_{j^*}^{\mathrm{gross}} > \max_{k\notin \{i^*,j^*\}}\Delta_k^{\mathrm{gross}}.
 	\end{align}
-	Then there is no Nash equilibrium with pure strategies, although a unique Nash equilibrium exists with mixed strategies.
+	Then there is no Nash equilibrium with pure strategies, although a unique Nash equilibrium exists with mixed strategies (where at each $(s,t)$, each policy uses a probability distribution to select the bid).
 	In this Nash equilibrium, policy $i^*$ wins control with probability $1-\sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.	
 \end{theorem}
 
