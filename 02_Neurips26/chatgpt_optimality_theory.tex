@@ -1,0 +1,678 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prb}{\mathbb{P}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calF}{\mathcal{F}}
+
+\title{Selfish Smooth Bidding for Target Scheduling:\\A Completion-Rate Bound with Private Urgency}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Model}
+
+We consider a finite-horizon target-scheduling problem. At each decision epoch the agent observes a state
+$s$ and an active target set
+\begin{equation}
+  A(s) \subseteq \{1,\dots,k\}, \qquad |A(s)| = n(s) \le k .
+  \label{eq:active-set}
+\end{equation}
+At most one target is selected at a decision epoch. If target $i$ is selected, the agent follows the local policy
+for target $i$ until that attempt terminates, either by successfully reaching the target or by consuming time and
+returning to the next decision state. New targets may appear after old targets are reached, but the active set size
+always satisfies \eqref{eq:active-set}.
+
+Let $T$ denote the horizon. Let
+\begin{equation}
+  N^{\mathrm{NE}}(T)
+\end{equation}
+be the number of successful target completions under the bidding-induced Nash scheduler, and let
+\begin{equation}
+  N^\star(T)
+\end{equation}
+be the maximum number of completions achievable by an optimal scheduler.
+
+\section{Smooth bidding mechanism}
+
+At state $s$, each active target-player $i\in A(s)$ submits a bid
+\begin{equation}
+  b_i \in [0,B] .
+  \label{eq:bid-domain}
+\end{equation}
+Given a bid vector $b$, target $i$ is selected with probability
+\begin{equation}
+  p_i(b;s)
+  =
+  \frac{\eta+b_i}{n(s)\eta + \sum_{j\in A(s)} b_j},
+  \qquad \eta>0.
+  \label{eq:proportional-allocation}
+\end{equation}
+The offset $\eta$ ensures that if all bids are zero, the scheduler chooses uniformly among active targets.
+
+\subsection{Cross-reachability and private urgency}
+
+The key distinction is between raw reachability value and urgency. Define
+\begin{equation}
+  r_{ij}(s)
+  =
+  \Prb\{\text{target }i\text{ is eventually reached if target }j\text{ is selected now}\mid s\}.
+  \label{eq:cross-reachability}
+\end{equation}
+Thus
+\begin{equation}
+  q_i(s) := r_{ii}(s)
+  \label{eq:self-success}
+\end{equation}
+is the success probability for target $i$ if it is selected now. The off-diagonal term $r_{ij}(s)$ measures
+how much selecting target $j$ helps target $i$.
+
+Given allocation probabilities $p=(p_j)_{j\in A(s)}$, the expected reachability payoff of player $i$ is
+\begin{equation}
+  R_i(s,p)
+  =
+  \sum_{j\in A(s)} p_j r_{ij}(s).
+  \label{eq:expected-private-reachability}
+\end{equation}
+The private urgency of player $i$ is the marginal gain from increasing the probability of selecting $i$ rather than
+using the current randomized allocation:
+\begin{equation}
+  u_i(s,p)
+  =
+  q_i(s)-R_i(s,p)
+  =
+  r_{ii}(s)-\sum_{j\in A(s)}p_jr_{ij}(s).
+  \label{eq:urgency}
+\end{equation}
+If nearby targets help player $i$ remain reachable, then $R_i(s,p)$ is large and $u_i(s,p)$ is small. Thus
+\eqref{eq:urgency} captures selfish free-riding on nearby objectives without introducing any global coordination reward.
+
+For the smooth bidding game, player $i$ has one-step utility
+\begin{equation}
+  U_i(b;s)
+  =
+  \sum_{j\in A(s)} p_j(b;s) r_{ij}(s) - \rho b_i.
+  \label{eq:player-utility}
+\end{equation}
+Let
+\begin{equation}
+  x_i=\eta+b_i,
+  \qquad
+  S=\sum_{j\in A(s)}x_j.
+  \label{eq:x-and-S}
+\end{equation}
+Then $p_i=x_i/S$. A direct derivative calculation gives
+\begin{equation}
+  \frac{\partial U_i}{\partial b_i}(b;s)
+  =
+  \frac{1}{S}\left(r_{ii}(s)-\sum_{j\in A(s)}p_j(b;s)r_{ij}(s)\right)-\rho
+  =
+  \frac{u_i(s,p(b;s))}{S}-\rho .
+  \label{eq:marginal-utility}
+\end{equation}
+Thus a player bids until private urgency equals the marginal bid cost, subject to the bid constraints in
+\eqref{eq:bid-domain}. This is the formal justification for treating bids as urgency-sensitive rather than merely
+value-sensitive.
+
+\section{Mechanism quality}
+
+Let $p^{\mathrm{NE}}(s)$ be the selection distribution induced by a Nash equilibrium of the one-step bidding game
+at state $s$. The following result is purely algebraic and does not require any global coordination rewards.
+
+\subsection{Urgency mass and the parameter $\gamma$}
+
+Define
+\begin{equation}
+  u_{\max}(s)
+  =
+  \max_{i\in A(s)} u_i(s,p^{\mathrm{NE}}(s)).
+  \label{eq:u-max}
+\end{equation}
+For parameters $\lambda\in(0,1]$ and a state $s$, define the high-urgency set
+\begin{equation}
+  H_\lambda(s)
+  =
+  \{i\in A(s): u_i(s,p^{\mathrm{NE}}(s))\ge \lambda u_{\max}(s)\}.
+  \label{eq:high-urgency-set}
+\end{equation}
+Let
+\begin{equation}
+  \beta(s)
+  =
+  \sum_{i\in H_\lambda(s)} p_i^{\mathrm{NE}}(s)
+  \label{eq:beta-def}
+\end{equation}
+be the probability mass that the equilibrium scheduler places on high-urgency targets.
+
+Define the urgency quality of the allocation by
+\begin{equation}
+  \gamma_u(s)
+  =
+  \frac{\sum_{i\in A(s)} p_i^{\mathrm{NE}}(s)u_i(s,p^{\mathrm{NE}}(s))}{u_{\max}(s)} .
+  \label{eq:gamma-u}
+\end{equation}
+
+\begin{lemma}[Urgency-mass lower bound]
+If $\beta(s)$ is defined by \eqref{eq:beta-def}, then
+\begin{equation}
+  \gamma_u(s) \ge \lambda \beta(s).
+  \label{eq:gamma-urgency-bound}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By definition of $H_\lambda(s)$ in \eqref{eq:high-urgency-set}, every $i\in H_\lambda(s)$ satisfies
+$u_i(s,p^{\mathrm{NE}}(s))\ge \lambda u_{\max}(s)$. Therefore
+\begin{align}
+  \sum_{i\in A(s)} p_i^{\mathrm{NE}}(s)u_i(s,p^{\mathrm{NE}}(s))
+  &\ge
+  \sum_{i\in H_\lambda(s)} p_i^{\mathrm{NE}}(s)u_i(s,p^{\mathrm{NE}}(s)) \notag\\
+  &\ge
+  \lambda u_{\max}(s)
+  \sum_{i\in H_\lambda(s)}p_i^{\mathrm{NE}}(s) \notag\\
+  &=
+  \lambda u_{\max}(s)\beta(s). \label{eq:gamma-proof-step}
+\end{align}
+Dividing \eqref{eq:gamma-proof-step} by $u_{\max}(s)$ gives \eqref{eq:gamma-urgency-bound}.
+\end{proof}
+
+\subsection{Bridge from urgency to success probability}
+
+The completion count depends on actual success probabilities $q_i(s)$, not on urgency alone. Since
+\begin{equation}
+  u_i(s,p) = q_i(s)-R_i(s,p) \le q_i(s),
+  \label{eq:urgency-below-success}
+\end{equation}
+urgency is a conservative proxy for success. To compare urgency quality with success quality, we use the following
+bridge parameter.
+
+\begin{assumption}[Urgency-success bridge]
+There exists $\kappa\in[0,1]$ such that for every reachable state $s$,
+\begin{equation}
+  u_{\max}(s) \ge \kappa q_{\max}(s),
+  \qquad
+  q_{\max}(s)=\max_{i\in A(s)}q_i(s).
+  \label{eq:bridge-assumption}
+\end{equation}
+\end{assumption}
+
+The bridge parameter $\kappa$ is positive when the most valuable target is also genuinely urgent: selecting other
+targets does not already give almost the same chance of eventually reaching it. When there are no deadlines and no
+horizon pressure, $\kappa$ may be close to zero, and urgency-based prioritization is not informative.
+
+\begin{lemma}[From urgency mass to success mass]
+Suppose \eqref{eq:bridge-assumption} holds and $\beta(s)\ge \beta$ uniformly over reachable states. Then
+\begin{equation}
+  \sum_{i\in A(s)}p_i^{\mathrm{NE}}(s)q_i(s)
+  \ge
+  \lambda\beta\kappa\, q_{\max}(s).
+  \label{eq:success-gamma-bound}
+\end{equation}
+Equivalently, the success-probability quality
+\begin{equation}
+  \gamma_q(s)
+  =
+  \frac{\sum_i p_i^{\mathrm{NE}}(s)q_i(s)}{q_{\max}(s)}
+  \label{eq:gamma-q-def}
+\end{equation}
+satisfies
+\begin{equation}
+  \gamma_q(s)\ge \lambda\beta\kappa.
+  \label{eq:gamma-q-lower}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By \eqref{eq:urgency-below-success}, $q_i(s)\ge u_i(s,p^{\mathrm{NE}}(s))$ for each $i$. Therefore
+\begin{align}
+  \sum_i p_i^{\mathrm{NE}}(s)q_i(s)
+  &\ge
+  \sum_i p_i^{\mathrm{NE}}(s)u_i(s,p^{\mathrm{NE}}(s)) \notag\\
+  &\ge
+  \lambda\beta(s)u_{\max}(s) \notag\\
+  &\ge
+  \lambda\beta\kappa q_{\max}(s), \label{eq:success-gamma-proof}
+\end{align}
+where the second inequality uses Lemma 1 and the third uses \eqref{eq:bridge-assumption} and $\beta(s)\ge\beta$.
+This proves \eqref{eq:success-gamma-bound} and \eqref{eq:gamma-q-lower}.
+\end{proof}
+
+\section{Completion-rate approximation theorem}
+
+The factor $\underline\mu/\overline\mu$ is a rate comparison. The Nash scheduler's completion rate is controlled by
+its success probability per attempt divided by its expected attempt duration. The optimal scheduler is upper bounded
+by the fastest possible expected time per successful completion.
+
+Let $\tau_i(s)$ be the random time consumed by selecting target $i$ at state $s$. Let $Y$ be the indicator that the
+attempt succeeds.
+
+\begin{assumption}[Expected time regularity]
+There are constants $0<\underline\mu\le \overline\mu<\infty$ such that:
+\begin{enumerate}[label=(\roman*)]
+  \item for every reachable state $s$ and every target selected by the Nash scheduler,
+  \begin{equation}
+    \E[\tau_i(s)\mid s] \le \overline\mu;
+    \label{eq:upper-mu}
+  \end{equation}
+  \item no scheduler can obtain successful completions at expected time per success smaller than $\underline\mu$, i.e.
+  \begin{equation}
+    \E[N^\star(T)]\le \frac{T}{\underline\mu}.
+    \label{eq:optimal-rate-upper}
+  \end{equation}
+\end{enumerate}
+\end{assumption}
+
+The second condition can be derived, for example, when every successful completion has conditional expected duration
+at least $\underline\mu$ under any policy, with the usual optional-stopping regularity conditions.
+
+\begin{assumption}[Attempt-rate regularity]
+There is a finite overshoot constant $C_{\mathrm{os}}$ such that if attempts under the Nash scheduler have conditional
+expected duration at most $\overline\mu$, then the expected number of attempts started before time $T$ is at least
+\begin{equation}
+  \E[M^{\mathrm{NE}}(T)] \ge \frac{T}{\overline\mu}-C_{\mathrm{os}} .
+  \label{eq:attempt-count-lower}
+\end{equation}
+This holds, for instance, under standard renewal-type conditions with bounded second moments; if attempt durations are
+uniformly bounded, $C_{\mathrm{os}}$ can be taken as a constant independent of $T$.
+\end{assumption}
+
+\begin{assumption}[Availability]
+There exists $q_0\in(0,1]$ such that at every nonterminal reachable state,
+\begin{equation}
+  q_{\max}(s)\ge q_0.
+  \label{eq:q0-assumption}
+\end{equation}
+\end{assumption}
+
+\begin{theorem}[Expected completion-rate bound]\label{thm:completion-rate-bound}
+Suppose Assumptions 1--3 hold. Suppose also that the equilibrium allocation satisfies
+\begin{equation}
+  \beta(s)\ge \beta
+  \label{eq:beta-uniform}
+\end{equation}
+for the high-urgency set in \eqref{eq:high-urgency-set}. Then
+\begin{equation}
+  \E[N^{\mathrm{NE}}(T)]
+  \ge
+  \lambda\beta\kappa q_0
+  \left(\frac{T}{\overline\mu}-C_{\mathrm{os}}\right).
+  \label{eq:ne-completions-lower}
+\end{equation}
+Moreover,
+\begin{equation}
+  \frac{\E[N^{\mathrm{NE}}(T)]}{\E[N^\star(T)]}
+  \ge
+  \lambda\beta\kappa q_0
+  \left(
+    \frac{\underline\mu}{\overline\mu}
+    -
+    \frac{C_{\mathrm{os}}\underline\mu}{T}
+  \right).
+  \label{eq:main-ratio-bound}
+\end{equation}
+In particular, for large horizons,
+\begin{equation}
+  \E[N^{\mathrm{NE}}(T)]
+  \gtrsim
+  \lambda\beta\kappa q_0
+  \frac{\underline\mu}{\overline\mu}
+  \E[N^\star(T)].
+  \label{eq:asymptotic-bound}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+At any decision state $s$, Lemma 2 and \eqref{eq:q0-assumption} imply that the conditional success probability of
+the Nash-selected attempt is at least
+\begin{equation}
+  \sum_i p_i^{\mathrm{NE}}(s)q_i(s)
+  \ge
+  \lambda\beta\kappa q_{\max}(s)
+  \ge
+  \lambda\beta\kappa q_0 .
+  \label{eq:conditional-success-lower}
+\end{equation}
+Let $M^{\mathrm{NE}}(T)$ be the number of attempts started before time $T$. Summing the conditional success lower bound
+\eqref{eq:conditional-success-lower} over attempts and using \eqref{eq:attempt-count-lower} gives
+\begin{equation}
+  \E[N^{\mathrm{NE}}(T)]
+  \ge
+  \lambda\beta\kappa q_0\, \E[M^{\mathrm{NE}}(T)]
+  \ge
+  \lambda\beta\kappa q_0
+  \left(\frac{T}{\overline\mu}-C_{\mathrm{os}}\right),
+  \label{eq:ne-bound-proof}
+\end{equation}
+which proves \eqref{eq:ne-completions-lower}.
+
+By \eqref{eq:optimal-rate-upper},
+\begin{equation}
+  \E[N^\star(T)]\le \frac{T}{\underline\mu}.
+  \label{eq:opt-bound-proof}
+\end{equation}
+Combining \eqref{eq:ne-bound-proof} and \eqref{eq:opt-bound-proof} yields
+\begin{align}
+  \frac{\E[N^{\mathrm{NE}}(T)]}{\E[N^\star(T)]}
+  &\ge
+  \lambda\beta\kappa q_0
+  \left(\frac{T}{\overline\mu}-C_{\mathrm{os}}\right)
+  \frac{\underline\mu}{T} \notag\\
+  &=
+  \lambda\beta\kappa q_0
+  \left(
+    \frac{\underline\mu}{\overline\mu}
+    -
+    \frac{C_{\mathrm{os}}\underline\mu}{T}
+  \right),
+  \label{eq:ratio-proof-step}
+\end{align}
+which is \eqref{eq:main-ratio-bound}. The asymptotic form \eqref{eq:asymptotic-bound} follows by suppressing the
+$O(1/T)$ overshoot term.
+\end{proof}
+
+\begin{remark}[Special case: deterministic feasible completions]
+If every feasible selected target is reached with probability one, then $q_i(s)=1$ for every feasible active target.
+In that case $q_0=1$. If there is meaningful deadline or horizon pressure, then $\kappa$ is positive. If there is no
+such pressure, urgencies may be near zero even though all $q_i=1$, and the urgency-based part of the theorem becomes
+vacuous; the scheduling problem is then governed mostly by route-efficiency, not deadline urgency.
+\end{remark}
+
+\section{Estimating the urgency fraction $\alpha$}
+
+The theorem is stated in terms of $\beta$, the probability mass placed on high-urgency targets. It is often useful to
+first estimate the fraction of high-urgency targets,
+\begin{equation}
+  \alpha(s)=\frac{|H_\lambda(s)|}{|A(s)|}.
+  \label{eq:alpha-state}
+\end{equation}
+The relationship between $\alpha$ and $\beta$ depends on how strongly bidding concentrates probability on urgent
+targets. If high-urgency targets bid at least $b_H$ and the remaining targets bid at most $b_L$, then by
+\eqref{eq:proportional-allocation}, with $h=|H_\lambda(s)|/|A(s)|$,
+\begin{equation}
+  \beta(s)
+  \ge
+  \frac{h(\eta+b_H)}{h(\eta+b_H)+(1-h)(\eta+b_L)}.
+  \label{eq:beta-from-alpha}
+\end{equation}
+Thus sparse urgent targets can still receive large probability mass if their bids separate from low-urgency targets.
+This is where bidding can improve over uniform random selection, for which $\beta_{\mathrm{rand}}(s)=h$.
+
+\subsection{Fixed target lifetimes}
+
+Suppose each target remains alive for a fixed lifetime $L$ after it appears. If target $i$ appeared at time $a_i^{\rm app}$,
+then its remaining lifetime, or slack, at time $t$ is
+\begin{equation}
+  h_i(t)=L-(t-a_i^{\rm app}).
+  \label{eq:slack-def}
+\end{equation}
+Let $\mu$ be a typical completion-time scale. For a threshold multiplier $c>0$, define a deadline-urgent target by
+\begin{equation}
+  h_i(t)\le c\mu.
+  \label{eq:deadline-urgent}
+\end{equation}
+Assume active target ages are approximately independent and uniformly distributed on $[0,L]$, as in a stationary
+asynchronous arrival or respawn process. Then
+\begin{equation}
+  \Prb\{h_i(t)\le c\mu\}
+  =
+  \min\left\{1,\frac{c\mu}{L}\right\}.
+  \label{eq:alpha-fixed-lifetime}
+\end{equation}
+Therefore the expected fraction of deadline-urgent targets is
+\begin{equation}
+  \alpha
+  =
+  \min\left\{1,\frac{c\mu}{L}\right\}.
+  \label{eq:alpha-final}
+\end{equation}
+If $n=|A(s)|$ active target ages are independent, then
+\begin{equation}
+  |H|\sim \mathrm{Binomial}(n,\alpha).
+  \label{eq:binomial-H}
+\end{equation}
+By Hoeffding's inequality, with probability at least $1-\delta$,
+\begin{equation}
+  \left|\frac{|H|}{n}-\alpha\right|
+  \le
+  \sqrt{\frac{\log(2/\delta)}{2n}}.
+  \label{eq:hoeffding-alpha}
+\end{equation}
+Thus $\alpha$ is estimable from $L$ and $\mu$, with concentration improving as the number of active targets grows.
+
+\subsection{No-expiry targets}
+
+If targets never expire, then $L=\infty$ and their deadline slack is infinite. Under the deadline-urgency definition
+\eqref{eq:deadline-urgent},
+\begin{equation}
+  \alpha = 0.
+  \label{eq:no-expiry-alpha}
+\end{equation}
+The urgency theory is then vacuous unless urgency is redefined relative to the global horizon. For example, one can
+replace $h_i(t)$ with the remaining episode time
+\begin{equation}
+  R_t=T-t
+  \label{eq:remaining-horizon}
+\end{equation}
+and call a target horizon-urgent if delaying it makes completion before $T$ unlikely. Without expiries or horizon
+pressure, all unreached targets with $q_i=1$ are equally valuable to their owners, and selfish bidding has little
+reason to produce nontrivial prioritization.
+
+
+\section{Hard winner-pays bidding}
+\label{sec:winner-pays}
+
+The smooth mechanism in \eqref{eq:proportional-allocation} gives a differentiable way to translate urgency into
+selection probabilities. A hard winner-take-all auction gives a different type of result: it can \emph{implement} the
+maximum-urgency target as a Nash winner when the bid grid and winner payment are calibrated to the urgency gap.
+This is an equilibrium-selection result, not a universal guarantee over all possible equilibria.
+
+\subsection{One-shot urgency contest}
+Fix a decision state $s$ and write
+\begin{equation}
+  u_i = u_i(s,p)
+  \label{eq:hard-u-i}
+\end{equation}
+for the private marginal urgency of target $i$. In this subsection the quantities $u_i$ are treated as fixed urgency
+scores for the current decision. Let
+\begin{equation}
+  u_{(1)}\ge u_{(2)}\ge \cdots \ge u_{(n)}
+  \label{eq:sorted-urgencies}
+\end{equation}
+be the sorted urgencies, and let $i^\star$ be a target with urgency $u_{(1)}$.
+
+Bids lie on a discrete grid
+\begin{equation}
+  \mathcal B=\{0,\Delta,2\Delta,\dots,B\}.
+  \label{eq:hard-bid-grid}
+\end{equation}
+The target with the largest bid wins; ties are broken uniformly at random among the highest bidders. Under a
+winner-pays rule, only the winner pays. Normalizing away the baseline reachability payoff that a player receives when
+it does not win, the incremental payoff of player $i$ is
+\begin{equation}
+  U_i^{\mathrm{WP}}(b)
+  =
+  \Prb\{i\text{ wins under }b\}\,\bigl(u_i-\rho b_i\bigr).
+  \label{eq:winner-pays-utility}
+\end{equation}
+Thus $u_i$ is the private value of winning control at the current decision, and $\rho b_i$ is the payment made only if
+player $i$ wins.
+
+\begin{proposition}[Winner-pays implementation of the maximum-urgency target]
+\label{prop:winner-pays-implementation}
+Suppose there exists a grid bid $b^\star\in\mathcal B$ with $b^\star\ge \Delta$ such that
+\begin{equation}
+  u_{(2)} \le \rho b^\star
+  \label{eq:wp-deter-losers}
+\end{equation}
+and
+\begin{equation}
+  \rho(b^\star+\Delta) \le u_{(1)}.
+  \label{eq:wp-no-lower}
+\end{equation}
+Then there exists a pure Nash equilibrium of the winner-pays hard auction in which $i^\star$ wins with probability
+one. In particular, the hard auction implements the maximum-urgency decision.
+\end{proposition}
+
+\begin{proof}
+Consider the following bid profile. Player $i^\star$ bids $b^\star$. One runner-up with urgency at most $u_{(2)}$ bids
+$b^\star-\Delta$, and all remaining players bid at most $b^\star-\Delta$; if $b^\star=\Delta$, this means the
+runner-up bids zero. Thus $i^\star$ wins uniquely and obtains payoff
+\begin{equation}
+  U_{i^\star}^{\mathrm{WP}}
+  =
+  u_{(1)}-\rho b^\star.
+  \label{eq:wp-top-payoff}
+\end{equation}
+
+First consider a losing player $j\ne i^\star$. Any bid below $b^\star$ still loses and gives payoff zero. A deviation
+to $b^\star$ creates a tie and yields payoff at most
+\begin{equation}
+  \frac{1}{2}\bigl(u_j-\rho b^\star\bigr),
+  \label{eq:wp-loser-tie-payoff}
+\end{equation}
+which is nonpositive by \eqref{eq:wp-deter-losers}. Any deviation above $b^\star$ costs at least
+$\rho(b^\star+\Delta)\ge \rho b^\star\ge u_{(2)}\ge u_j$ and is also nonprofitable. Hence no loser has a profitable
+deviation.
+
+Now consider player $i^\star$. Raising its bid only increases the payment while preserving the same winning
+probability, so it is not profitable. Lowering below $b^\star-\Delta$ loses or weakly lowers the probability of
+winning. The only potentially profitable downward deviation is to $b^\star-\Delta$, which creates a tie with the
+runner-up and gives payoff at most
+\begin{equation}
+  \frac{1}{2}\bigl(u_{(1)}-\rho(b^\star-\Delta)\bigr).
+  \label{eq:wp-top-lower-payoff}
+\end{equation}
+The original winning payoff in \eqref{eq:wp-top-payoff} is at least \eqref{eq:wp-top-lower-payoff} whenever
+\begin{equation}
+  u_{(1)}-\rho b^\star
+  \ge
+  \frac{1}{2}\bigl(u_{(1)}-\rho(b^\star-\Delta)\bigr),
+  \label{eq:wp-no-lower-derive}
+\end{equation}
+which is equivalent to
+\begin{equation}
+  \rho(b^\star+\Delta)\le u_{(1)}.
+  \label{eq:wp-no-lower-equivalent}
+\end{equation}
+This is exactly \eqref{eq:wp-no-lower}. Therefore $i^\star$ also has no profitable deviation. The profile is a pure
+Nash equilibrium and $i^\star$ wins uniquely.
+\end{proof}
+
+\begin{remark}[Interpretation of the bid-separation condition]
+The two conditions \eqref{eq:wp-deter-losers}--\eqref{eq:wp-no-lower} require a bid level whose cost lies between the
+second-largest urgency and the largest urgency, with one grid step of slack:
+\begin{equation}
+  u_{(2)} \le \rho b^\star \le \rho(b^\star+\Delta) \le u_{(1)}.
+  \label{eq:wp-gap-interpretation}
+\end{equation}
+Thus the result is strongest when the top urgency is separated from the rest and the bid grid is fine enough that
+$\rho\Delta$ is small compared with the urgency gap. If the top two urgencies are nearly tied, the hard auction may
+have multiple equilibria or tie-based equilibria; the implementation result then applies to an equilibrium selection,
+not to every equilibrium.
+\end{remark}
+
+\subsection{Completion guarantee for the implemented winner-pays equilibrium}
+
+Proposition~\ref{prop:winner-pays-implementation} implies that, at any state where the bid-separation condition holds,
+the hard winner-pays auction can select a maximum-urgency target. In the notation of Section~3, this means that the
+high-urgency set with $\lambda=1$ receives probability mass
+\begin{equation}
+  \beta(s)=1.
+  \label{eq:wp-beta-one}
+\end{equation}
+Combining \eqref{eq:wp-beta-one} with Theorem~\ref{thm:completion-rate-bound} gives the following corollary.
+
+\begin{corollary}[Winner-pays completion-rate bound]
+\label{cor:winner-pays-completion}
+Suppose that at every reachable decision state the winner-pays hard auction satisfies the bid-separation conditions
+\eqref{eq:wp-deter-losers}--\eqref{eq:wp-no-lower} and the equilibrium from Proposition~\ref{prop:winner-pays-implementation}
+is selected. Suppose also that the urgency-success bridge, expected time regularity, attempt-rate regularity, and
+availability assumptions hold. Then
+\begin{equation}
+  \E[N^{\mathrm{WP}}(T)]
+  \ge
+  \kappa q_0
+  \left(\frac{T}{\overline\mu}-C_{\mathrm{os}}\right),
+  \label{eq:wp-ne-completions-lower}
+\end{equation}
+and
+\begin{equation}
+  \frac{\E[N^{\mathrm{WP}}(T)]}{\E[N^\star(T)]}
+  \ge
+  \kappa q_0
+  \left(
+    \frac{\underline\mu}{\overline\mu}
+    -
+    \frac{C_{\mathrm{os}}\underline\mu}{T}
+  \right).
+  \label{eq:wp-main-ratio-bound}
+\end{equation}
+For large horizons,
+\begin{equation}
+  \E[N^{\mathrm{WP}}(T)]
+  \gtrsim
+  \kappa q_0\frac{\underline\mu}{\overline\mu}\E[N^\star(T)].
+  \label{eq:wp-asymptotic-bound}
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Under the selected equilibrium from Proposition~\ref{prop:winner-pays-implementation}, the winner has maximum urgency
+at each decision state. Therefore in Theorem~\ref{thm:completion-rate-bound} we can take $\lambda=1$ and $\beta=1$.
+Substituting these values into \eqref{eq:ne-completions-lower} and \eqref{eq:main-ratio-bound} gives
+\eqref{eq:wp-ne-completions-lower} and \eqref{eq:wp-main-ratio-bound}. The asymptotic form follows as in
+\eqref{eq:asymptotic-bound}.
+\end{proof}
+
+\begin{remark}[Why this is not a universal hard-auction guarantee]
+The winner-pays result is an implementation theorem. It says that, when a grid bid can separate the highest urgency
+from the rest, there exists a Nash equilibrium that implements the maximum-urgency target. It does not imply that all
+winner-pays equilibria are optimal, nor does it remove the need for the completion-time and urgency-success bridge
+conditions. For all-pay hard auctions the corresponding statement is typically weaker, because losing bidders also
+pay; one usually obtains threshold or mixed-equilibrium guarantees rather than the clean pure implementation result
+above.
+\end{remark}
+
+\section{Interpretation}
+
+The bound in \eqref{eq:main-ratio-bound} decomposes the performance of the selfish smooth bidding scheduler into four
+terms:
+\begin{equation}
+  \lambda\beta\kappa q_0\cdot \frac{\underline\mu}{\overline\mu}.
+  \label{eq:factor-decomposition}
+\end{equation}
+The terms have the following meanings:
+\begin{itemize}[leftmargin=2em]
+  \item $\lambda$: how urgent the high-urgency set is relative to the maximum urgency;
+  \item $\beta$: how much probability mass the Nash bidding mechanism places on that high-urgency set;
+  \item $\kappa$: how much maximum urgency reflects maximum actual success probability;
+  \item $q_0$: a lower bound on the best available success probability;
+  \item $\underline\mu/\overline\mu$: the completion-rate regularity factor, comparing the fastest possible expected time per success with the Nash scheduler's expected time per attempt.
+\end{itemize}
+This formulation avoids identifying urgency with value. Raw success is $q_i=r_{ii}$, while urgency is the marginal
+quantity $u_i=q_i-\sum_jp_jr_{ij}$. Bidding is useful precisely when the equilibrium concentrates probability mass on
+objectives with large private marginal urgency.
+
+\end{document}
