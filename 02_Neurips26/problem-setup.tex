@@ -99,8 +99,8 @@ For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\col
 At a bidding round $(s,t)$, let $\Xi_{i}^{\win}(s,t)$ and $\Xi_{i}^{\lose}(s,t)$ denote the random future trajectories \KM{for unbounded time in the future?} induced by the environment and by the subsequent bids when objective $i$ wins and loses the current auction, respectively.
 We first define the pre-payment continuation values
 \begin{align*}
-	\widetilde V_i^{\win}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\win}(s,t)) \mid s,t, i \text{ wins at } (s,t)\right],\\
-	\widetilde V_i^{\lose}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\lose}(s,t)) \mid s,t, i \text{ loses at } (s,t)\right],
+	\widetilde V_i^{\win}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\win}(s,t))\right],\\
+	\widetilde V_i^{\lose}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\lose}(s,t))\right],
 \end{align*}
 \KM{Typo: $s,t, i \text{ wins at } (s,t)$ should be $i \text{ wins at } (s,t)$.}
 \KM{I do not understand the notation $w_i(\Xi_{i}^{\win}(s,t))$.}
@@ -190,7 +190,7 @@ The following lemma shows how the missed-deadline penalty $-M$ induces such a ga
 \end{lemma}
 \KM{One issue with this is that we promised earlier that unlike LSTF, our method is going to be ``reward-aware.'' But this Lemma suggests that our method is ``deadline-aware,'' isn't it?}
 
-\begin{proof}
+% \begin{proof}
 	By definition, the per-objective return can be written as
 	\[
 	w_{i^*}
@@ -226,24 +226,21 @@ The following lemma shows how the missed-deadline penalty $-M$ induces such a ga
 	For every $j\neq i^*$, the no-expiry-change assumption \KM{make this assumption formal.} implies that $\Delta_j^{\mathrm{gross}}(s,t)$ contains only the discounted reward timing difference, and therefore $\Delta_j^{\mathrm{gross}}(s,t)\leq r_{\max}$.
 	Combining the two bounds yields
 	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq \delta M - 2r_{\max}.
+	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq M-C
 	\]
-\end{proof}
-
-\begin{corollary}[Winner-pays prioritizes near-expiry targets]\label{cor:winner pays expiry}
-	In the \poorman setting, suppose the assumptions of Lemma~\ref{lem:expiry urgency gap} hold at bidding state $(s,t)$ for some policy $i^*$, and moreover
+	for some constant $C\geq 0$, and moreover
 	\[
-	\delta M - 2r_{\max} > \rho
+		M-C > \rho
 	\qquad\text{and}\qquad
 	\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t).
 	\]
 	Then in any pure Nash equilibrium, policy $i^*$ wins control.
-\end{corollary}
+% \end{corollary}
 
 \begin{proof}
-	By Lemma~\ref{lem:expiry urgency gap},
+	By assumption,
 	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq \delta M - 2r_{\max} > \rho.
+	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq M-C > \rho.
 	\]
 	Hence the gap condition \eqref{eq:all pay:gross gain gap} of the previous theorem holds, and the claim follows.
 \end{proof}
@@ -314,7 +311,7 @@ where $\lambda\in (0,1]$.
 \begin{assumption}[Urgency-completion bridge]
 	There exists $\kappa\in [0,1]$ such that for every reachable bidding state $(s,t)$ and every objective $i$,
 	\[
-	q_i(s,t)\geq \kappa \frac{u_i(s,t)}{u_{\max}(s,t)} q_{\max}(s,t),
+	q_i(s,t)\geq \kappa\, \frac{q_{\max}(s,t)}{u_{\max}(s,t)}\,u_i(s,t),
 	\qquad
 	q_{\max}(s,t)\coloneqq \max_{i\in [1;m]} q_i(s,t),
 	\]
@@ -341,13 +338,13 @@ where $\lambda\in (0,1]$.
 	\[
 	\E[N^{\mathrm{auc}}(T)]
 	\geq
-	\lambda\beta\kappa q_0\left(\frac{T}{\overline{\mu}}-C_{\mathrm{os}}\right),
+	\lambda\eta\kappa q_0\left(\frac{T}{\overline{\mu}}-C_{\mathrm{os}}\right),
 	\]
 	and moreover
 	\[
 	\frac{\E[N^{\mathrm{auc}}(T)]}{\E[N^\star(T)]}
 	\geq
-	\lambda\beta\kappa q_0
+	\lambda\eta\kappa q_0
 	\left(
 	\frac{\underline{\mu}}{\overline{\mu}}
 	-
@@ -360,7 +357,7 @@ where $\lambda\in (0,1]$.
 	At any reachable bidding state $(s,t)$, every objective in $H_\lambda(s,t)$ has urgency at least $\lambda u_{\max}(s,t)$.
 	Hence
 	\[
-	\sum_{i=1}^m p_i^{\mathrm{NE}}(s,t)u_i(s,t)\geq \lambda\beta(s,t)u_{\max}(s,t)\geq \lambda\beta u_{\max}(s,t).
+	\sum_{i=1}^m p_i^{\mathrm{NE}}(s,t)u_i(s,t)\geq \lambda\eta(s,t)u_{\max}(s,t)\geq \lambda\eta u_{\max}(s,t).
 	\]
 	By the urgency-completion bridge, the conditional probability that the auction-selected objective is eventually completed satisfies
 	\[
@@ -368,15 +365,15 @@ where $\lambda\in (0,1]$.
 	\geq
 	\kappa \frac{q_{\max}(s,t)}{u_{\max}(s,t)} \sum_{i=1}^m p_i^{\mathrm{NE}}(s,t)u_i(s,t)
 	\geq
-	\lambda\beta\kappa q_{\max}(s,t)
+	\lambda\eta\kappa q_{\max}(s,t)
 	\geq
-	\lambda\beta\kappa q_0.
+	\lambda\eta\kappa q_0.
 	\]
 	Summing this lower bound over the expected number of attempts started before horizon $T$ and using the time-regularity assumption yields
 	\[
 	\E[N^{\mathrm{auc}}(T)]
 	\geq
-	\lambda\beta\kappa q_0\left(\frac{T}{\overline{\mu}}-C_{\mathrm{os}}\right).
+	\lambda\eta\kappa q_0\left(\frac{T}{\overline{\mu}}-C_{\mathrm{os}}\right).
 	\]
 	On the other hand, the lower bound $\underline{\mu}$ on expected time per successful completion implies $\E[N^\star(T)]\leq T/\underline{\mu}$.
 	Combining the two inequalities gives the claimed ratio bound.
@@ -396,6 +393,54 @@ where $\lambda\in (0,1]$.
 	Theorem~\ref{thm:stochastic fraction optimal} is stated for completion counts because this is the most robust quantity under stochastic target motion and dynamic target sets.
 	When per-goal rewards are uniformly bounded away from zero and missed-goal penalties admit a common additive budget, the same theorem immediately yields a corresponding constant-factor guarantee for the total reward objective up to the associated reward-scaling and additive-shift terms.
 \end{remark}
+
+\smallskip
+\noindent\textbf{Optional payoff corollary.}
+For convenience, let $J^{\mathrm{auc}}(T)$ and $J^\star(T)$ denote the total payoff collected by horizon $T$ under the auction policy and the optimal scheduler, respectively.
+
+\begin{corollary}[Affine total-payoff guarantee]
+	Suppose the assumptions of Theorem~\ref{thm:stochastic fraction optimal} hold.
+	Suppose moreover that there exist constants $0<\underline r\leq \overline r<\infty$ and $B_{\mathrm{miss}}\geq 0$ such that:
+	(i) every completed objective contributes payoff in $[\underline r,\overline r]$;
+	(ii) the total missed-deadline penalty incurred by the auction policy up to horizon $T$ has expectation at most $B_{\mathrm{miss}}$.
+	Then
+	\[
+	\E[J^{\mathrm{auc}}(T)]
+	\geq
+	\underline r\,\lambda\eta\kappa q_0\left(\frac{T}{\overline{\mu}}-C_{\mathrm{os}}\right)-B_{\mathrm{miss}},
+	\]
+	and
+	\[
+	\E[J^{\mathrm{auc}}(T)]
+	\geq
+	\frac{\underline r}{\overline r}\,
+	\lambda\eta\kappa q_0
+	\left(
+	\frac{\underline{\mu}}{\overline{\mu}}
+	-
+	\frac{C_{\mathrm{os}}\underline{\mu}}{T}
+	\right)
+	\E[J^\star(T)]
+	-
+	B_{\mathrm{miss}}.
+	\]
+\end{corollary}
+
+\begin{proof}
+	By assumption, the payoff contributed by completed objectives under the auction policy is at least $\underline r\,N^{\mathrm{auc}}(T)$, while the expected missed-deadline penalty contributes at worst an additive loss of $B_{\mathrm{miss}}$.
+	Hence
+	\[
+	\E[J^{\mathrm{auc}}(T)]\geq \underline r\,\E[N^{\mathrm{auc}}(T)]-B_{\mathrm{miss}}.
+	\]
+	Applying Theorem~\ref{thm:stochastic fraction optimal} yields the first inequality.
+	For the second inequality, note that every completion under the optimal scheduler contributes at most $\overline r$, so
+	\[
+	\E[J^\star(T)]\leq \overline r\,\E[N^\star(T)].
+	\]
+	Combining this upper bound with the ratio bound from Theorem~\ref{thm:stochastic fraction optimal} gives the claim.
+\end{proof}
+
+\GS{Something about $\beta=1$ with WinnerPays?}
 
 %For each objective $i$, define its urgency at the agent state $s \in S$ and time $t$ as:
 %$\Delta_i(s,t) \coloneqq V_i^{\win}(s,t) - V_i^{\wait}(s,t,\tau)$, where $V_i^{\win}(s,t)$ is the optimum payoff for winning the bidding now, and $V_i^{\wait}(s,t,\tau)$ is the optimum payoff for waiting for one bidding interval ($\tau$ steps) and then winning.
