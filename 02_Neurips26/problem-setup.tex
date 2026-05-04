@@ -63,6 +63,7 @@ This motivates us to seek for a heuristic approach that is aimed towards finding
 A natural deterministic baseline is the \emph{least slack time first} (LSTF) rule, which schedules the goal with smallest slack $\slack_i(x,t)\coloneqq d_i-t-d(x,g_i)$.
 However, this notion of urgency is tailored to stationary goals and deterministic travel times, and does not align with our full \momdp objective once targets move stochastically or may appear and disappear over time.
 For this reason, we use a more general benchmark that we call \emph{reward-aware urgency first} (RAUF).
+\KM{Is this used in the literature? If yes, some citation would be nice.}
 At every decision point, RAUF selects one of the goals with maximal \emph{reward-aware urgency}, namely the marginal continuation-value gain from granting that goal immediate control rather than deferring control to competing goals; ties are broken uniformly at random.
 Unlike slack, this urgency notion directly accounts for discounted rewards, missed-deadline penalties, stochastic target motion, and future target arrivals or removals.
 Our auction mechanism is designed to approximate this reward-aware urgency ordering in a decentralized manner while remaining tractable in settings where computing the globally optimal schedule is infeasible.
@@ -89,18 +90,22 @@ The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \
 \smallskip
 \noindent\textbf{Theoretical analysis of the bidding schemes.}
 We now show that both \poorman and \allpay implement the reward-aware urgency ordering whenever one goal has a sufficiently large urgency advantage over the others.
-To capture stochastic target motion together with target appearance and disappearance, we formulate the urgency scores using conditional expectations under the transition kernel of the \momdp.
+To capture stochastic motion of goals, we formulate the urgency scores using conditional expectations under the transition kernel of the \momdp.
 The deterministic stationary-goal case discussed above is then recovered as a special case in which these conditional expectations collapse to point values.
+\KM{No need to talk about the deterministic case here.}
 
 Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every agent state $s\in S$ and time $t$ to a bid $b_i$ and an action $a_i$.
 For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\colon (s,t)\mapsto a_i$ as two separate components of the policy.
-At a bidding round $(s,t)$, let $\Xi_{i}^{\win}(s,t)$ and $\Xi_{i}^{\lose}(s,t)$ denote the random future trajectories induced by the environment and by the subsequent bids when objective $i$ wins and loses the current auction, respectively.
+At a bidding round $(s,t)$, let $\Xi_{i}^{\win}(s,t)$ and $\Xi_{i}^{\lose}(s,t)$ denote the random future trajectories \KM{for unbounded time in the future?} induced by the environment and by the subsequent bids when objective $i$ wins and loses the current auction, respectively.
 We first define the pre-payment continuation values
 \begin{align*}
 	\widetilde V_i^{\win}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\win}(s,t)) \mid s,t, i \text{ wins at } (s,t)\right],\\
 	\widetilde V_i^{\lose}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\lose}(s,t)) \mid s,t, i \text{ loses at } (s,t)\right],
 \end{align*}
+\KM{Typo: $s,t, i \text{ wins at } (s,t)$ should be $i \text{ wins at } (s,t)$.}
+\KM{I do not understand the notation $w_i(\Xi_{i}^{\win}(s,t))$.}
 where the expectation ranges over stochastic state transitions, target motion, target arrivals or removals, and future randomized bids and tie-breaking.
+\KM{random arrival and removal of objectives is problematic, because this would cause the dimension of the state space to change, meaning the dimension of the underlying random variable (corresponding to ``$\mathbb{E}$'' to change. I would keep the number of goals fixed, this is a distraction and unnecessarily complicates the math.}
 The post-payment values when objective $i$ bids $b_i$ are
 \begin{align*}
 	V_i^{\win}(s,t,b_i) &\coloneqq \widetilde V_i^{\win}(s,t) - \rho b_i,\\
@@ -110,7 +115,8 @@ The continuation value at a bidding state $(s,t)$ is then
 \begin{align*}
 	\forall i\;.\;V_i^{\cont}(s,t) \coloneqq \max_{b_i\geq 0}\mathbb{E}_{b_{-i}\sim \pi^b_{-i}(s,t)}[U_i(s,t,b_i,b_{-i})],
 \end{align*}
-where $b_{-i}\sim\pi^b_{-i}(s,t)$ denotes the collection of bids of all policies other than $i$, and
+\KM{There is something wrong: $V_{\win},V_{\lose},\widetilde V_{\win}, \widetilde V_{\lose}$ do not depend on $V_i^{\cont}$.}
+where $b_{-i}\sim\pi^b_{-i}(s,t)$ denotes the collection of bids of all policies other than $i$ \KM{I think we need to say ``...at the Nash equilibrium, ...''}, and
 \begin{align*}
 	U_i(s,t,b_i,b_{-i}) \coloneqq
 		\begin{cases}
@@ -136,7 +142,7 @@ The following theorem establishes that the \poorman setting implements RAUF when
 
 \begin{theorem}
 	In the \poorman setting, consider a single bidding round at the agent state $s\in S$ and time $t$.
-	Suppose $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t)$, and let $i^*$ be a policy for which the following gross gain gap condition holds:
+	Suppose $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t)$,\KM{I would make it $\rho\beta > r_{\max}+M$. It is always better to impose constraints on the hyper-parameters, because maintaining those constraints is in the designer's hand. However, a constraint on the $\Delta_j^{\mathrm{gross}}$ feels like a matter of ``assumption'' or ``luck.''} and let $i^*$ be a policy for which the following gross gain gap condition holds:
 	\begin{align}\label{eq:all pay:gross gain gap}
 		\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t) > \rho.
 	\end{align}
@@ -168,18 +174,21 @@ The following lemma shows how the missed-deadline penalty $-M$ induces such a ga
 \begin{lemma}[Expiry-sensitive urgency gap]\label{lem:expiry urgency gap}
 	Fix a bidding state $(s,t)$ and a policy $i^*$.
 	Suppose there exists $\delta>0$ such that
+	\KM{I think such a $\delta$ would always exist. We need to say ``for every $\delta>$...''}
 	\[
 	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ loses at } (s,t)\right]
 	-
 	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ wins at } (s,t)\right]
 	\geq \delta,
 	\]
-	and suppose that for every $j\neq i^*$, granting or denying the current bidding interval to $j$ does not change its probability of missing the deadline over the horizon, so that $\Delta_j^{\mathrm{gross}}(s,t)$ is due only to changes in discounted reward timing.
+	\KM{$i^*$ loses at $(s,t)$}\KM{I think $\tau_i^*$ is undefined.}
+	and suppose that for every $j\neq i^*$, granting or denying the current bidding interval to $j$ does not change its probability of missing the deadline over the horizon\KM{this I don't see}, so that $\Delta_j^{\mathrm{gross}}(s,t)$ is due only to changes in discounted reward timing.
 	Then
 	\[
 	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq \delta M - 2r_{\max}.
 	\]
 \end{lemma}
+\KM{One issue with this is that we promised earlier that unlike LSTF, our method is going to be ``reward-aware.'' But this Lemma suggests that our method is ``deadline-aware,'' isn't it?}
 
 \begin{proof}
 	By definition, the per-objective return can be written as
@@ -214,7 +223,7 @@ The following lemma shows how the missed-deadline penalty $-M$ induces such a ga
 	By assumption, the penalty term is at least $\delta M$.
 	Moreover, since the truncated discounted reward term $\gamma^{\tau_{i^*}}r_{i^*}\mathbf{1}[\tau_{i^*}<d_{i^*}]$ always lies in $[0,r_{\max}]$, the difference between the two reward expectations for $i^*$ is bounded below by $-r_{\max}$.
 	Hence $\Delta_{i^*}^{\mathrm{gross}}(s,t)\geq \delta M - r_{\max}$.
-	For every $j\neq i^*$, the no-expiry-change assumption implies that $\Delta_j^{\mathrm{gross}}(s,t)$ contains only the discounted reward timing difference, and therefore $\Delta_j^{\mathrm{gross}}(s,t)\leq r_{\max}$.
+	For every $j\neq i^*$, the no-expiry-change assumption \KM{make this assumption formal.} implies that $\Delta_j^{\mathrm{gross}}(s,t)$ contains only the discounted reward timing difference, and therefore $\Delta_j^{\mathrm{gross}}(s,t)\leq r_{\max}$.
 	Combining the two bounds yields
 	\[
 	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq \delta M - 2r_{\max}.
@@ -243,7 +252,7 @@ The corollary should not be read as saying that $M$ ought to be made arbitrarily
 Rather, it identifies a relative scale separation: stronger missed-deadline penalties enlarge the regime in which near-expiry targets are provably prioritized, provided the penalty signal dominates both the ordinary reward scale $r_{\max}$ and the bidding increment scale $\rho$.
 Choosing $M$ therefore remains a modeling decision about how costly deadline misses should be in the underlying \momdp objective, not merely a theorem-tuning parameter.
 
-For the \allpay result below, we analyze the standard continuous-bid approximation of the auction game.
+For the \allpay result below, we analyze the standard continuous-bid approximation of the auction game.\KM{Why do you say this?}
 This is justified when the bid grid is sufficiently fine and the maximum bid is sufficiently large, so that the discrete bounded game approaches the continuous all-pay contest.
 
 The following theorem establishes that the \allpay setting concentrates probability mass on the RAUF choice whenever the top urgency is strictly ordered above the remaining urgencies.
@@ -293,13 +302,14 @@ The previous results are local one-step implementation statements.
 We now state an assumption-based guarantee showing that, under stochastic target motion and target appearance/disappearance, the auction policy can still achieve a constant fraction of the completions attained by an optimal scheduler over a finite horizon.
 
 Let $\pi^{\mathrm{auc}}$ denote the policy induced by a Nash equilibrium of the bidding game, let $p^{\mathrm{NE}}(s,t)$ be the distribution over winning objectives at bidding state $(s,t)$, and let $N^{\mathrm{auc}}(T)$ and $N^\star(T)$ be the numbers of completed goals by horizon $T$ under $\pi^{\mathrm{auc}}$ and the optimal scheduler, respectively.
-Writing $u_i(s,t)\coloneqq \Delta_i^{\mathrm{gross}}(s,t)$, define
+Writing $u_i(s,t)\coloneqq \Delta_i^{\mathrm{gross}}(s,t)$, \KM{why define a new notation?} define
 \begin{align*}
 	u_{\max}(s,t) &\coloneqq \max_{i\in [1;m]} u_i(s,t),\\
 	H_\lambda(s,t) &\coloneqq \left\{i\in [1;m] \mid u_i(s,t)\geq \lambda u_{\max}(s,t)\right\},\\
 	\beta(s,t) &\coloneqq \sum_{i\in H_\lambda(s,t)} p_i^{\mathrm{NE}}(s,t),
 \end{align*}
 where $\lambda\in (0,1]$.
+\KM{so $p_i^{\mathrm{NE}}$ is the $i$-th component of the distribution?}
 
 \begin{assumption}[Urgency-completion bridge]
 	There exists $\kappa\in [0,1]$ such that for every reachable bidding state $(s,t)$ and every objective $i$,
@@ -308,7 +318,7 @@ where $\lambda\in (0,1]$.
 	\qquad
 	q_{\max}(s,t)\coloneqq \max_{i\in [1;m]} q_i(s,t),
 	\]
-	where $q_i(s,t)$ is the conditional probability that objective $i$ is eventually completed by horizon $T$ if it is granted control at $(s,t)$.
+	where $q_i(s,t)$ is the conditional probability that objective $i$ is eventually completed by horizon $T$ \KM{But this could result in missing the deadline $d_i$, right?} if it is granted control at $(s,t)$.
 \end{assumption}
 
 \begin{assumption}[Time Regularity]
@@ -326,7 +336,7 @@ where $\lambda\in (0,1]$.
 \end{assumption}
 
 \begin{theorem}[Stochastic fraction-of-optimal completion guarantee]\label{thm:stochastic fraction optimal}
-	Suppose the above three assumptions hold and $\beta(s,t)\geq \beta$ uniformly over reachable bidding states for some $\beta\in (0,1]$.
+	Suppose the above three assumptions hold and $\beta(s,t)\geq \beta$ \KM{Please don't use the same symbol to denote a function as well as a constant} uniformly over reachable bidding states for some $\beta\in (0,1]$.\KM{Is it the same $\beta$ as the maximum bid?}
 	Then
 	\[
 	\E[N^{\mathrm{auc}}(T)]
