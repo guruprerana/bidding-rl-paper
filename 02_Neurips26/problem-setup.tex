@@ -99,13 +99,43 @@ For convenience, we will write $\pi_i^b\colon (\vecs,t)\mapsto \alpha_i([0;\beta
 Given $(\vecs,t)$, and given fixed $\pi_i^a$ and $\pi_i^b$ for all $i\in [1;m]$, we obtain a Markov chain, which is an \momdp with a singleton action set, with the deterministic initial state $\vecs$, i.e., $\mu(\vecs)=1$, and each deadline $d_i$ is replaced by $d_i-t$.
 This Markov chain induces a unique probability measure on the sample space of paths and rewards, and let $V_{\pi_i,\pi_{-i}}(\vecs,t)$ denote the \textit{expected} discounted sum of reward obtained by the goal $i$ in this Markov chain.
 (The notation $\pi_{-i}$ indicates the collection of every $j$-th policy for $j\neq i$.)
-A policy profile $\{\pi_i\}_{i\in [1;m]}$ is called a \textit{Nash equilibrium in the subgame starting at} $(\vecs,t)$ if for every $i$:
+A policy profile $\{\pi^*_i\}_{i\in [1;m]}$ is called a \textit{Nash equilibrium in the subgame starting at} $(\vecs,t)$ if for every $i$:
 \begin{align*}
-	\forall \pi_i'\neq \pi_i\;.\;V_{\pi_i,\pi_{-i}}(\vecs,t) \geq V_{\pi_i',\pi_{-i}}(\vecs,t).
+	\forall \pi_i\neq \pi^*_i\;.\;V_{\pi^*_i,\pi^*_{-i}}(\vecs,t) \geq V_{\pi_i,\pi^*_{-i}}(\vecs,t).
 \end{align*}
+To simplify the notation, we will write $V_i^*(\vecs,t)$ to denote the value $V_{\pi^*_i,\pi^*_{-i}}(\vecs,t)$.
+
+We will now perform a backward induction over $t$ to obtain the subgame perfect equilibrium, i.e., the equilibrium strategy profile that is a Nash equilibrium in every subgame.
 Suppose we are currently at $(\vecs,t)$, and let $i$ be a given policy index. 
 We consider two cases:
-(a) $i$ wins the bidding, in which case $i$ picks $\pi_i^a$ to maximize its own reward, and the optimal reward for $i$ is: $\widetilde V_i^{\win}(\vecs,t) \coloneqq \max_{\pi_i^a} \mathbb{E}$
+(a) $i$ wins the bidding, in which case $i$ picks $\pi_i^a$ to maximize its own reward, and the optimal reward for $i$ is: $\widetilde V_i^{\win}(\vecs,t) \coloneqq \max_{\pi_i^a} \mathbb{E}[V_i^*\left(T^\tau(\vecs,\pi_i^a),t+\tau\right)]$, where $T^\tau(\vecs,\pi_i^a)$ represents the probability distribution over the set of states reached by executing $\pi_i^a$ successively for $\tau$ steps (no bidding takes place during this time);
+(b) $i$ loses the bidding, in which case another policy $j$ picks $\pi_j^a$ to maximize its own reward, and by taking the minimum over all $j$, we obtain the worst-case resulting reward for $i$:
+$\widetilde V_i^{\lose}(\vecs,t) \coloneqq \min_{j\neq i,\pi_j^{a*}} \mathbb{E}[V_i^*\left(T^\tau(\vecs,\pi_j^{a*}),t+\tau\right)]$, where $\pi_j^{a*} = \arg\max_{\pi_j^a} \mathbb{E}[V_j^*\left(T^\tau(\vecs,\pi_j^a),t+\tau\right)]$.
+%Since this backward induction ends when we reach $t+k\tau > \max_{i\in [1;m]} d_i$ for for some $k$, it can be shown that the resulting 
+Intuitively, $\widetilde V_i^{\win}(\vecs,t)$ and $\widetilde V_i^{\lose}(\vecs,t)$ are the expected rewards before the payment of the bid value, and if the concrete bid value is $b_i$, then after adjusting the bid payment, the net payoffs become:
+\begin{align*}
+	V_i^{\win}(\vecs,t,b_i) &\coloneqq \widetilde V_i^{\win}(\vecs,t) - \rho b_i,\\
+	V_i^{\lose}(\vecs,t,b_i) &\coloneqq \widetilde V_i^{\lose}(\vecs,t) - \rho b_i\cdot \mathbf{1}[\text{\allpay}].
+\end{align*}
+Given a set of fixed bidding policies $\{\pi_i^b\}_{i\in [1;m]}$, and for the set of sampled bids $\{b_i\sim\pi_i^b(\vecs,t)\}_{i\in [1;m]}$, define:
+\begin{align*}
+	U_i(\vecs,t,b_i,b_{-i}) \coloneqq
+		\begin{cases}
+			V_i^{\win}(\vecs,t,b_i) & \text{if } b_i > \max_{j\neq i} b_j,\\
+			V_i^{\lose}(\vecs,t,b_i) & \text{if } b_i < \max_{j\neq i} b_j,\\
+			\frac{1}{|W|}V_i^{\win}(\vecs,t,b_i) + \left(1-\frac{1}{|W|}\right)V_i^{\lose}(\vecs,t,b_i) & \text{if } i\in W,
+		\end{cases}
+\end{align*}
+with $W\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in [1;m]} b_\ell\}$ being the set of highest bidders.
+Suppose $\{\pi_i^{b*}\}_{i\in [1;m]}$ is the Nash equilibrium for the set of utilities $\{U_i(\vecs,t,\cdot,\cdot)\}_{i\in [1;m]}$, i.e., for every $i$:
+\begin{align*}
+	\forall \pi_i^b\neq \pi_i^{b*}\;.\;\mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(\vecs,t,b_i,b_{-i})] \geq \mathbb{E}_{b_i\sim \pi_i^{b},b_{-i}\sim\pi_{-i}^{b*}}[U_i(\vecs,t,b_i,b_{-i})].
+\end{align*}
+Then it follows from the backward induction that:
+\begin{align*}
+	V_i^*(\vecs,t) = \mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(\vecs,t,b_i,b_{-i})].
+\end{align*}
+\todo{Worked up to here...now continue with the net gain, gross gain etc.}
 
 Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every agent state $s\in S$ and time $t$ to a bid $b_i$ and an action $a_i$.
 For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\colon (s,t)\mapsto a_i$ as two separate components of the policy.
