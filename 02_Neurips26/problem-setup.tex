@@ -94,6 +94,19 @@ To capture stochastic motion of goals, we formulate the urgency scores using con
 The deterministic stationary-goal case discussed above is then recovered as a special case in which these conditional expectations collapse to point values.
 \KM{No need to talk about the deterministic case here.}
 
+Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every state $\vecs=(s_0,s_1,\ldots,s_m)\in \mathbf{S}$ and time $t$ to a probability distribution over the bid $b_i$ and a deterministic action $a_i$.
+For convenience, we will write $\pi_i^b\colon (\vecs,t)\mapsto \alpha_i([0;\beta])$ and $\pi_i^a\colon (\vecs,t)\mapsto a_i$ as two separate components of the policy, where $\alpha_i([0;\beta])$ represents a probability distribution over $[0;\beta]$, and $b_i\sim \alpha_i([0;\beta])$ will represent a concrete bid value sampled from this distribution.
+Given $(\vecs,t)$, and given fixed $\pi_i^a$ and $\pi_i^b$ for all $i\in [1;m]$, we obtain a Markov chain, which is an \momdp with a singleton action set, with the deterministic initial state $\vecs$, i.e., $\mu(\vecs)=1$, and each deadline $d_i$ is replaced by $d_i-t$.
+This Markov chain induces a unique probability measure on the sample space of paths and rewards, and let $V_{\pi_i,\pi_{-i}}(\vecs,t)$ denote the \textit{expected} discounted sum of reward obtained by the goal $i$ in this Markov chain.
+(The notation $\pi_{-i}$ indicates the collection of every $j$-th policy for $j\neq i$.)
+A policy profile $\{\pi_i\}_{i\in [1;m]}$ is called a \textit{Nash equilibrium in the subgame starting at} $(\vecs,t)$ if for every $i$:
+\begin{align*}
+	\forall \pi_i'\neq \pi_i\;.\;V_{\pi_i,\pi_{-i}}(\vecs,t) \geq V_{\pi_i',\pi_{-i}}(\vecs,t).
+\end{align*}
+Suppose we are currently at $(\vecs,t)$, and let $i$ be a given policy index. 
+We consider two cases:
+(a) $i$ wins the bidding, in which case $i$ picks $\pi_i^a$ to maximize its own reward, and the optimal reward for $i$ is: $\widetilde V_i^{\win}(\vecs,t) \coloneqq \max_{\pi_i^a} \mathbb{E}$
+
 Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every agent state $s\in S$ and time $t$ to a bid $b_i$ and an action $a_i$.
 For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\colon (s,t)\mapsto a_i$ as two separate components of the policy.
 At a bidding round $(s,t)$, let $\Xi_{i}^{\win}(s,t)$ and $\Xi_{i}^{\lose}(s,t)$ denote the random future trajectories \KM{for unbounded time in the future?} induced by the environment and by the subsequent bids when objective $i$ wins and loses the current auction, respectively.
