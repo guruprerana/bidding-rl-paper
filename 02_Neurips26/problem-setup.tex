@@ -112,6 +112,7 @@ We consider two cases:
 (b) $i$ loses the bidding, in which case another policy $j$ picks $\pi_j^a$ to maximize its own reward, and by taking the minimum over all $j$, we obtain the worst-case resulting reward for $i$:
 $\widetilde V_i^{\lose}(\vecs,t) \coloneqq \min_{j\neq i,\pi_j^{a*}} \mathbb{E}[V_i^*\left(T^\tau(\vecs,\pi_j^{a*}),t+\tau\right)]$, where $\pi_j^{a*} = \arg\max_{\pi_j^a} \mathbb{E}[V_j^*\left(T^\tau(\vecs,\pi_j^a),t+\tau\right)]$.
 %Since this backward induction ends when we reach $t+k\tau > \max_{i\in [1;m]} d_i$ for for some $k$, it can be shown that the resulting 
+\GS{But what about the payoffs accumulated between time \(t\) and \(t + \tau\)? The cleanest would probably be to add an additional term \(w_i(\textsf{Traj}^\tau(\vec s, \pi_i^a))\) which is the cumulative payoff over the length \(\tau\) trajectories induced by \(\pi_i^a\). \(w(\rho)\) was defined in the previous section.}
 Intuitively, $\widetilde V_i^{\win}(\vecs,t)$ and $\widetilde V_i^{\lose}(\vecs,t)$ are the expected rewards before the payment of the bid value, and if the concrete bid value is $b_i$, then after adjusting the bid payment, the net payoffs become:
 \begin{align*}
 	V_i^{\win}(\vecs,t,b_i) &\coloneqq \widetilde V_i^{\win}(\vecs,t) - \rho b_i,\\
@@ -127,7 +128,7 @@ Given a set of fixed bidding policies $\{\pi_i^b\}_{i\in [1;m]}$, and for the se
 		\end{cases}
 \end{align*}
 with $W\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in [1;m]} b_\ell\}$ being the set of highest bidders.
-Suppose $\{\pi_i^{b*}\}_{i\in [1;m]}$ is the Nash equilibrium for the set of utilities $\{U_i(\vecs,t,\cdot,\cdot)\}_{i\in [1;m]}$, i.e., for every $i$:
+Suppose $\{\pi_i^{b*}\}_{i\in [1;m]}$ is a Nash equilibrium for the set of utilities $\{U_i(\vecs,t,\cdot,\cdot)\}_{i\in [1;m]}$, i.e., for every $i$:
 \begin{align*}
 	\forall \pi_i^b\neq \pi_i^{b*}\;.\;\mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(\vecs,t,b_i,b_{-i})] \geq \mathbb{E}_{b_i\sim \pi_i^{b},b_{-i}\sim\pi_{-i}^{b*}}[U_i(\vecs,t,b_i,b_{-i})].
 \end{align*}
@@ -137,38 +138,6 @@ Then it follows from the backward induction that:
 \end{align*}
 \todo{Worked up to here...now continue with the net gain, gross gain etc.}
 
-Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every agent state $s\in S$ and time $t$ to a bid $b_i$ and an action $a_i$.
-For convenience, we will write $\pi_i^b\colon (s,t)\mapsto b_i$ and $\pi_i^a\colon (s,t)\mapsto a_i$ as two separate components of the policy.
-At a bidding round $(s,t)$, let $\Xi_{i}^{\win}(s,t)$ and $\Xi_{i}^{\lose}(s,t)$ denote the random future trajectories \KM{for unbounded time in the future?} induced by the environment and by the subsequent bids when objective $i$ wins and loses the current auction, respectively.
-We first define the pre-payment continuation values
-\begin{align*}
-	\widetilde V_i^{\win}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\win}(s,t))\right],\\
-	\widetilde V_i^{\lose}(s,t) &\coloneqq \E\!\left[w_i(\Xi_{i}^{\lose}(s,t))\right],
-\end{align*}
-\KM{Typo: $s,t, i \text{ wins at } (s,t)$ should be $i \text{ wins at } (s,t)$.}
-\KM{I do not understand the notation $w_i(\Xi_{i}^{\win}(s,t))$.}
-where the expectation ranges over stochastic state transitions, target motion, target arrivals or removals, and future randomized bids and tie-breaking.
-\KM{random arrival and removal of objectives is problematic, because this would cause the dimension of the state space to change, meaning the dimension of the underlying random variable (corresponding to ``$\mathbb{E}$'' to change. I would keep the number of goals fixed, this is a distraction and unnecessarily complicates the math.}
-The post-payment values when objective $i$ bids $b_i$ are
-\begin{align*}
-	V_i^{\win}(s,t,b_i) &\coloneqq \widetilde V_i^{\win}(s,t) - \rho b_i,\\
-	V_i^{\lose}(s,t,b_i) &\coloneqq \widetilde V_i^{\lose}(s,t) - \rho b_i\cdot \mathbf{1}[\text{\allpay}].
-\end{align*}
-The continuation value at a bidding state $(s,t)$ is then
-\begin{align*}
-	\forall i\;.\;V_i^{\cont}(s,t) \coloneqq \max_{b_i\geq 0}\mathbb{E}_{b_{-i}\sim \pi^b_{-i}(s,t)}[U_i(s,t,b_i,b_{-i})],
-\end{align*}
-\KM{There is something wrong: $V_{\win},V_{\lose},\widetilde V_{\win}, \widetilde V_{\lose}$ do not depend on $V_i^{\cont}$.}
-where $b_{-i}\sim\pi^b_{-i}(s,t)$ denotes the collection of bids of all policies other than $i$ \KM{I think we need to say ``...at the Nash equilibrium, ...''}, and
-\begin{align*}
-	U_i(s,t,b_i,b_{-i}) \coloneqq
-		\begin{cases}
-			V_i^{\win}(s,t,b_i) & \text{if } b_i > \max_{j\neq i} b_j,\\
-			V_i^{\lose}(s,t,b_i) & \text{if } b_i < \max_{j\neq i} b_j,\\
-			\frac{1}{|W|}V_i^{\win}(s,t,b_i) + \left(1-\frac{1}{|W|}\right)V_i^{\lose}(s,t,b_i) & \text{if } i\in W,
-		\end{cases}
-\end{align*}
-with $W\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in [1;m]} b_\ell\}$ being the set of highest bidders.
 The \emph{net gain} for bidding $b_i$ at $(s,t)$ is defined as:
 \begin{align*}
 	\Delta_i^{\mathrm{net}}(s,t,b_i)&\coloneqq V^{\win}_i(s,t,b_i) - V^{\lose}_i(s,t,b_i)\\
@@ -179,13 +148,17 @@ where the \emph{gross gain} is
 	\Delta^{\mathrm{gross}}_i(s,t)\coloneqq \widetilde V_i^{\win}(s,t)-\widetilde V_i^{\lose}(s,t).
 \end{align*}
 The quantity $\Delta^{\mathrm{gross}}_i(s,t)$ is exactly the reward-aware urgency of policy $i$: it measures the continuation-value loss incurred by not allocating the next bidding interval to $i$.
+\GS{Talk about how this urgency measure, in addition to the deadline, also encodes cooperation between policies, if there is any, because if \(V_i^{\lose}(s,t)\) is high, i.e., then the urgency measure is low.}
 Thus RAUF selects a policy maximizing $\Delta^{\mathrm{gross}}_i(s,t)$.
 
 The following theorem establishes that the \poorman setting implements RAUF whenever the leading urgency exceeds the runner-up by more than one bid increment.
 
 \begin{theorem}
 	In the \poorman setting, consider a single bidding round at the agent state $s\in S$ and time $t$.
-	Suppose $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t)$,\KM{I would make it $\rho\beta > r_{\max}+M$. It is always better to impose constraints on the hyper-parameters, because maintaining those constraints is in the designer's hand. However, a constraint on the $\Delta_j^{\mathrm{gross}}$ feels like a matter of ``assumption'' or ``luck.''} and let $i^*$ be a policy for which the following gross gain gap condition holds:
+	Suppose $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t)$,
+	\KM{I would make it $\rho\beta > r_{\max}+M$. It is always better to impose constraints on the hyper-parameters, because maintaining those constraints is in the designer's hand. However, a constraint on the $\Delta_j^{\mathrm{gross}}$ feels like a matter of ``assumption'' or ``luck.''} 
+	\GS{I feel like \(r_{\max}+M\) is a really big quantity and does not match the experiments where both \(\rho, \beta\) are chosen to be much smaller compared to both \(r_{\max}\). For example, for the Cat Feeder env. we have \(\rho = 0.1, \beta=0.6, r_{\max}=50, M=50\). Although this might be because in the implementation, the policies are not reinitialized after a target is reached, it is just assigned to go to the next target of the same color. So here the "urgencies" values are much smaller. This was confirmed empirically because increasing \(\rho\) causes performance to degrade quite quickly, see Fig 6 of experiments. In any case I put that in the next corollary.} 
+	and let $i^*$ be a policy for which the following gross gain gap condition holds:
 	\begin{align}\label{eq:all pay:gross gain gap}
 		\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t) > \rho.
 	\end{align}
@@ -212,84 +185,35 @@ $
 \end{proof}
 
 The previous theorem is abstract in the sense that it only assumes an urgency gap.
-The following lemma shows how the missed-deadline penalty $-M$ induces such a gap when delaying a target materially increases its probability of expiring.
 
-\begin{lemma}[Expiry-sensitive urgency gap]\label{lem:expiry urgency gap}
-	Fix a bidding state $(s,t)$ and a policy $i^*$.
-	Suppose there exists $\delta>0$ such that
-	\KM{I think such a $\delta$ would always exist. We need to say ``for every $\delta>$...''}
+\begin{corollary}[Winner-pays prioritizes near-expiry targets]\label{cor:winner pays expiry}
+	In the \poorman setting, suppose that at bidding state $(s,t)$ for some policy $i^*$,
 	\[
-	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ loses at } (s,t)\right]
-	-
-	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ wins at } (s,t)\right]
-	\geq \delta,
-	\]
-	\KM{$i^*$ loses at $(s,t)$}\KM{I think $\tau_i^*$ is undefined.}
-	and suppose that for every $j\neq i^*$, granting or denying the current bidding interval to $j$ does not change its probability of missing the deadline over the horizon\KM{this I don't see}, so that $\Delta_j^{\mathrm{gross}}(s,t)$ is due only to changes in discounted reward timing.
-	Then
-	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq \delta M - 2r_{\max}.
-	\]
-\end{lemma}
-\KM{One issue with this is that we promised earlier that unlike LSTF, our method is going to be ``reward-aware.'' But this Lemma suggests that our method is ``deadline-aware,'' isn't it?}
-
-% \begin{proof}
-	By definition, the per-objective return can be written as
-	\[
-	w_{i^*}
-	=
-	\gamma^{\tau_{i^*}}r_{i^*}\mathbf{1}[\tau_{i^*}<d_{i^*}]
-	-
-	M\,\mathbf{1}[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}].
-	\]
-	Substituting this identity into the definition
-	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)=\widetilde V_{i^*}^{\win}(s,t)-\widetilde V_{i^*}^{\lose}(s,t)
-	=
-	\E\!\left[w_{i^*}(\Xi_{i^*}^{\win}(s,t)) - w_{i^*}(\Xi_{i^*}^{\lose}(s,t)) \mid s,t\right],
-	\]
-	and grouping the reward and penalty parts gives
-	\begin{align*}
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)
-	&=
-	\E\!\left[\gamma^{\tau_{i^*}}r_{i^*}\mathbf{1}[\tau_{i^*}<d_{i^*}] \mid s,t, i^* \text{ wins at } (s,t)\right]
-	-
-	\E\!\left[\gamma^{\tau_{i^*}}r_{i^*}\mathbf{1}[\tau_{i^*}<d_{i^*}] \mid s,t, i^* \text{ loses at } (s,t)\right]\\
-	&\quad
-	+ M\Bigl(
-	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ loses at } (s,t)\right]\\
-	&\qquad\qquad\qquad\qquad
-	-
-	\Pr\!\left[\tau_{i^*}=\infty \text{ or } \tau_{i^*}\geq d_{i^*}\mid s,t, i^* \text{ wins at } (s,t)\right]
-	\Bigr).
-	\end{align*}
-	By assumption, the penalty term is at least $\delta M$.
-	Moreover, since the truncated discounted reward term $\gamma^{\tau_{i^*}}r_{i^*}\mathbf{1}[\tau_{i^*}<d_{i^*}]$ always lies in $[0,r_{\max}]$, the difference between the two reward expectations for $i^*$ is bounded below by $-r_{\max}$.
-	Hence $\Delta_{i^*}^{\mathrm{gross}}(s,t)\geq \delta M - r_{\max}$.
-	For every $j\neq i^*$, the no-expiry-change assumption \KM{make this assumption formal.} implies that $\Delta_j^{\mathrm{gross}}(s,t)$ contains only the discounted reward timing difference, and therefore $\Delta_j^{\mathrm{gross}}(s,t)\leq r_{\max}$.
-	Combining the two bounds yields
-	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq M-C
-	\]
-	for some constant $C\geq 0$, and moreover
-	\[
-		M-C > \rho
+	\Delta_{i^*}^{\mathrm{gross}}(s,t)\geq M
 	\qquad\text{and}\qquad
-	\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s,t).
+	\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\leq r_{\max},
+	\]
+	and moreover
+	\[
+		M-r_{\max} > \rho
+	\qquad\text{and}\qquad
+	\rho\beta > M+r_{\max}.
 	\]
 	Then in any pure Nash equilibrium, policy $i^*$ wins control.
-% \end{corollary}
+\end{corollary}
 
 \begin{proof}
 	By assumption,
 	\[
-	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq M-C > \rho.
+	\Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)\geq M-r_{\max} > \rho.
 	\]
 	Hence the gap condition \eqref{eq:all pay:gross gain gap} of the previous theorem holds, and the claim follows.
 \end{proof}
 
+The condition $\Delta_{i^*}^{\mathrm{gross}}(s,t)\geq M$ captures the near-expiry regime in which denying the current bidding interval to $i^*$ is likely to cause a deadline miss, so the urgency of $i^*$ is driven by the full missed-deadline penalty.
+
 The corollary should not be read as saying that $M$ ought to be made arbitrarily large.
-Rather, it identifies a relative scale separation: stronger missed-deadline penalties enlarge the regime in which near-expiry targets are provably prioritized, provided the penalty signal dominates both the ordinary reward scale $r_{\max}$ and the bidding increment scale $\rho$.
+Rather, it identifies a relative scale separation: $M$ drives the urgency of a near-expiry target, $r_{\max}$ controls the ordinary reward-scale fluctuation in competing gross urgencies, $\rho$ is the minimum urgency gap needed to justify outbidding a rival by one bid increment, and the condition $\rho\beta > M+r_{\max}$ ensures that the bounded bid grid can express even the largest relevant urgency scale in this regime.
 Choosing $M$ therefore remains a modeling decision about how costly deadline misses should be in the underlying \momdp objective, not merely a theorem-tuning parameter.
 
 For the \allpay result below, we analyze the standard continuous-bid approximation of the auction game.\KM{Why do you say this?}
