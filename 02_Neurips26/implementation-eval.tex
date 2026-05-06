@@ -13,13 +13,6 @@ Each cat disappears after a fixed number of steps; feeding it yields a reward, w
 We train with $m=7$ cats in the environment and demonstrate generalization up to $14$. 
 Each cat is served by a dedicated policy whose observation includes the robot position, the locations of active cats, and their remaining lifetimes.
 
-\begin{wrapfigure}[14]{r}{0.25\textwidth}
-  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
-    \includegraphics[width=\linewidth]{img/assault_preview.png}
-    \caption{Atari Assault env.}
-    \label{fig:assault_preview}
-  \end{minipage}
-\end{wrapfigure}
 In both the Atari games---Assault (Figure~\ref{fig:assault_preview}) and Air-raid---the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. 
 Although this is not traditionally seen as a multi-objective environment, we treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. 
 In lieu of the standard pixel observations, we employ the object-centric variant of the Atari environments~\citep{delfosse2023ocatari} which provides the environment state information to the policies.
