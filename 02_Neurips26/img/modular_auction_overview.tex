@@ -2,7 +2,7 @@
 % Width of the environment block.
 \newcommand{\figblockheight}{1.45cm}
 % Height of the environment block.
-\newcommand{\figpolicywidth}{3.0cm}
+\newcommand{\figpolicywidth}{2.0cm}
 % Width of each policy box.
 \newcommand{\figpolicyheight}{1.0cm}
 % Height of each policy box and AP box.
@@ -130,12 +130,12 @@
   \node[apblock, below=of ap2] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^m$};
   \node[font=\Large] at ($(ap2.north)+(0,\figpolicyheight/2+\figapdotgapabove)$) {$\vdots$};
   \node[font=\Large] at ($(ap2.south)+(0,-\figapdotgapbelow)$) {$\vdots$};
-  \node[note, above=\figaptitlegap of ap1, font=\small\bfseries] (aptitle) {Attention pooling};
+  \node[note, above=\figaptitlegap of ap1] (aptitle) {\small\bfseries Attention pooling\\[-1pt]\scriptsize\normalfont Extract global state features};
   \node[note, font=\small\bfseries] at (pol2.center |- aptitle.center) {Policies};
   \node[note, font=\small\bfseries] at (auc.center |- aptitle.center) {Auction};
   \coordinate (statebus) at ($(ap2.west)+(-\figstateleft,0)$);
   \coordinate (rewardbus) at ($(ap2.east)!\figrewardbusfrac!(pol2.west)$);
-  \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap] (env) {Environment + active objectives};
+  \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap] (env) {Multi-Objective\\Environment};
   \coordinate (clipnw) at ($(ap1.west |- aptitle.north)+(-\figbboxleftpad,\figbboxheighttop)$);
   \coordinate (clipse) at ($(auc.east |- env.south)+(\figbboxrightpad,-\figbboxheightbottom)$);
 
