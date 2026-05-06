@@ -1,23 +1,21 @@
 \begin{table}
   \centering
-  \caption{Gridworld performance (mean $\pm$ std across 5 seeds) at the best evaluation iteration. Values are $8 \times \text{avg performance}$ for bidding/single-agent methods, and $8 \times \text{targets reached} - \text{expired}$ for DWN.}
+  \caption{Gridworld performance (mean $\pm$ std across available seeds) averaged over each seed's last 5 available evaluation iterations. Values are $8 \times \text{avg performance}$ for bidding/single-agent methods, and $8 \times \text{targets reached} - \text{expired}$ for DWN.}
   \begin{tabular}{ll}
-    \toprule
-    {\bf Method} & {\bf Performance} \\
-    \midrule
-    \poorman & $51.17$ {\small\textcolor{gray}{$(4.49)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $67.21$ {\small$(5.75)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $58.41$ {\small$(5.09)$}} \\
-    \allpay & $\textbf{79.46}$ {\small\textcolor{gray}{$(3.68)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $69.73$ {\small$(3.57)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $48.78$ {\small$(47.10)$}} \\
-    \midrule
-    DWN & $-2.28$ {\small\textcolor{gray}{$(2.22)$}} \\
-    Single-Agent PPO & \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Reward Shaping} & \textcolor{gray}{\itshape $-48.75$ {\small$(4.30)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Nearest Shaping} & $\textbf{22.17}$ {\small\textcolor{gray}{$(36.34)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Expiry Shaping} & \textcolor{gray}{\itshape $-44.34$ {\small$(1.38)$}} \\
-    \bottomrule
+    \hline
+    {\bf Algorithm} & {\bf Performance} \\
+    \hline
+    Winner-Pays & $49.44$ {\small\textcolor{gray}{$(\pm 4.19)$}} \\
+    Winner-Pays (Local Obs) & $63.76$ {\small\textcolor{gray}{$(\pm 3.85)$}} \\
+    Winner-Pays (No Attn. Pool.) & $51.72$ {\small\textcolor{gray}{$(\pm 3.97)$}} \\
+    All-Pay & $72.52$ {\small\textcolor{gray}{$(\pm 4.23)$}} \\
+    All-Pay (Local Obs) & $64.96$ {\small\textcolor{gray}{$(\pm 3.82)$}} \\
+    All-Pay (No Attn. Pool.) & $37.72$ {\small\textcolor{gray}{$(\pm 50.32)$}} \\
+    DWN & $-10.27$ {\small\textcolor{gray}{$(\pm 2.38)$}} \\
+    Single-Agent PPO & $-51.59$ {\small\textcolor{gray}{$(\pm 5.33)$}} \\
+    Single-Agent (NS) & $-14.15$ {\small\textcolor{gray}{$(\pm 41.88)$}} \\
+    Single-Agent (ES) & $-47.62$ {\small\textcolor{gray}{$(\pm 1.52)$}} \\
+    \hline
   \end{tabular}
   \label{tab:gridworld_methods}
 \end{table}
