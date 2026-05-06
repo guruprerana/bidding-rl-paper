@@ -1,4 +1,4 @@
-\section{Multi-Objective Policy Synthesis}
+\section{Multi-Objective Policy Synthesis: Problem Setup}
 
 We formalize the policy synthesis problem for a fixed number of goals, and then introduce our auction-based framework for this setting. 
 Afterwards, we will describe how our framework naturally extends to the setting with dynamic goal appearance and disappearance.
@@ -10,45 +10,16 @@ A (Markov) \textit{policy} is a sequence \(\pi=\{\pi_t\}_{t=0}^{H-1}\), where ea
 For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\), and the \textit{global} reward is \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
 The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\).
 
-\smallskip\noindent
-\textbf{Lower complexity bound.}\todo{this part needs work}
-We establish that the optimal policy synthesis problem is NP-hard, and we show this already on a simplified setting:
-	Suppose the transition function $T$ of the \momdp is deterministic, the goals are stationary such that the location of the $i$-th goal is always $g_i\in S$, and for any policy, the minimum travel time from a given location $x\in S$ to the $i$-th goal is $t_i = d(x,g_i)$. 
-	(Alternatively, $t_i$ can be interpreted as the length of the shortest path from $x$ to $g_i$ when the agent moves at the unit velocity.)
+Our formulation of \momdp can model a broad class of RL problems in the literature, including\todo{citations?}~\cite{?}.
+For our cat feeder example, the states include the agent's and cats' positions as well as the elapsed time, the actions include the movement of the agent, the probabilistic transitions model both the aleatoric uncertainties in the agent's movement (like occasional skidding due to slippery floor, etc.) as well as the epistemic uncertainties in the cats' movement, and the reward function for each cat assigns a positive reward upon reaching the cat within a given deadline and a negative reward upon missing the deadline.
+We will assume that the agent observes the states, but the transition kernel is unknown.
 
-\begin{theorem}\label{thm:np hardness}
-	Finding the optimal policy for the \momdp is NP-hard.
-\end{theorem}
-
-\begin{proof}
-	The simpler setting with deterministic agents and stationary goals subsumes the Euclidean traveling salesman problem, where the deadlines are all infinity, and the goal is to find the shortest path passing through all the goals.
-	This problem is known to be NP-complete~\cite{DBLP:journals/tcs/Papadimitriou77}, and our deadline-restricted case is at least as hard as it.
-	\KM{There is a slight difference, that we allow revisiting a state. However, I found on discussion forums that this does not change the complexity, find a reference. Also see metric traveling salesman, which is more general (we could then replace the Euclidean distance requirement in the \momdp state space with the requirement of just having a metric.}
-\end{proof}
-
-The NP-hardness of the optimal policy synthesis problem motivates us to find heuristics to solve the problem.
-Moreover, our heuristic must seamlessly support dynamic addition or deletion of objectives (modeled as reward functions), which is our ultimate goal.
-Towards our goal, we identify a key structural property of the optimal policy below.
-
-\begin{proposition}\label{prop:scheduling is the optimal choice}
-	Consider the simpler case of deterministic agent with stationary goals.
-	There exists a permutation $\sigma^*\in \Sigma_m$, where $\Sigma_m$ is the set of all permutations of $[1;m]$, such that the optimal policy $\pi^*$ pursues the goals in the order $\sigma^*(1)\ldots\sigma^*(m)$, and $\pi^*$ takes the shortest paths from the initial agent location to goal $\sigma^*(1)$ and between $\sigma^*(i)$ and $\sigma^*(i+1)$, for every $i\in [1;m-1]$.
-\end{proposition}
-The above proposition effectively reduces the problem to an optimal \emph{scheduling} problem.
-Furthermore, Theorem~\ref{thm:np hardness} suggests that a polynomial-time centralized optimal algorithm does not exist, unless P=NP, already for the simpler deterministic case with stationary goals.
-This motivates us to seek for a heuristic approach that is aimed towards finding the optimal schedule over the goals whose existence is guaranteed by Proposition~\ref{prop:scheduling is the optimal choice}.
-
-A natural deterministic baseline is the \emph{least slack time first} (LSTF) rule, which schedules the goal with smallest slack $\slack_i(x,t)\coloneqq d_i-t-d(x,g_i)$.
-However, this notion of urgency is tailored to stationary goals and deterministic travel times, and does not align with our full \momdp objective once targets move stochastically or may appear and disappear over time.
-For this reason, we use a more general benchmark that we call \emph{reward-aware urgency first} (RAUF).
-\KM{Is this used in the literature? If yes, some citation would be nice.}
-At every decision point, RAUF selects one of the goals with maximal \emph{reward-aware urgency}, namely the marginal continuation-value gain from granting that goal immediate control rather than deferring control to competing goals; ties are broken uniformly at random.
-Unlike slack, this urgency notion directly accounts for discounted rewards, missed-deadline penalties, stochastic target motion, and future target arrivals or removals.
-Our auction mechanism is designed to approximate this reward-aware urgency ordering in a decentralized manner while remaining tractable in settings where computing the globally optimal schedule is infeasible.
-\GS{Also talk about how urgency encodes agent cooperation.}
+%Before presenting our modular framework to compute a policy, let us comment on the hardness of the optimal policy synthesis problem.
+%Even in the simpler case when all the transition probabilities are known, the optimal policy synthesis problem can be shown to be an NP-hard problem.
+%This is because, one can encode 
 
 
-\section{Auction-Based Multi-Policy Framework}
+\section{Auction-Based Multi-Policy Framework: Theory}
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
 The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
