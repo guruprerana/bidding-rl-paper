@@ -1,0 +1,12 @@
+\section{Learning Local Policies in Markov Bidding Games.}
+Our goal is to learn the local policy of each player in the constructed Markov game using RL.
+\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. We follow their recipe and train all the local policies with PPO. 
+Similar to \citet{yu2022mappo}, since the objectives in our environments share the same characteristics, we use the same actor and critic network for all the policies. 
+At each iteration of PPO, we collect all the rollouts from each policy's perspective and sample minibatches from this pool to perform the PPO updates.
+
+Additionally, to cope with varying number of objectives and varying number of players in the resulting Markov game, we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding. 
+This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time. 
+Each objective information vector is first processed by a fully connected neural network to produce a target embedding. 
+These embeddings are then aggregated through a weighted sum, where the weights are computed by taking the dot product between each embedding and a learned query vector. 
+This attention mechanism produces a fixed-dimensional representation that summarizes the set of objectives while allowing the model to adapt to varying objective counts.
+\GS{Talk about discrete bids.}
