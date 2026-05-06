@@ -7,11 +7,16 @@ The code for all experiments is included in the supplementary materials.
 
 All experiments use 5 random seeds: \{1825, 410, 4507, 4013, 3658\}.
 
+\paragraph{Existing assets and licenses.}
+Our experiments use the Arcade Learning Environment (ALE)~\citep{bellemare13arcade}, OCAtari~\citep{delfosse2023ocatari}, CleanRL~\citep{huang2022cleanrl}, Optuna~\citep{akiba2019optuna}, and the Deep W-Learning implementation associated with~\citet{rosero2024multi}. We use these assets only for research experiments and cite their original sources. The corresponding software licenses and terms of use are those distributed with the respective public repositories; we include the exact versions, repository URLs, and license names in the released supplementary code.
+
 % ============================================================
 \subsection{Cat Feeder Environment}
 % ============================================================
 
 \begin{table}[h]
+\caption{Cat Feeder shared (training) environment parameters.}
+\label{tab:cat-feeder-env-params}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -28,10 +33,11 @@ Direction change probability & 0.1 \\
 Target move interval & 5 \\
 \bottomrule
 \end{tabular}
-\caption{Cat Feeder shared (training) environment parameters.}
 \end{table}
 
 \begin{table}[h]
+\caption{Cat Feeder multi-agent PPO hyperparameters (\allpay and \poorman).}
+\label{tab:cat-feeder-mappo-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -65,10 +71,11 @@ Target embedding dim & 64 \\
 Target encoder hidden layers & $[64, 64]$ \\
 \bottomrule
 \end{tabular}
-\caption{Cat Feeder multi-agent PPO hyperparameters (\allpay and \poorman).}
 \end{table}
 
 \begin{table}[h]
+\caption{Cat Feeder single-agent PPO baseline hyperparameters. Hyperparameters were tuned using Optuna with 40 trials. The nearest-target shaping variant is identical but uses a distance reward scale of 0.6 with shaping toward the nearest target.}
+\label{tab:cat-feeder-ppo-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -95,23 +102,24 @@ Actor hidden layers & $[128, 128, 128, 128]$ \\
 Critic hidden layers & $[256, 256, 256, 256]$ \\
 \bottomrule
 \end{tabular}
-\caption{Cat Feeder single-agent PPO baseline hyperparameters. Hyperparameters were tuned using Optuna with 40 trials. The nearest-target shaping variant is identical but uses a distance reward scale of 0.6 with shaping toward the nearest target.}
 \end{table}
 
 \begin{table}[h]
+\caption{Cat Feeder DWN baseline hyperparameters.}
+\label{tab:cat-feeder-dwn-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
 Parameter & Value \\
 \midrule
 \multicolumn{2}{l}{\textit{Training}} \\
-Total timesteps & $5 \times 10^{7}$ \\
+Total timesteps & $5 \times 10^{8}$ \\
 Parallel environments & 256 \\
 Discount $\gamma$ & 0.99 \\
 Replay buffer size & $1 \times 10^{6}$ \\
 Batch size & 256 \\
 Learning starts & $1 \times 10^{5}$ \\
-Train frequency & 2560 \\
+Train frequency & 256 \\
 W-network train delay & $1 \times 10^{6}$ \\
 Target network update frequency & 1000 \\
 Target network $\tau$ & 1.0 \\
@@ -127,7 +135,6 @@ Q $\varepsilon$ start / min / decay & 0.99 / 0.01 / 0.99 \\
 W $\varepsilon$ start / min / decay & 0.99 / 0.01 / 0.99 \\
 \bottomrule
 \end{tabular}
-\caption{Cat Feeder DWN baseline hyperparameters.}
 \end{table}
 
 % ============================================================
@@ -135,6 +142,8 @@ W $\varepsilon$ start / min / decay & 0.99 / 0.01 / 0.99 \\
 % ============================================================
 
 \begin{table}[h]
+\caption{Assault shared environment parameters.}
+\label{tab:assault-env-params}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -151,10 +160,11 @@ Bid upper bound & 2 \\
 Bid penalty & 0.3 \\
 \bottomrule
 \end{tabular}
-\caption{Assault shared environment parameters.}
 \end{table}
 
 \begin{table}[h]
+\caption{Assault multi-agent PPO hyperparameters (\allpay and \poorman).}
+\label{tab:assault-mappo-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -180,10 +190,11 @@ Actor hidden layers & $[128, 128, 128, 128]$ \\
 Critic hidden layers & $[256, 256, 256, 256]$ \\
 \bottomrule
 \end{tabular}
-\caption{Assault multi-agent PPO hyperparameters (\allpay and \poorman).}
 \end{table}
 
 \begin{table}[h]
+\caption{Assault single-agent PPO baseline hyperparameters (differences from multi-agent PPO only; all other parameters are shared).}
+\label{tab:assault-ppo-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -195,10 +206,11 @@ Entropy coefficient & 0.01 \\
 Target KL & --- \\
 \bottomrule
 \end{tabular}
-\caption{Assault single-agent PPO baseline hyperparameters (differences from multi-agent PPO only; all other parameters are shared).}
 \end{table}
 
 \begin{table}[h]
+\caption{Assault DWN baseline hyperparameters.}
+\label{tab:assault-dwn-hparams}
 \centering
 \begin{tabular}{ll}
 \toprule
@@ -227,5 +239,4 @@ Q $\varepsilon$ start / min / decay & 0.99 / 0.01 / 0.995 \\
 W $\varepsilon$ start / min / decay & 0.99 / 0.01 / 0.995 \\
 \bottomrule
 \end{tabular}
-\caption{Assault DWN baseline hyperparameters.}
 \end{table}

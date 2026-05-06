@@ -3,30 +3,6 @@
 
 \newcommand{\introfigleftvoffset}{-3cm}
 
-\begin{figure*}[t]
-  \centering
-  \begin{subfigure}[t]{0.28\textwidth}
-    \centering
-    \begin{adjustbox}{width=\linewidth,center,trim=1.5cm 0 0 0,clip}
-      \input{img/standard_control_overview.tex}
-    \end{adjustbox}
-    \caption{Monolithic controller policy}
-    \label{fig:standard_control_overview}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[t]{0.7\textwidth}
-    \centering
-    \begin{adjustbox}{width=\linewidth,trim=3cm 0 0 0,clip,center}
-      \input{img/modular_auction_overview.tex}
-    \end{adjustbox}
-    \caption{Auction-based multi-policy controller}
-    \label{fig:modular_auction_overview}
-  \end{subfigure}
-
-  \caption{Comparison of the standard monolithic RL controller and our auction-based modular controller for evolving objectives.}
-  \label{fig:intro_control_overview}
-\end{figure*}
-
 \begin{wrapfigure}[12]{r}{0.3\textwidth}
   \hspace*{0.6em}\begin{minipage}{\dimexpr\linewidth-1em}
     \includegraphics[width=\linewidth]{img/grid_preview.png}

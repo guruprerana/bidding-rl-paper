@@ -1,0 +1,62 @@
+\section{Learning Local Policies in Markov Bidding Games.}
+
+\begin{figure*}[t]
+  \centering
+  \begin{subfigure}[t]{0.28\textwidth}
+    \centering
+    \begin{adjustbox}{width=\linewidth,center,trim=1.5cm 0 0 0,clip}
+      \input{img/standard_control_overview.tex}
+    \end{adjustbox}
+    \caption{Monolithic controller policy}
+    \label{fig:standard_control_overview}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.7\textwidth}
+    \centering
+    \begin{adjustbox}{width=\linewidth,trim=3cm 0 0 0,clip,center}
+      \input{img/modular_auction_overview.tex}
+    \end{adjustbox}
+    \caption{Auction-based multi-policy controller}
+    \label{fig:modular_auction_overview}
+  \end{subfigure}
+
+  \caption{Comparison of the standard monolithic RL controller and our auction-based modular controller for evolving objectives.}
+  \label{fig:intro_control_overview}
+\end{figure*}
+
+Our goal is to learn the local policy of each player in the Markov bidding game from~\Cref{def:markov-bidding-game} using reinforcement learning.
+\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently for multi-agent settings. 
+We follow their recipe and also train the local policies concurrently with PPO.
+\Cref{fig:modular_auction_overview} visualizes our auction-based multi-policy controller. 
+At each iteration of PPO, rollouts are collected from the environment by playing the policies.
+For each local policy, we compute a PPO loss from the rollouts collected from that policy's perspective, and optimize the shared actor-critic parameters using the aggregate of these local losses.
+We parameterize each local policy with an actor-critic network that outputs both an environment action and a bid through categorical action heads.
+During each PPO update, we compute advantages with generalized advantage estimation (GAE) and update all trainable components of the local policy jointly.
+In our experiments, the objectives are symmetric, so we share the actor-critic network across local policies; this reduces the number of learned parameters while preserving separate policy roles through their objective-specific inputs.
+This sharing also improves sample efficiency: from the same set of rollouts, the shared network receives updates from all $m$ local-policy objectives rather than from a single objective alone.
+Hyperparameters, network sizes, and rollout settings are reported in Appendix~\ref{sec:reprod-details}.
+
+In the practical implementation, we use a discrete bid space rather than the continuous interval in~\Cref{def:markov-bidding-game}.
+Each policy selects its bid from a small finite set of levels, so the bid can be represented as an additional categorical action and trained with the same PPO machinery as the environment action.
+This discretization is sufficient in our experiments: the bid-level ablation in~\Cref{fig:gridworld-bid-upper-bound} shows that only a small number of levels is needed for effective coordination.
+
+Additionally, to cope with varying number of objectives and varying number of players in the resulting Markov game, we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding. 
+This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time. 
+Formally, the attention pooling module is a permutation-invariant map $\textsf{AP}: \bigcup_{m \geq 1}(\mathbb{R}^{d_z})^m \to \mathbb{R}^{d_h}$ from a variable-size collection of objective vectors to a fixed-dimensional embedding.
+The tuple $(z_1,\ldots,z_m)$ represents the current state of the system through its active objectives, where $z_j$ denotes the information vector for objective $j$; for example, $z_j$ may encode the position of a target.
+Each objective information vector is first processed by a fully connected neural network $f_\psi$ to produce a target embedding $h_j = f_\psi(z_j)$. 
+Given a learned query vector $q$, we compute attention weights and the pooled embedding as
+\begin{align}
+  \alpha_j
+  &=
+  \frac{\exp(q^\top h_j)}
+       {\sum_{\ell=1}^{m} \exp(q^\top h_\ell)},
+  &
+	  h_{\mathrm{pool}}
+	  &=
+	  \sum_{j=1}^{m} \alpha_j h_j .
+\end{align}
+The final embedding produced by the module is $\textsf{AP}(z_1,\ldots,z_m)=h_{\mathrm{pool}}$.
+Each local policy has its own attention pooling module, while the downstream actor-critic network is shared across policies in our symmetric-objective experiments.
+The attention-pooling parameters are trained jointly with the rest of the policy network during PPO.
+This attention mechanism produces a fixed-dimensional representation that summarizes the set of objectives while allowing the model to adapt to varying objective counts.
