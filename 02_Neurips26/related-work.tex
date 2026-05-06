@@ -6,6 +6,17 @@ Other works address trade-offs by adopting a specific optimality notion, such as
 
 Only a few works consider distributed policies for multiple rewards. W-learning~\citep{humphrys1995w} and its deep RL extension~\citep{rosero2024multi} train separate policies alongside meta-functions that score states by urgency, selecting the policy with the highest score at runtime. Other methods aggregate decisions through ranked voting~\citep{mendez2019multi} or fixed rules such as summing action values~\citep{russell2003q}. Our approach is simpler: it uses an engineered reward structure that enables standard RL algorithms (e.g., PPO) without additional meta-policies or complex aggregation. Moreover, to the best of our knowledge, we are the first to study the incremental MORL setting, where reward components can be added or removed at runtime.
 
+For hierarchical RL, we refer to a recent survey by~\citet{klissarov2025discovering}. 
+The similarities between our approach and hierarchical RL are in the desiderata of the design: modularity of design, so that solutions of a given problem can be reused in other problems, and compositionality, where different solutions can be combined to create solutions for a wider range of more complex tasks. 
+However the approach is fundamentally different: in hierarchical RL, the above desiderata is achieved by dividing a given learning task to a series of high-level sub-tasks issued by a “manager” with each sub-task being pursued by a lower-level “worker” policy. 
+In contrast, we take a “flat”, democratic approach: there is no “manager” and the “workers” still learn to collaborate with each other via a bidding-based conflict-resolution mechanism. 
+In the future, it would be interesting to study if these two ideas could be combined into a hybrid architecture.
+
+In multi-policy multi-objective RL~\citep{ding2024multi,zhao2025multi}, each policy represents one point on the Pareto frontier, usually in a way that none of the policies is dominated by some other policy from the collection. 
+Then the goal is to pick one of the Pareto optimal policies in a way such that some additional criteria are fulfilled. 
+This is fundamentally different from our work: our multiple policies stem from a separation of concern for the objectives, such that each policy pursues a single individual objective. 
+In multi-policy MORL, each policy pursues all the objectives simultaneously, which has the same drawbacks as any other monolithic design (lack of reusability, etc., see our introduction).
+
 The idea of bidding-based selfish policies is inspired by auction mechanisms for multi-objective path planning on graphs~\citep{avni2024auction} and by the literature on bidding games~\citep{lazarus1999combinatorial,avni2019infinite,avni2025bidding}. These works use explicit model-based approaches and do not readily extend to the model-free setting of RL.
 Besides, they are restricted to the setting with two objectives.
 

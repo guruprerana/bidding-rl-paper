@@ -1,11 +1,5 @@
 \section{Experimental Results}\label{sec:experimental-results}
-\begin{wrapfigure}[14]{r}{0.25\textwidth}
-  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
-    \includegraphics[width=\linewidth]{img/assault_preview.png}
-    \caption{Atari Assault env.}
-    \label{fig:assault_preview}
-  \end{minipage}
-\end{wrapfigure}
+
 We conduct experiments to show the superior performance of our method compared to baselines including standard PPO. 
 We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
 A detailed description of the environments and the baseline approaches is provided in Appendix~\ref{app:experimental setup}, below we include a summary.
@@ -19,6 +13,13 @@ Each cat disappears after a fixed number of steps; feeding it yields a reward, w
 We train with $m=7$ cats in the environment and demonstrate generalization up to $14$. 
 Each cat is served by a dedicated policy whose observation includes the robot position, the locations of active cats, and their remaining lifetimes.
 
+\begin{wrapfigure}[14]{r}{0.25\textwidth}
+  \hspace*{0.7em}\begin{minipage}{\dimexpr\linewidth-1em}
+    \includegraphics[width=\linewidth]{img/assault_preview.png}
+    \caption{Atari Assault env.}
+    \label{fig:assault_preview}
+  \end{minipage}
+\end{wrapfigure}
 In both the Atari games---Assault (Figure~\ref{fig:assault_preview}) and Air-raid---the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. 
 Although this is not traditionally seen as a multi-objective environment, we treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. 
 In lieu of the standard pixel observations, we employ the object-centric variant of the Atari environments~\citep{delfosse2023ocatari} which provides the environment state information to the policies.
@@ -82,6 +83,12 @@ The variants with no attention pooling for targets only start growing much later
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
 We remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards a joint-equilibrium.
 
+\begin{wrapfigure}[23]{r}{0.3\textwidth}
+        \includegraphics[width=\linewidth]{img/gridworld_action_window_bar_chart.png}
+        \includegraphics[width=\linewidth]{img/assault_action_window_bar_chart.png}
+    \caption{Effect of action window on performance: Cat Feeder (top) and Atari Assault (bottom).}
+    \label{fig:action-window}
+\end{wrapfigure}
 \textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our multi-policy methods outperform the baselines by a substantial margin.
 Across both the environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
@@ -172,12 +179,7 @@ In contrast, our approach allows the policies themselves to indicate the importa
 \end{figure}
 
 
-\begin{wrapfigure}{r}{0.3\textwidth}
-        \includegraphics[width=\linewidth]{img/gridworld_action_window_bar_chart.png}
-        \includegraphics[width=\linewidth]{img/assault_action_window_bar_chart.png}
-    \caption{Effect of action window on performance: Cat Feeder (top) and Atari Assault (bottom).}
-    \label{fig:action-window}
-\end{wrapfigure}
+
 \textbf{Policy behaviors and interpretability.}\quad
 Video rollouts show that bidding-based policies take control when they can accumulate reward within the action window, while each policy pursues only its own objective. \Cref{fig:control-bid-dist} presents the distribution of control time and bids. Control is well distributed among policies. In Assault, bids are usually 0, indicating that random control assignment suffices since targets do not expire. In contrast, the Cat Feeder environment shows a wider bid spread (0--6). Here, \allpay yields more conservative policies with mostly low bids, while \poorman produces a more even distribution, reflecting greater willingness to bid high.
 
