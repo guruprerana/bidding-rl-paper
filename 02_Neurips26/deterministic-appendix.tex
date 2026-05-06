@@ -1,0 +1,49 @@
+\section{A Deterministic Time-Bounded Path Planning Problem}
+
+%\smallskip\noindent
+%\textbf{Lower complexity bound.}\todo{this part needs work}
+%We establish that the optimal policy synthesis problem is NP-hard, and we show this already on a simplified setting:
+%	Suppose the transition function $T$ of the \momdp is deterministic, the goals are stationary such that the location of the $i$-th goal is always $g_i\in S$, and for any policy, the minimum travel time from a given location $x\in S$ to the $i$-th goal is $t_i = d(x,g_i)$. 
+%	(Alternatively, $t_i$ can be interpreted as the length of the shortest path from $x$ to $g_i$ when the agent moves at the unit velocity.)
+%
+%\begin{theorem}\label{thm:np hardness}
+%	Finding the optimal policy for the \momdp is NP-hard.
+%\end{theorem}
+%
+%\begin{proof}
+%	The simpler setting with deterministic agents and stationary goals subsumes the Euclidean traveling salesman problem, where the deadlines are all infinity, and the goal is to find the shortest path passing through all the goals.
+%	This problem is known to be NP-complete~\cite{DBLP:journals/tcs/Papadimitriou77}, and our deadline-restricted case is at least as hard as it.
+%	\KM{There is a slight difference, that we allow revisiting a state. However, I found on discussion forums that this does not change the complexity, find a reference. Also see metric traveling salesman, which is more general (we could then replace the Euclidean distance requirement in the \momdp state space with the requirement of just having a metric.}
+%\end{proof}
+%
+%The NP-hardness of the optimal policy synthesis problem motivates us to find heuristics to solve the problem.
+%Moreover, our heuristic must seamlessly support dynamic addition or deletion of objectives (modeled as reward functions), which is our ultimate goal.
+%Towards our goal, we identify a key structural property of the optimal policy below.
+
+We consider a path planning problem for an agent, where the agent needs to reach multiple stationary goals $\{g_i\}_{i=[1;m]}$ in the state space, each goal $g_i$ has a deadline $d_i\in \mathbb{N}_{>0}$ before which it must be reached, the agent receives a reward $r_i\in \mathbb{R}_{>0}$ if the goal $g_i$ is reached before $d_i$, and receives a penalty $-M$ otherwise.
+Moreover, we assume that agent's movement has no uncertainties.
+This problem can be modeled as an \momdp $\M_d$ where $S = L\times \mathbb{N}_{\geq 0}$ consists of the agent's locations $L$ and time $t$, 
+actions consist of the agent's movement in $L$,
+the transition kernel is a deterministic function that models the agent's change in position and the passage of time, 
+the initial state is $(l,0)$ for some $l\in L$,
+the reward functions are as described earlier, 
+and the horizon $H$ is given.
+Our objective is to compute the optimal policy 
+
+\begin{proposition}\label{prop:scheduling is the optimal choice}
+	Consider the simpler case of deterministic agent with stationary goals.
+	There exists a permutation $\sigma^*\in \Sigma_m$, where $\Sigma_m$ is the set of all permutations of $[1;m]$, such that the optimal policy $\pi^*$ pursues the goals in the order $\sigma^*(1)\ldots\sigma^*(m)$, and $\pi^*$ takes the shortest paths from the initial agent location to goal $\sigma^*(1)$ and between $\sigma^*(i)$ and $\sigma^*(i+1)$, for every $i\in [1;m-1]$.
+\end{proposition}
+The above proposition effectively reduces the problem to an optimal \emph{scheduling} problem.
+Furthermore, Theorem~\ref{thm:np hardness} suggests that a polynomial-time centralized optimal algorithm does not exist, unless P=NP, already for the simpler deterministic case with stationary goals.
+This motivates us to seek for a heuristic approach that is aimed towards finding the optimal schedule over the goals whose existence is guaranteed by Proposition~\ref{prop:scheduling is the optimal choice}.
+
+A natural deterministic baseline is the \emph{least slack time first} (LSTF) rule, which schedules the goal with smallest slack $\slack_i(x,t)\coloneqq d_i-t-d(x,g_i)$.
+However, this notion of urgency is tailored to stationary goals and deterministic travel times, and does not align with our full \momdp objective once targets move stochastically or may appear and disappear over time.
+For this reason, we use a more general benchmark that we call \emph{reward-aware urgency first} (RAUF).
+\KM{Is this used in the literature? If yes, some citation would be nice.}
+At every decision point, RAUF selects one of the goals with maximal \emph{reward-aware urgency}, namely the marginal continuation-value gain from granting that goal immediate control rather than deferring control to competing goals; ties are broken uniformly at random.
+Unlike slack, this urgency notion directly accounts for discounted rewards, missed-deadline penalties, stochastic target motion, and future target arrivals or removals.
+Our auction mechanism is designed to approximate this reward-aware urgency ordering in a decentralized manner while remaining tractable in settings where computing the globally optimal schedule is infeasible.
+\GS{Also talk about how urgency encodes agent cooperation.}
+
