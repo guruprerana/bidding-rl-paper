@@ -7,7 +7,7 @@
     \begin{adjustbox}{width=\linewidth,center,trim=1.5cm 0 0 0,clip}
       \input{img/standard_control_overview.tex}
     \end{adjustbox}
-    \caption{Monolithic controller policy}
+    \caption{Monolithic policy}
     \label{fig:standard_control_overview}
   \end{subfigure}
   \hfill
@@ -16,11 +16,11 @@
     \begin{adjustbox}{width=\linewidth,trim=3cm 0 0 0,clip,center}
       \input{img/modular_auction_overview.tex}
     \end{adjustbox}
-    \caption{Auction-based multi-policy controller}
+    \caption{Auction-based multi-policy framework}
     \label{fig:modular_auction_overview}
   \end{subfigure}
 
-  \caption{Comparison of the standard monolithic RL controller and our auction-based modular controller for evolving objectives.}
+  \caption{Comparison of the standard monolithic RL policy and our auction-based framework for multi-objective RL.}
   \label{fig:intro_control_overview}
 \end{figure*}
 
@@ -40,8 +40,9 @@ In the practical implementation, we use a discrete bid space rather than the con
 Each policy selects its bid from a small finite set of levels, so the bid can be represented as an additional categorical action and trained with the same PPO machinery as the environment action.
 This discretization is sufficient in our experiments: the bid-level ablation in~\Cref{fig:gridworld-bid-upper-bound} shows that only a small number of levels is needed for effective coordination.
 
-Additionally, to cope with varying number of objectives and varying number of players in the resulting Markov game, we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding. 
-This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time. 
+Additionally, to cope with varying number of objectives we employ the \textit{attention pooling} architecture to compress any number of objectives into a fixed-sized embedding~\citep{zaheer2017deep,lee2019set}. 
+This design enables the agent to operate with an arbitrary number of policies (i.e., objectives) at deployment time and extract useful information from the global state. 
+Whereas the previous definition treated the environment observation as a single global state, in the multiple-reachability-objective setting we can decompose this state as a tuple of objective-specific information vectors.
 Formally, the attention pooling module is a permutation-invariant map $\textsf{AP}: \bigcup_{m \geq 1}(\mathbb{R}^{d_z})^m \to \mathbb{R}^{d_h}$ from a variable-size collection of objective vectors to a fixed-dimensional embedding.
 The tuple $(z_1,\ldots,z_m)$ represents the current state of the system through its active objectives, where $z_j$ denotes the information vector for objective $j$; for example, $z_j$ may encode the position of a target.
 Each objective information vector is first processed by a fully connected neural network $f_\psi$ to produce a target embedding $h_j = f_\psi(z_j)$. 
@@ -60,3 +61,4 @@ The final embedding produced by the module is $\textsf{AP}(z_1,\ldots,z_m)=h_{\m
 Each local policy has its own attention pooling module, while the downstream actor-critic network is shared across policies in our symmetric-objective experiments.
 The attention-pooling parameters are trained jointly with the rest of the policy network during PPO.
 This attention mechanism produces a fixed-dimensional representation that summarizes the set of objectives while allowing the model to adapt to varying objective counts.
+When the number of objectives changes in this symmetric setting, we handle the change by instantiating additional copies of the same learned policy, one per objective, with each copy conditioned on its corresponding objective-specific input.

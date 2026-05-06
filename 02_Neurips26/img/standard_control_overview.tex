@@ -60,9 +60,9 @@
   \coordinate (bboxnw) at ($(stateleft |- env.north)+(-\stdfigbboxleftpad,\stdfigbboxtoppad)$);
   \coordinate (bboxse) at ($(actionright |- policy.south)+(\stdfigbboxrightpad,-\stdfigbboxbottompad)$);
 
-  % \draw[flow] (env) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$\sum_{i=1}^m r_i^{(t)}$} (policy);
+  \draw[flow] (env) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$\sum_{i=1}^m r_i^{(t)}$} (policy);
   \draw[flow] (policy.east) -- (actionup) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$a^{(t)}$} (actiondown) -- (env.east);
-  \draw[feedback] (env.west) -- (statedown) -- node[pos=\stdfigvertlabelpos, left, font=\small] {$\vec s^{(t+1)}$} node[pos=\stdfigvertlabelpos, right, font=\small] {$r^{(t)} = \sum_{i=1}^m r_i^{(t)}$} (stateup) -- (policy.west);
+  \draw[feedback] (env.west) -- (statedown) -- node[pos=\stdfigvertlabelpos, left, font=\small] {} node[pos=\stdfigvertlabelpos, right, font=\small] {$\vec s^{(t+1)}$} (stateup) -- (policy.west);
 
   \path[use as bounding box]
     (bboxnw)

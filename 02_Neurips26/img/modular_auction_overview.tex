@@ -46,10 +46,8 @@
 % Vertical gap from the top AP box to the “Attention pooling” title.
 \newcommand{\figenvgap}{0.8cm}
 % Vertical gap from the AP/auction row down to the environment box.
-\newcommand{\figrewardbusfrac}{0.15}
-% Relative location of the shared reward bus between the AP side and the policy side.
-\newcommand{\figmergeleft}{2.1cm}
-% Leftward offset from the environment box before the reward bus turns upward.
+\newcommand{\figmergeleft}{1.5cm}
+% Leftward offset from the environment box before reward arrows branch upward.
 \newcommand{\figstateleft}{0.4cm}
 % Leftward offset from the AP stack to the state bus.
 \newcommand{\figactionlabelpos}{0.24}
@@ -58,12 +56,24 @@
 % Horizontal shift applied to the state-bus label.
 \newcommand{\figpolicylabelpos}{0.78}
 % Relative position of the upper and lower policy-branch labels.
-\newcommand{\figpolicylabelxshift}{-1.1cm}
+\newcommand{\figpolicylabelxshift}{-1.3cm}
 % Horizontal shift applied to labels on the policy-input arrows.
-\newcommand{\figcenterpolicylabelxshift}{0.5cm}
+\newcommand{\figpolicylabelyshift}{-0.35cm}
+% Vertical shift applied to reward labels on the policy-input arrows.
+\newcommand{\figaplabelpos}{0.02}
+% Relative position of AP-output labels on the policy-input arrows.
+\newcommand{\figaplabelxshift}{2.5cm}
+% Horizontal shift applied to AP-output labels on the policy-input arrows.
+\newcommand{\figaplabelyshift}{0.2cm}
+% Vertical shift applied to AP-output labels on the policy-input arrows.
+\newcommand{\figcenterpolicylabelxshift}{-0.5cm}
 % Horizontal shift applied to labels on the center policy-input arrow.
 \newcommand{\figrewardlabelxshift}{0.05cm}
 % Horizontal shift applied to the shared reward-vector label.
+\newcommand{\figrewardjoinfrac}{0.3}
+% Relative location where reward arrows join the AP-to-policy arrows.
+\newcommand{\figrewardarcradiusfrac}{0.8}
+% Reward arc radius as a fraction of each start-to-end chord length; must be at least 0.5.
 \newcommand{\figbboxheighttop}{0.5cm}
 % Height of the explicit bounding box above the center policy box.
 \newcommand{\figbboxheightbottom}{0.5cm}
@@ -116,6 +126,7 @@
   },
   flow/.style={->, line width=\figflowwidth},
   feedback/.style={->, line width=\figfeedbackwidth},
+  rewardfeedback/.style={->, line width=\figfeedbackwidth, dotted},
   note/.style={align=center, font=\small}
 ]
   \node[smallblock, fill=blue!10, draw=blue!45!black] (pol1) {$\pi_1$};
@@ -134,7 +145,9 @@
   \node[note, font=\small\bfseries] at (pol2.center |- aptitle.center) {Policies};
   \node[note, font=\small\bfseries] at (auc.center |- aptitle.center) {Auction};
   \coordinate (statebus) at ($(ap2.west)+(-\figstateleft,0)$);
-  \coordinate (rewardbus) at ($(ap2.east)!\figrewardbusfrac!(pol2.west)$);
+  \coordinate (rewardjoin1) at ($(ap1.east)!\figrewardjoinfrac!(pol1.west)$);
+  \coordinate (rewardjoin2) at ($(ap2.east)!\figrewardjoinfrac!(pol2.west)$);
+  \coordinate (rewardjoinm) at ($(apm.east)!\figrewardjoinfrac!(polm.west)$);
   \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap, fill=gray!12, draw=gray!55!black] (env) {Multi-Objective\\Environment};
   \coordinate (clipnw) at ($(ap1.west |- aptitle.north)+(-\figbboxleftpad,\figbboxheighttop)$);
   \coordinate (clipse) at ($(auc.east |- env.south)+(\figbboxrightpad,-\figbboxheightbottom)$);
@@ -150,11 +163,26 @@
   \draw[feedback] (statebus) -- (ap2.west);
   \draw[feedback] (statebus) |- (apm.west);
   \path ($(env.west)!0.5!(statecorner)$) node[below, font=\small, xshift=\figstatelabelxshift] {$\vec s^{(t+1)}$};
-  \draw[line width=\figflowwidth] (env.west) -- ++(-\figmergeleft,0) coordinate (envrewardcorner) -- (rewardbus |- env.west) -- (rewardbus |- pol1.center);
-  \path ($(rewardbus |- env.west)!0.5!(rewardbus |- pol1.center)$) node[xshift=\figrewardlabelxshift, left, font=\small, yshift=-2.15cm] {$\vec r^{(t)}$};
-  \draw[feedback] (ap1.east) -- node[pos=\figpolicylabelpos, above, font=\small, xshift=\figpolicylabelxshift] {$\textsf{AP}_1(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift] {$r_1^{(t)} - \rho b_1^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (pol1.west);
-  \draw[feedback] (ap2.east) -- node[midway, above, font=\small, xshift=\figcenterpolicylabelxshift] {$\textsf{AP}_{i^\star}(s^{(t+1)})$} node[midway, below, font=\small, xshift=\figcenterpolicylabelxshift] {$r_{i^\star}^{(t)} - \rho b_{i^*}^{(t)}  $} (pol2.west);
-  \draw[feedback] (apm.east) -- node[pos=\figpolicylabelpos, above, font=\small, xshift=\figpolicylabelxshift] {$\textsf{AP}_m(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift] {$r_m^{(t)} - \rho b_m^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (polm.west);
+  \draw[line width=\figflowwidth] (env.west) -- ++(-\figmergeleft,0) coordinate (envrewardcorner);
+  \path ($(env.west)!0.5!(envrewardcorner)$) node[below, font=\small, xshift=\figrewardlabelxshift] {$\vec r^{(t)}$};
+  \newcommand{\drawrewardarc}[1]{%
+    \draw[rewardfeedback]
+      let
+        \p1=(envrewardcorner),
+        \p2=(#1),
+        \n1={veclen(\x2-\x1,\y2-\y1)},
+        \n2={\figrewardarcradiusfrac*\n1},
+        \n3={2*asin(\n1/(2*\n2))},
+        \n4={atan2(\y2-\y1,\x2-\x1)}
+      in
+        (envrewardcorner) arc[start angle=\n4+90+\n3/2, end angle=\n4+90-\n3/2, radius=\n2];
+  }
+  \drawrewardarc{rewardjoin1}
+  \drawrewardarc{rewardjoin2}
+  \drawrewardarc{rewardjoinm}
+  \draw[feedback] (ap1.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_1(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_1^{(t)} - \rho b_1^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (pol1.west);
+  \draw[feedback] (ap2.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_{i^\star}(s^{(t+1)})$} node[midway, below, font=\small, xshift=\figcenterpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_{i^\star}^{(t)} - \rho b_{i^*}^{(t)}  $} (pol2.west);
+  \draw[feedback] (apm.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_m(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_m^{(t)} - \rho b_m^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (polm.west);
   \path[use as bounding box]
     (clipnw)
     rectangle

@@ -1,18 +1,21 @@
-\section{Limitations}
-While our auction-based multi-policy mechanism can produce strong performance in a vast range of challenging environments, there are also instances where our mechanism produces suboptimal results. 
-For instance, consider a setup where the cat feeder robot has to choose between going left or right.
-On the left there are two cats and on the right there is only one cat, but the robot only has time to pick one direction.
-The optimal action to maximize cumulative reward is to go left.
-However, if all the local policies bid the highest value possible, due to random tie-breaking, our mechanism would instruct the robot to go left with probability $2/3$.
-This motivates future study that attempts using different mechanisms like majority voting---which would result in the optimal action in the example above.
 
-\section{Conclusion and Future Directions}
+
+\section{Discussion and Conclusion}
 We consider the problem of adapting RL policies due to evolving objectives, where any number of objectives may appear or disappear at runtime, and the agent must adapt as swiftly as possible.
 We present a compositional solution where each objective is served using a dedicated local policy, and each local policy competes against the other policies through an auction-based mechanism to select its preferred action.
 The training is formulated as a nonzerosum game between the local policies, and it is implemented using PPO in our framework.
 Using two challenging benchmarks, we demonstrate that our framework produces interpretable policies that achieve superior learning rate and  dramatic performance improvement compared to the baseline approaches.
 
-While we have only considered multi-objective environments in which the objectives belong to the same family, we will extend the framework to combinations of objective classes. 
+\textbf{Limitations.} 
+While our auction-based multi-policy mechanism can produce strong performance in a vast range of challenging environments, there are also instances where our mechanism produces suboptimal results. 
+For instance, consider a setup where the cat feeder robot has to choose between going left or right.
+On the left there are two cats and on the right there is only one cat, but the robot only has time to pick one direction.
+The optimal action to maximize cumulative reward is to go left.
+However, if all the local policies bid the highest value possible, due to random tie-breaking, our mechanism would instruct the robot to go left with probability $2/3$.
+
+\textbf{Future directions.}
+The above example motivates future study that attempts using alternative mechanisms for choosing between policies like majority voting---which would result in the optimal action in the example.
+In this work, we considered multi-objective environments in which the objectives belong to the same family, and we seek to extend the framework to combinations of objective classes. 
 The difficulty lies in the fact that a policy learned to compete against opponents from a given class may not work against opponents for a novel class of objectives seen at runtime.
 Additionally, richer bidding mechanisms might be necessary. 
 For instance, while combining reachability and safety objectives, usually safety needs to get the priority when there is a tie in the bidding, instead of a random resolution.

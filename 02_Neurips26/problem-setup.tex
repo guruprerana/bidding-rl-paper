@@ -10,7 +10,7 @@ A (Markov) \textit{policy} is a sequence \(\pi=\{\pi_t\}_{t=0}^{H-1}\), where ea
 For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\), and the \textit{global} reward is \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
 The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\).
 
-Our formulation of \momdp can model a broad class of RL problems in the literature, including\todo{citations?}~\cite{?}.
+Our formulation of \momdp can model a broad class of RL problems in the literature, including\GS{citations?}~\cite{?}.
 For our cat feeder example, the states include the agent's and cats' positions as well as the elapsed time, the actions include the movement of the agent, the probabilistic transitions model both the aleatoric uncertainties in the agent's movement (like occasional skidding due to slippery floor, etc.) as well as the epistemic uncertainties in the cats' movement, and the reward function for each cat assigns a positive reward upon reaching the cat within a given deadline and a negative reward upon missing the deadline.
 We will assume that the agent observes the states, but the transition kernel is unknown.
 

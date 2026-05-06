@@ -54,6 +54,7 @@ While the auction mechanism treats all policies fairly, the policies must still 
 Otherwise, they may learn to overbid and suppress competitors, resulting in suboptimal results. 
 To prevent this, we impose penalties during training that scale with the bid values. 
 As a consequence, excessive bidding reduces the net return of a policy, thus aligning its incentives with truthful urgency estimation---a policy only bids high when it is sure to receive a reward (when it feeds the cat) or to avoid a penalty (when a cat is close to disappearing).
+\GS{add a sentence about theory.}
 
 \textbf{Challenge II: Achieving environment awareness.}
 Effective bidding depends not only on the current state and the local objective, but also on the configuration of competing objectives. 
