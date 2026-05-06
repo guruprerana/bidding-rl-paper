@@ -118,16 +118,16 @@
   feedback/.style={->, line width=\figfeedbackwidth},
   note/.style={align=center, font=\small}
 ]
-  \node[smallblock] (pol1) {$\pi_1$};
-  \node[smallblock, below=of pol1] (pol2) {$\pi_{i^\star}$};
-  \node[smallblock, below=of pol2] (polm) {$\pi_m$};
+  \node[smallblock, fill=blue!10, draw=blue!45!black] (pol1) {$\pi_1$};
+  \node[smallblock, below=of pol1, fill=green!10, draw=green!45!black] (pol2) {$\pi_{i^\star}$};
+  \node[smallblock, below=of pol2, fill=orange!12, draw=orange!55!black] (polm) {$\pi_m$};
   \node[font=\Large] at ($(pol2.north)+(0,\figpolicyheight/2+\figdotgapabove)$) {$\vdots$};
   \node[font=\Large] at ($(pol2.south)+(0,-\figdotgapbelow)$) {$\vdots$};
 
-  \node[auction] (auc) at ($(pol2.center)+(\figauccentersep,0)$) {$i^\star \in \arg\max_i b_i^{(t)}$\\[4pt]\footnotesize chosen uniformly\\\footnotesize at random};
-  \node[apblock] (ap2) at ($(pol2.center)+(-\figauccentersep-\figapcentercorrection-\figapshift,0)$) {$\textsf{AP}_2 : S \to \mathbb{R}^m$};
-  \node[apblock, above=of ap2] (ap1) {$\textsf{AP}_1 : S \to \mathbb{R}^m$};
-  \node[apblock, below=of ap2] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^m$};
+  \node[auction, fill=purple!8, draw=purple!45!black] (auc) at ($(pol2.center)+(\figauccentersep,0)$) {$i^\star \in \arg\max_i b_i^{(t)}$\\[4pt]\footnotesize chosen uniformly\\\footnotesize at random};
+  \node[apblock, fill=green!10, draw=green!45!black] (ap2) at ($(pol2.center)+(-\figauccentersep-\figapcentercorrection-\figapshift,0)$) {$\textsf{AP}_2 : S \to \mathbb{R}^m$};
+  \node[apblock, above=of ap2, fill=blue!10, draw=blue!45!black] (ap1) {$\textsf{AP}_1 : S \to \mathbb{R}^m$};
+  \node[apblock, below=of ap2, fill=orange!12, draw=orange!55!black] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^m$};
   \node[font=\Large] at ($(ap2.north)+(0,\figpolicyheight/2+\figapdotgapabove)$) {$\vdots$};
   \node[font=\Large] at ($(ap2.south)+(0,-\figapdotgapbelow)$) {$\vdots$};
   \node[note, above=\figaptitlegap of ap1] (aptitle) {\small\bfseries Attention pooling\\[-1pt]\scriptsize\normalfont Extract global state features};
@@ -135,13 +135,13 @@
   \node[note, font=\small\bfseries] at (auc.center |- aptitle.center) {Auction};
   \coordinate (statebus) at ($(ap2.west)+(-\figstateleft,0)$);
   \coordinate (rewardbus) at ($(ap2.east)!\figrewardbusfrac!(pol2.west)$);
-  \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap] (env) {Multi-Objective\\Environment};
+  \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap, fill=gray!12, draw=gray!55!black] (env) {Multi-Objective\\Environment};
   \coordinate (clipnw) at ($(ap1.west |- aptitle.north)+(-\figbboxleftpad,\figbboxheighttop)$);
   \coordinate (clipse) at ($(auc.east |- env.south)+(\figbboxrightpad,-\figbboxheightbottom)$);
 
   \draw[flow] (pol1.east) -- node[above, font=\small] {$(b_1^{(t)}, a_1^{(t)})$} (auc.west |- pol1.east);
   \draw[flow] (pol2.east) -- node[above, font=\small] {$(b_{i^\star}^{(t)}, a_{i^\star}^{(t)})$} (auc.west |- pol2.east);
-  \draw[flow] (polm.east) -- node[below, font=\small] {$(b_m^{(t)}, a_m^{(t)})$} (auc.west |- polm.east);
+  \draw[flow] (polm.east) -- node[above, font=\small] {$(b_m^{(t)}, a_m^{(t)})$} (auc.west |- polm.east);
 
   \draw[flow] (auc.south) |- node[right, font=\small, pos=\figactionlabelpos] {$a_{i^\star}^{(t)}$} (env.east);
 

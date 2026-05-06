@@ -47,8 +47,8 @@
   flow/.style={->, line width=\stdfigflowwidth},
   feedback/.style={->, line width=\stdfigfeedbackwidth}
 ]
-  \node[block] (policy) {Policy $\pi$};
-  \node[block, below=of policy] (env) {Multi-Objective\\Environment};
+  \node[block, fill=blue!10, draw=blue!45!black] (policy) {Policy $\pi$};
+  \node[block, below=of policy, fill=gray!12, draw=gray!55!black] (env) {Multi-Objective\\Environment};
   % \node[title, above=\stdfigtitlesep of policy] {Standard RL controller};
 
   \coordinate (actionright) at ($(policy.east)+(\stdfigactionright,0)$);
