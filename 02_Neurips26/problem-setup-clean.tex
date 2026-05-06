@@ -18,12 +18,12 @@ Without loss of generality, we assume that \(H\) is a multiple of \(\tau\), sinc
 The following Markov game makes this composition rule explicit.
 
 \begin{definition}[Markov bidding game]\label{def:markov-bidding-game}
-	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the bid cap, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
+	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the maximum bid, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
 	The induced \(m\)-player Markov bidding game is \(\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho,\mathsf{P}}=(\hat S,\hat A,\hat T,\hat R,\hat\mu,H)\), where:
 	\begin{itemize}
 		\item \(\hat S=S\times [1;m]\times [0;\tau-1]\). A state \((s,k,q)\) records the \momdp state \(s\), the current controlling policy \(k\), and the number \(q\) of steps remaining before the next bidding round. When \(q=0\), a new bidding round occurs and the current controller \(k\) is ignored.
 		\item \(\hat A=(A\times [0,\beta])^m\). Each policy \(i\) independently chooses an action \(a_i\in A\) and a bid \(b_i\in[0,\beta]\). We write a joint action as \((\vec a,\vec b)=(a_i,b_i)_{i\in[1;m]}\).
-		\item Let \(W(\vec b)=\{i\in[1;m]\mid b_i=\max_j b_j\}\). The transition kernel \(\hat T:\hat S\times\hat A\to\dist(\hat S)\) is defined by
+		\item Let \(W(\vec b)=\{i\in[1;m]\mid b_i=\max_j b_j\}\) be the set of highest bidders. The transition kernel \(\hat T:\hat S\times\hat A\to\dist(\hat S)\) is defined by
 		\begin{equation}
 			\hat T((s,k,q),(\vec a,\vec b),(s',k',q'))=
 			\begin{cases}
@@ -32,7 +32,8 @@ The following Markov game makes this composition rule explicit.
 				0 & \text{otherwise}.
 			\end{cases}
 		\end{equation}
-		\item For each policy \(i\), the reward is inherited from the \momdp reward \(r_i\), with a bid penalty charged at bidding states:
+		Intuitively, the case ``$q>0$'' means it is not yet a bidding round, and the currently active policy $k$ continues to be used, and the case ``$q=0$'' means it is a bidding round, and a new policy is selected via tie-breaking over the set $W$.
+		\item For each policy \(i\), the reward is inherited from the \momdp reward \(r_i\), with a bid penalty charged at bidding rounds:
 		\begin{equation}
 			\hat r_i((s,k,q),(\vec a,\vec b),(s',k',q'))
 			=

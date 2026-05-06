@@ -1,0 +1,133 @@
+\smallskip
+\noindent\textbf{Theoretical analysis of the bidding schemes.}
+We now show that both \poorman and \allpay implement the reward-aware urgency ordering whenever one goal has a sufficiently large urgency advantage over the others.
+To capture stochastic motion of goals, we formulate the urgency scores using conditional expectations under the transition kernel of the \momdp.
+The deterministic stationary-goal case discussed above is then recovered as a special case in which these conditional expectations collapse to point values.
+\KM{No need to talk about the deterministic case here.}
+\KM{Update the text}
+
+Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every state $s\in S$ and time $t$ to a probability distribution over the bid $b_i$ and a deterministic action $a_i$.
+For convenience, we will write $\pi_i^b\colon s\mapsto \delta_i([0,\beta])$ and $\pi_i^a\colon s\mapsto a_i$ as two separate components of the policy, where $\delta_i([0,\beta])$ represents a probability distribution over $[0,\beta]$, and $b_i\sim \delta_i([0,\beta])$ will represent a concrete bid value sampled from this distribution.
+Given the state $s$, and given fixed $\pi_i^a$ and $\pi_i^b$ for all $i\in [1;m]$, we obtain a Markov chain starting at $s$, which is an \momdp with a singleton action set, with the deterministic initial state $s$, i.e., $\mu(s)=1$.
+This Markov chain induces a unique probability measure on the sample space of paths and rewards, and let $V_{\pi_i,\pi_{-i}}(s)$ denote the \textit{expected} discounted sum of reward obtained by the goal $i$ in this Markov chain.
+(The notation $\pi_{-i}$ indicates the collection of every $j$-th policy for $j\neq i$.)
+A policy profile $\{\pi^*_i\}_{i\in [1;m]}$ is called a \textit{Nash equilibrium in the subgame starting at} $s$ if for every $i$:
+$	
+\forall \pi_i\neq \pi^*_i\;.\;V_{\pi^*_i,\pi^*_{-i}}(s) \geq V_{\pi_i,\pi^*_{-i}}(s).
+$
+To simplify the notation, we will write $V_i^*(s)$ to denote the value $V_{\pi^*_i,\pi^*_{-i}}(s)$.
+
+We will now perform a backward induction over time to obtain the subgame perfect equilibrium, i.e., the equilibrium strategy profile that is a Nash equilibrium in every subgame.
+Suppose we are currently at the state $s$, and let $i$ be a given policy index. 
+We consider two cases:
+(a) $i$ wins the bidding, in which case $i$ picks $\pi_i^a$ to maximize its own reward, and the optimal reward for $i$ is: $\widetilde V_i^{\win}(s) \coloneqq \max_{\pi_i^a} \mathbb{E}[\gamma^\tau V_i^*(s^\tau)+\sum_{t=0}^{\tau-1} \gamma^t r_i(s^t,a^t)]$, where $s^0=s$ and $s^0a^0\ldots s^\tau a^\tau$ is the random trace obtained by executing $\pi_i^a$ successively for $\tau$ steps (no bidding takes place during this time);
+(b) $i$ loses the bidding, in which case another policy $j$ picks $\pi_j^a$ to maximize its own reward, and by taking the minimum over all $j$, we obtain the worst-case resulting reward for $i$:
+$\widetilde V_i^{\lose}(s) \coloneqq \min_{j\neq i,\pi_j^{a*}} \mathbb{E}[\gamma^\tau V_i^*(s^\tau) + \sum_{t=0}^{\tau-1} \gamma^t r_i(s^t,a^t)]$, where $\pi_j^{a*}$ is the policy that achieves $\widetilde V_j^{\win}(s)$, $s^0=s$, and $s^0a^0\ldots s^\tau a^\tau$ is the random trace obtained by executing $\pi_i^a$ successively for $\tau$ steps.
+Intuitively, $\widetilde V_i^{\win}(s)$ and $\widetilde V_i^{\lose}(s)$ are the expected rewards before the payment of the bid value, and if the concrete bid value is $b_i$, then after adjusting the bid payment, the net payoffs become:
+\begin{align*}
+	V_i^{\win}(s,b_i) &\coloneqq \widetilde V_i^{\win}(s) - \rho b_i,\\
+	V_i^{\lose}(s,b_i) &\coloneqq \widetilde V_i^{\lose}(s) - \rho b_i\cdot \mathbf{1}[\text{\allpay}].
+\end{align*}
+Given a set of fixed bidding policies $\{\pi_i^b\}_{i\in [1;m]}$, and for the set of sampled bids $\{b_i\sim\pi_i^b(s)\}_{i\in [1;m]}$, define:
+\begin{align*}
+	U_i(s,b_i,b_{-i}) \coloneqq
+		\begin{cases}
+			V_i^{\win}(s,b_i) & \text{if } b_i > \max_{j\neq i} b_j,\\
+			V_i^{\lose}(s,b_i) & \text{if } b_i < \max_{j\neq i} b_j,\\
+			\frac{1}{|W|}V_i^{\win}(s,b_i) + \left(1-\frac{1}{|W|}\right)V_i^{\lose}(s,b_i) & \text{if } i\in W,
+		\end{cases}
+\end{align*}
+with $W\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in [1;m]} b_\ell\}$ being the set of highest bidders.
+Suppose $\{\pi_i^{b*}\}_{i\in [1;m]}$ is a Nash equilibrium for the set of utilities $\{U_i(s,\cdot,\cdot)\}_{i\in [1;m]}$, i.e., for every $i$:
+\begin{align*}
+	\forall \pi_i^b\neq \pi_i^{b*}\;.\;\mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})] \geq \mathbb{E}_{b_i\sim \pi_i^{b},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})].
+\end{align*}
+Then it follows from the backward induction that:
+\begin{align*}
+	V_i^*(s) = \mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})].
+\end{align*}
+The \emph{net gain} for bidding $b_i$ at $(s,t)$ is defined as:\KM{$\Delta$ is used before for probability distributions.}
+\begin{align*}
+	\Delta_i^{\mathrm{net}}(s,b_i)&\coloneqq V^{\win}_i(s,b_i) - V^{\lose}_i(s,b_i)\\
+	&=  \Delta^{\mathrm{gross}}_i(s) - \rho b_i\cdot \mathbf{1}[\text{\poorman}],
+\end{align*}
+where the \emph{gross gain} is
+\begin{align*}
+	\Delta^{\mathrm{gross}}_i(s)\coloneqq \widetilde V_i^{\win}(s)-\widetilde V_i^{\lose}(s).
+\end{align*}
+The quantity $\Delta^{\mathrm{gross}}_i(s,t)$ is exactly the reward-aware urgency of policy $i$: it measures the continuation-value loss incurred by not allocating the next bidding interval to $i$.
+\GS{Talk about how this urgency measure, in addition to the deadline, also encodes cooperation between policies, if there is any, because if \(V_i^{\lose}(s,t)\) is high, i.e., then the urgency measure is low.}
+Thus RAUF selects a policy maximizing $\Delta^{\mathrm{gross}}_i(s,t)$.
+
+The following theorem establishes that the \poorman setting implements RAUF whenever the leading urgency exceeds the runner-up by more than one bid increment.
+
+\begin{theorem}
+	In the \poorman setting, consider a single bidding round at the agent state $s\in S$.
+ 	Suppose the parameters $\rho$ and $\beta$ are so chosen that $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s)$.
+	Let $i^*$ be the goal index with the largest gross gain, i.e.,
+	\begin{align}\label{eq:all pay:gross gain gap}
+		\Delta_{i^*}^{\mathrm{gross}}(s) > \max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s).
+	\end{align}
+	Then in any pure Nash equilibrium, policy $i^*$ wins control.
+\end{theorem}
+
+\begin{proof}
+	Suppose for contradiction, some other policy $j\neq i^*$ wins control by bidding $b_j$, while policy $i^*$ bids $b_{i^*}<b_j$. 
+	As this is a Nash equilibrium, it must hold that 
+	$\Delta_j^{\mathrm{net}}(s,b_j) > 0$, i.e., $ \Delta_j^{\mathrm{gross}}(s) - \rho b_j > 0$,
+	because otherwise, policy $j$ would be better off by losing the bidding instead.
+	This gives us the upper bound $\rho b_j < \Delta_j^{\mathrm{gross}}(s)$.
+	It follows from $\rho\beta > \max_{k\in [1;m]}\Delta_k^{\mathrm{gross}}(s)$ that $\rho b_j < \rho\beta$, and hence $b_j<\beta$, i.e., the policy $j$ does not make the highest possible bid.
+	
+	Now we assumed that policy $i^*$ had bid $b_{i^*}<b_j$, but we show that policy $i^*$ would achieve a higher net gain by bidding $b_j+\varepsilon$ for any $0<\varepsilon< \min\{ (\Delta^{\mathrm{gross}}_{i^*}(s) - \Delta_j^{\mathrm{gross}}(s))/\rho, \beta-b_j\}$, contradicting the Nash equilibrium:	 
+$	\Delta_{i^*}^{\mathrm{net}}(s,b_j+\varepsilon) 
+	= \Delta^{\mathrm{gross}}_{i^*}(s) - \rho(b_j+\varepsilon) 
+	= \Delta^{\mathrm{gross}}_{i^*}(s) - \rho b_j -\rho\varepsilon  
+	> \Delta^{\mathrm{gross}}_{i^*}(s) - \Delta_j^{\mathrm{gross}}(s) -\rho\varepsilon
+	> 0.
+$
+	Here, notice that $b_j+\varepsilon < \beta$, which is a valid bid.
+\end{proof}
+
+
+The following theorem establishes that the \allpay setting concentrates probability mass on the RAUF choice whenever the top urgency is strictly ordered above the remaining urgencies.
+
+\begin{theorem}
+	In the \allpay setting with $m\geq 3$, consider a single bidding round at the agent state $s\in S$ and time $t$.
+	Let $i^*$ and $j^*$ be policies for which the following gross gain order holds:
+	\begin{align}\label{eqn:allpay urgency gap}
+		\Delta_{i^*}^{\mathrm{gross}} > \Delta_{j^*}^{\mathrm{gross}} > \max_{k\notin \{i^*,j^*\}}\Delta_k^{\mathrm{gross}}.
+	\end{align}
+	Then there is no Nash equilibrium with pure strategies, although a unique Nash equilibrium exists with mixed strategies (where at each $(s,t)$, each policy uses a probability distribution to select the bid).
+	In this Nash equilibrium, policy $i^*$ wins control with probability $1-\sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.	
+\end{theorem}
+
+\begin{proof}
+	It follows from the work of Hillman and Riley~\cite{hillman1989politically} that in the Nash equilibrium, the optimal bid of the policies are as follows.
+	The policy $i^*$ picks a uniformly random bid $b_i^*$ from $[0,\Delta_{j^*}^{\mathrm{gross}}/\rho]$, the policy $j^*$ picks a uniformly random bid $b_j^*$ from $(0,\Delta_{j^*}^{\mathrm{gross}}/\rho]$ while picking the bid $0$ with probability $(\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}})/\Delta_{i^*}^{\mathrm{gross}}$, and every other policy deterministically picks the bid $0$.
+	Clearly, if $b_i^*>b_j^*$, then $i^*$ wins control, and we need to show that $P[b_i^* > b_j^*]  = 1- \sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.
+	To show this, consider the probability density function $f_{i^*}(b) = \sfrac{\rho }{\Delta_{j^*}^{\mathrm{gross}}}$ of $b_{i^*}$, and the cumulative distribution function $F_{j^*}(b) = (\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}})/\Delta_{i^*}^{\mathrm{gross}} + \sfrac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}$ of $b_{j^*}$.
+	Then,
+	\begin{align*}
+		P[b_i^* > b_j^*] 
+		&= \int_{-\infty}^\infty F_{j^*}(b)f_{i^*}(b)db\\
+		&= \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \left(\frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}\right)\cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db \\
+		&= \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} \cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db
+		+ \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \frac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}\frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db\\
+		&=  \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} \cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot \frac{\Delta_{j^*}^{\mathrm{gross}}}{\rho}
+		+ \frac{\rho^2}{\Delta_{i^*}^{\mathrm{gross}}\Delta_{j^*}^{\mathrm{gross}}}\cdot \frac{\left(\Delta_{j^*}^{\mathrm{gross}}\right)^2}{2\rho^2}\\
+		&= \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}\\
+		&= 1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}\\
+		&= 1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}
+	\end{align*}
+\end{proof}
+
+If the second inequality in \eqref{eqn:allpay urgency gap} becomes an equality, then it is known that the Nash equilibrium is no longer unique, and in fact, there will be a continuoum of Nash equilibria~\cite{baye1996all}, and reaching the desirable equilibrium will require separate mechanisms.
+Instead, we argue that the event of any of the inequalities in \eqref{eqn:allpay urgency gap} becoming an equality is a measure zero event, and therefore it is vanishingly unlikely in practice.
+Moreover, when $\Delta_{i^*}^{\mathrm{gross}}$ is substantially larger than $\Delta_{j^*}^{\mathrm{gross}}$, the winning probability
+\[
+1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}
+\]
+approaches $1$.
+Hence, although \allpay need not deterministically implement RAUF, it still concentrates control on the most reward-aware urgent policy whenever the top-two urgency gap is large.
+

@@ -1,39 +1,17 @@
-\section{Multi-Objective Discounted Reachability with Deadlines}
+\section{Multi-Objective Policy Synthesis}
 
 We formalize the policy synthesis problem for a fixed number of goals, and then introduce our auction-based framework for this setting. 
 Afterwards, we will describe how our framework naturally extends to the setting with dynamic goal appearance and disappearance.
 
-\textbf{Policy synthesis for a fixed goal set.}
-We use multi-objective Markov decision processes (\momdp) to model uncertain environments with a \textit{fixed} number of discounted reachability objectives with deadlines. 
-An \momdp with \(m \in \N_{>0}\) objectives is specified by a tuple \(\mathcal{M} = (S, A, T, \mu, R, \gamma)\) where 
-\(S\) is the \textit{state space},
-\(A\) is the set of \textit{action space}, 
-\(T : S \times A \to \Delta(\mathbf{S})\) is the probabilistic \textit{transition function},
-\(\mu \in \dist(S)\) is the \textit{initial state distribution},
-\(R=\{r_i\colon S\times A\to \R_{>0}\}_{i\in [1;m]}\) is the set of \textit{reward functions} associated to the different objectives, and
-$\gamma\in (0,1)$ is the \textit{discount factor}.
-A (stationary) \textit{policy} in an \momdp~\(\mathcal{M}\) is a function \(\pi \colon S \to \dist(A)\) that maps the current state to a distribution over actions.
-Executing the policy $\pi$ in $\M$ gives rise to a unique probability distribution $\mathbb{P}^\pi$ over sets of infinite sequences of states and actions $\rho = s^0a^0s^1a^1\ldots$, which we call a \textit{trace}. 
-For every $i\in [1;m]$, the per-objective reward collected on the trace $\rho$ is $w_i(\rho)=\sum_{t=0}^\infty\gamma^{t}r_i(s^t,a^t)$.
-The total reward collected on $\rho$ is: $w(\rho)=\sum_{i=1}^m w_i(\rho)$.
-The \textit{value} of the policy $\pi$, denoted $V^\pi$, is given as $V^\pi = \E^\pi [w(\rho)]$.
-Our baseline is the \textit{optimal policy} $\pi^*$ that maximizes the value, i.e., $\pi^* = \arg\max_{\pi} V^\pi$, and the \textit{optimal value} is $V^{\pi^*}$.
-
-% ------------ the dynamic setting: formal statement ----------
-%\smallskip\noindent
-%\textbf{Policy \textit{adaptation} for addition or deletion of goals.}
-%The policy adaptation problem is formalized as follows. 
-%Suppose \(\mathcal{M} = (S, A, T, D, R, \gamma, M, \mu)\) is a given \momdp with $m\in \N_{>0}$ goals, $\pi^*$ is the optimal policy for $\mathcal{M}$, and $\rho=s^0a^0\ldots s^k$ is a sample path obtained by deploying $\pi^*$ in $\mathcal{M}$.
-%Suppose a new goal arrives, which we model using an updated \momdp \(\overline{\mathcal{M}} = (S, A, \bar{T}, \bar{D}, \bar{R}, \gamma, M, \bar{\mu})\) with $m+1$ goals that inherits every unreached goal $i$ from $\mathcal{M}$ with the depleted reward $\bar{r}_i=\gamma^kr_i $ and the updated deadline $\bar{d}_i=d_i-k$, along with a fresh new goal with reward $\bar{r}_{i+1}$ and deadline $\bar{d}_{i+1}$.
-%Moreover, the initial state distribution $\bar{\mu}$ is deterministic, and conforms with $s^k$ on the locations of the agent and the goals $[1;m]$.
-%Suppose $\bar{\pi}^*$ is the optimal policy for $\overline{\mathcal{M}}$.
-%The policy adaptation problem asks: obtain $\bar{\pi}^*$ from $\pi$ with minimal computation.
-%The definition of the adaptation problem for disappearing goals (before being reached) can be defined analogously.
-% -----------------------------------------
-
+\textbf{Centralized optimal policy synthesis for multiple objectives.}
+We use \textit{multi-objective Markov decision processes} (\momdps) to model uncertain environments with multiple reward objectives.
+An \momdp with \(m\in \N_{>0}\) objectives is a tuple \(\mathcal{M}=(S,A,T,\mu,R,H)\), where \(S\) is the \textit{state} space, \(A\) is the \textit{action} space, \(T\colon S\times A\to \dist(S)\) is the \textit{transition} kernel, \(\mu\in \dist(S)\) is the \textit{initial state} distribution, \(R=\{r_i\colon S\times A\to \R\}_{i\in [1;m]}\) is the set of \textit{reward functions}, and $H\in \mathbb{N}_{>0}$ is the \textit{time horizon}.
+A (Markov) \textit{policy} is a sequence \(\pi=\{\pi_t\}_{t=0}^{H-1}\), where each \(\pi_t:S\to \dist(A)\) maps the current state to a distribution over actions.
+For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\), and the \textit{global} reward is \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
+The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\).
 
 \smallskip\noindent
-\textbf{Lower complexity bound: simplified setting with deterministic agent and stationary goals.}\todo{this part needs work}
+\textbf{Lower complexity bound.}\todo{this part needs work}
 We establish that the optimal policy synthesis problem is NP-hard, and we show this already on a simplified setting:
 	Suppose the transition function $T$ of the \momdp is deterministic, the goals are stationary such that the location of the $i$-th goal is always $g_i\in S$, and for any policy, the minimum travel time from a given location $x\in S$ to the $i$-th goal is $t_i = d(x,g_i)$. 
 	(Alternatively, $t_i$ can be interpreted as the length of the shortest path from $x$ to $g_i$ when the agent moves at the unit velocity.)
@@ -47,6 +25,10 @@ We establish that the optimal policy synthesis problem is NP-hard, and we show t
 	This problem is known to be NP-complete~\cite{DBLP:journals/tcs/Papadimitriou77}, and our deadline-restricted case is at least as hard as it.
 	\KM{There is a slight difference, that we allow revisiting a state. However, I found on discussion forums that this does not change the complexity, find a reference. Also see metric traveling salesman, which is more general (we could then replace the Euclidean distance requirement in the \momdp state space with the requirement of just having a metric.}
 \end{proof}
+
+The NP-hardness of the optimal policy synthesis problem motivates us to find heuristics to solve the problem.
+Moreover, our heuristic must seamlessly support dynamic addition or deletion of objectives (modeled as reward functions), which is our ultimate goal.
+Towards our goal, we identify a key structural property of the optimal policy below.
 
 \begin{proposition}\label{prop:scheduling is the optimal choice}
 	Consider the simpler case of deterministic agent with stationary goals.
@@ -72,193 +54,59 @@ The main crux is in the composition process, where each local policy may propose
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
 
 We present a novel \textit{auction}-based RL framework for compositional policy synthesis for \momdps.
-In our framework, not only do the local policies emit actions, but they also \emph{bid} for the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{Z}_{>0}$ in future.
-The bids are all non-negative rationals bounded by a given constant $\beta\in \mathbb{Q}_{\geq 0}$, and the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
-To discourage policies from always bidding high, we penalize the policies proportional to their bids scaled with a constant $\rho\in (0,1)$.
-We consider two intuitive alternatives for the penalty model, namely \poorman and \allpay:
-in the \poorman setting, only the executed policy (one of the highest bidders) pays the penalty, whereas in the \allpay setting, all policies pay penalties.
+In our framework, not only do the local policies emit actions, but they also submit \emph{bids} within a given bound $\beta\in \mathbb{N}_{>0}$ to win the privilege of executing their actions for a given number of time steps $\tau\in \mathbb{N}_{>0}$.
+We consider two models of bidding, called \poorman and \allpay.
+In the \poorman setting, the bids are non-negative \textit{integers} in the interval $[0;\beta]$, and in the \allpay setting, the bids are non-negative \textit{real} numbers in the interval $[0,\beta]$.%
+\footnote{The distinction in bid types---\textit{integers} for \poorman and \textit{reals} for \allpay---is purely technical. 
+The synthesis of local policies will involve a game-theoretic analysis involving Nash equilibria.
+For real-valued bids in \poorman, it is unclear if Nash equilibria would always exist, owing to the continuous bid values and discontinuities in the payoff profile due to the tie-breaking mechanism~\cite{simon1990discontinuous}. 
+For integer-valued bids in \allpay, the shape of the Nash equilibria policies is only known for the two-policy case~\cite{dziubinski2023discrete}, but the general case is still open.
+We leave these unresolved cases for a future work.
+}
+In both settings, the highest bidder's actions get executed for the following $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
+To encourage truthfulness, we penalize the policies proportional to their bids scaled with a constant $\rho\in (0,1)$, and which policies receive penalties differ between the two settings:
+for \poorman, only the executed policy (one of the highest bidders) pays the penalty, whereas for \allpay, all policies pay penalties.
 Through this mechanism, policies select their bids to reflect how critical their action is in the current state, and the bidding penalty incentivizes truthful urgency.
 This way, we obtain a purely decentralized scheme to coordinate local policies in a given \momdp.
-\GS{Maybe talk about existence of Nash equilibria here.}
+
 
 The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \emph{maximum bid}, and \emph{bid penalty coefficient}, respectively. Ablation studies in Section~\ref{sec:experimental-results} highlight their importance. If $\tau$ is too small, policies switch too frequently, risking suboptimal outcomes. If $\beta$ is too small, policies cannot express preference strength, leading to near-random control. If $\rho$ is too large, policies tend to abstain from bidding.
 
-\smallskip
-\noindent\textbf{Theoretical analysis of the bidding schemes.}
-We now show that both \poorman and \allpay implement the reward-aware urgency ordering whenever one goal has a sufficiently large urgency advantage over the others.
-To capture stochastic motion of goals, we formulate the urgency scores using conditional expectations under the transition kernel of the \momdp.
-The deterministic stationary-goal case discussed above is then recovered as a special case in which these conditional expectations collapse to point values.
-\KM{No need to talk about the deterministic case here.}
-\KM{Update the text}
+To connect the bidding urgencies with the objectives, we formulate the local policy synthesis question as a game theoretic problem defined below.
 
-Suppose $\pi_i$ is the local policy for the $i$-th goal, mapping every state $s\in S$ and time $t$ to a probability distribution over the bid $b_i$ and a deterministic action $a_i$.
-For convenience, we will write $\pi_i^b\colon s\mapsto \delta_i([0,\beta])$ and $\pi_i^a\colon s\mapsto a_i$ as two separate components of the policy, where $\delta_i([0,\beta])$ represents a probability distribution over $[0,\beta]$, and $b_i\sim \delta_i([0,\beta])$ will represent a concrete bid value sampled from this distribution.
-Given the state $s$, and given fixed $\pi_i^a$ and $\pi_i^b$ for all $i\in [1;m]$, we obtain a Markov chain starting at $s$, which is an \momdp with a singleton action set, with the deterministic initial state $s$, i.e., $\mu(s)=1$.
-This Markov chain induces a unique probability measure on the sample space of paths and rewards, and let $V_{\pi_i,\pi_{-i}}(s)$ denote the \textit{expected} discounted sum of reward obtained by the goal $i$ in this Markov chain.
-(The notation $\pi_{-i}$ indicates the collection of every $j$-th policy for $j\neq i$.)
-A policy profile $\{\pi^*_i\}_{i\in [1;m]}$ is called a \textit{Nash equilibrium in the subgame starting at} $s$ if for every $i$:
-$	
-\forall \pi_i\neq \pi^*_i\;.\;V_{\pi^*_i,\pi^*_{-i}}(s) \geq V_{\pi_i,\pi^*_{-i}}(s).
-$
-To simplify the notation, we will write $V_i^*(s)$ to denote the value $V_{\pi^*_i,\pi^*_{-i}}(s)$.
-
-We will now perform a backward induction over time to obtain the subgame perfect equilibrium, i.e., the equilibrium strategy profile that is a Nash equilibrium in every subgame.
-Suppose we are currently at the state $s$, and let $i$ be a given policy index. 
-We consider two cases:
-(a) $i$ wins the bidding, in which case $i$ picks $\pi_i^a$ to maximize its own reward, and the optimal reward for $i$ is: $\widetilde V_i^{\win}(s) \coloneqq \max_{\pi_i^a} \mathbb{E}[\gamma^\tau V_i^*(s^\tau)+\sum_{t=0}^{\tau-1} \gamma^t r_i(s^t,a^t)]$, where $s^0=s$ and $s^0a^0\ldots s^\tau a^\tau$ is the random trace obtained by executing $\pi_i^a$ successively for $\tau$ steps (no bidding takes place during this time);
-(b) $i$ loses the bidding, in which case another policy $j$ picks $\pi_j^a$ to maximize its own reward, and by taking the minimum over all $j$, we obtain the worst-case resulting reward for $i$:
-$\widetilde V_i^{\lose}(s) \coloneqq \min_{j\neq i,\pi_j^{a*}} \mathbb{E}[\gamma^\tau V_i^*(s^\tau) + \sum_{t=0}^{\tau-1} \gamma^t r_i(s^t,a^t)]$, where $\pi_j^{a*}$ is the policy that achieves $\widetilde V_j^{\win}(s)$, $s^0=s$, and $s^0a^0\ldots s^\tau a^\tau$ is the random trace obtained by executing $\pi_i^a$ successively for $\tau$ steps.
-Intuitively, $\widetilde V_i^{\win}(s)$ and $\widetilde V_i^{\lose}(s)$ are the expected rewards before the payment of the bid value, and if the concrete bid value is $b_i$, then after adjusting the bid payment, the net payoffs become:
-\begin{align*}
-	V_i^{\win}(s,b_i) &\coloneqq \widetilde V_i^{\win}(s) - \rho b_i,\\
-	V_i^{\lose}(s,b_i) &\coloneqq \widetilde V_i^{\lose}(s) - \rho b_i\cdot \mathbf{1}[\text{\allpay}].
-\end{align*}
-Given a set of fixed bidding policies $\{\pi_i^b\}_{i\in [1;m]}$, and for the set of sampled bids $\{b_i\sim\pi_i^b(s)\}_{i\in [1;m]}$, define:
-\begin{align*}
-	U_i(s,b_i,b_{-i}) \coloneqq
-		\begin{cases}
-			V_i^{\win}(s,b_i) & \text{if } b_i > \max_{j\neq i} b_j,\\
-			V_i^{\lose}(s,b_i) & \text{if } b_i < \max_{j\neq i} b_j,\\
-			\frac{1}{|W|}V_i^{\win}(s,b_i) + \left(1-\frac{1}{|W|}\right)V_i^{\lose}(s,b_i) & \text{if } i\in W,
-		\end{cases}
-\end{align*}
-with $W\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in [1;m]} b_\ell\}$ being the set of highest bidders.
-Suppose $\{\pi_i^{b*}\}_{i\in [1;m]}$ is a Nash equilibrium for the set of utilities $\{U_i(s,\cdot,\cdot)\}_{i\in [1;m]}$, i.e., for every $i$:
-\begin{align*}
-	\forall \pi_i^b\neq \pi_i^{b*}\;.\;\mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})] \geq \mathbb{E}_{b_i\sim \pi_i^{b},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})].
-\end{align*}
-Then it follows from the backward induction that:
-\begin{align*}
-	V_i^*(s) = \mathbb{E}_{b_i\sim \pi_i^{b*},b_{-i}\sim\pi_{-i}^{b*}}[U_i(s,b_i,b_{-i})].
-\end{align*}
-The \emph{net gain} for bidding $b_i$ at $(s,t)$ is defined as:\KM{$\Delta$ is used before for probability distributions.}
-\begin{align*}
-	\Delta_i^{\mathrm{net}}(s,b_i)&\coloneqq V^{\win}_i(s,b_i) - V^{\lose}_i(s,b_i)\\
-	&=  \Delta^{\mathrm{gross}}_i(s) - \rho b_i\cdot \mathbf{1}[\text{\poorman}],
-\end{align*}
-where the \emph{gross gain} is
-\begin{align*}
-	\Delta^{\mathrm{gross}}_i(s)\coloneqq \widetilde V_i^{\win}(s)-\widetilde V_i^{\lose}(s).
-\end{align*}
-The quantity $\Delta^{\mathrm{gross}}_i(s,t)$ is exactly the reward-aware urgency of policy $i$: it measures the continuation-value loss incurred by not allocating the next bidding interval to $i$.
-\GS{Talk about how this urgency measure, in addition to the deadline, also encodes cooperation between policies, if there is any, because if \(V_i^{\lose}(s,t)\) is high, i.e., then the urgency measure is low.}
-Thus RAUF selects a policy maximizing $\Delta^{\mathrm{gross}}_i(s,t)$.
-
-The following theorem establishes that the \poorman setting implements RAUF whenever the leading urgency exceeds the runner-up by more than one bid increment.
-
-\begin{theorem}
-	In the \poorman setting, consider a single bidding round at the agent state $s\in S$.
- 	Suppose the parameters $\rho$ and $\beta$ are so chosen that $\rho\beta > \max_{j\in [1;m]}\Delta_j^{\mathrm{gross}}(s)$.
-	Let $i^*$ be the goal index with the largest gross gain, i.e.,
-	\begin{align}\label{eq:all pay:gross gain gap}
-		\Delta_{i^*}^{\mathrm{gross}}(s) > \max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s).
-	\end{align}
-	Then in any pure Nash equilibrium, policy $i^*$ wins control.
-\end{theorem}
-
-\begin{proof}
-	Suppose for contradiction, some other policy $j\neq i^*$ wins control by bidding $b_j$, while policy $i^*$ bids $b_{i^*}<b_j$. 
-	As this is a Nash equilibrium, it must hold that 
-	$\Delta_j^{\mathrm{net}}(s,b_j) > 0$, i.e., $ \Delta_j^{\mathrm{gross}}(s) - \rho b_j > 0$,
-	because otherwise, policy $j$ would be better off by losing the bidding instead.
-	This gives us the upper bound $\rho b_j < \Delta_j^{\mathrm{gross}}(s)$.
-	It follows from $\rho\beta > \max_{k\in [1;m]}\Delta_k^{\mathrm{gross}}(s)$ that $\rho b_j < \rho\beta$, and hence $b_j<\beta$, i.e., the policy $j$ does not make the highest possible bid.
-	
-	Now we assumed that policy $i^*$ had bid $b_{i^*}<b_j$, but we show that policy $i^*$ would achieve a higher net gain by bidding $b_j+\varepsilon$ for any $0<\varepsilon< \min\{ (\Delta^{\mathrm{gross}}_{i^*}(s) - \Delta_j^{\mathrm{gross}}(s))/\rho, \beta-b_j\}$, contradicting the Nash equilibrium:	 
-$	\Delta_{i^*}^{\mathrm{net}}(s,b_j+\varepsilon) 
-	= \Delta^{\mathrm{gross}}_{i^*}(s) - \rho(b_j+\varepsilon) 
-	= \Delta^{\mathrm{gross}}_{i^*}(s) - \rho b_j -\rho\varepsilon  
-	> \Delta^{\mathrm{gross}}_{i^*}(s) - \Delta_j^{\mathrm{gross}}(s) -\rho\varepsilon
-	> 0.
-$
-	Here, notice that $b_j+\varepsilon < \beta$, which is a valid bid.
-\end{proof}
-
-
-The following theorem establishes that the \allpay setting concentrates probability mass on the RAUF choice whenever the top urgency is strictly ordered above the remaining urgencies.
-
-\begin{theorem}
-	In the \allpay setting with $m\geq 3$, consider a single bidding round at the agent state $s\in S$ and time $t$.
-	Let $i^*$ and $j^*$ be policies for which the following gross gain order holds:
-	\begin{align}\label{eqn:allpay urgency gap}
-		\Delta_{i^*}^{\mathrm{gross}} > \Delta_{j^*}^{\mathrm{gross}} > \max_{k\notin \{i^*,j^*\}}\Delta_k^{\mathrm{gross}}.
-	\end{align}
-	Then there is no Nash equilibrium with pure strategies, although a unique Nash equilibrium exists with mixed strategies (where at each $(s,t)$, each policy uses a probability distribution to select the bid).
-	In this Nash equilibrium, policy $i^*$ wins control with probability $1-\sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.	
-\end{theorem}
-
-\begin{proof}
-	It follows from the work of Hillman and Riley~\cite{hillman1989politically} that in the Nash equilibrium, the optimal bid of the policies are as follows.
-	The policy $i^*$ picks a uniformly random bid $b_i^*$ from $[0,\Delta_{j^*}^{\mathrm{gross}}/\rho]$, the policy $j^*$ picks a uniformly random bid $b_j^*$ from $(0,\Delta_{j^*}^{\mathrm{gross}}/\rho]$ while picking the bid $0$ with probability $(\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}})/\Delta_{i^*}^{\mathrm{gross}}$, and every other policy deterministically picks the bid $0$.
-	Clearly, if $b_i^*>b_j^*$, then $i^*$ wins control, and we need to show that $P[b_i^* > b_j^*]  = 1- \sfrac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}$.
-	To show this, consider the probability density function $f_{i^*}(b) = \sfrac{\rho }{\Delta_{j^*}^{\mathrm{gross}}}$ of $b_{i^*}$, and the cumulative distribution function $F_{j^*}(b) = (\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}})/\Delta_{i^*}^{\mathrm{gross}} + \sfrac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}$ of $b_{j^*}$.
-	Then,
-	\begin{align*}
-		P[b_i^* > b_j^*] 
-		&= \int_{-\infty}^\infty F_{j^*}(b)f_{i^*}(b)db\\
-		&= \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \left(\frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}\right)\cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db \\
-		&= \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} \cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db
-		+ \int_{0}^{\Delta_{j^*}^{\mathrm{gross}}/\rho} \frac{\rho b}{\Delta_{i^*}^{\mathrm{gross}}}\frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot db\\
-		&=  \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} \cdot \frac{\rho }{\Delta_{j^*}^{\mathrm{gross}}} \cdot \frac{\Delta_{j^*}^{\mathrm{gross}}}{\rho}
-		+ \frac{\rho^2}{\Delta_{i^*}^{\mathrm{gross}}\Delta_{j^*}^{\mathrm{gross}}}\cdot \frac{\left(\Delta_{j^*}^{\mathrm{gross}}\right)^2}{2\rho^2}\\
-		&= \frac{\Delta_{i^*}^{\mathrm{gross}} - \Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}\\
-		&= 1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{\Delta_{i^*}^{\mathrm{gross}}} + \frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}\\
-		&= 1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}
-	\end{align*}
-\end{proof}
-
-If the second inequality in \eqref{eqn:allpay urgency gap} becomes an equality, then it is known that the Nash equilibrium is no longer unique, and in fact, there will be a continuoum of Nash equilibria~\cite{baye1996all}, and reaching the desirable equilibrium will require separate mechanisms.
-Instead, we argue that the event of any of the inequalities in \eqref{eqn:allpay urgency gap} becoming an equality is a measure zero event, and therefore it is vanishingly unlikely in practice.
-Moreover, when $\Delta_{i^*}^{\mathrm{gross}}$ is substantially larger than $\Delta_{j^*}^{\mathrm{gross}}$, the winning probability
-\[
-1-\frac{\Delta_{j^*}^{\mathrm{gross}}}{2\Delta_{i^*}^{\mathrm{gross}}}
-\]
-approaches $1$.
-Hence, although \allpay need not deterministically implement RAUF, it still concentrates control on the most reward-aware urgent policy whenever the top-two urgency gap is large.
-
-
-
-\section{Learning Local Policies via Markov Games}
-We formalize our framework as an $m$-player general-sum Markov game~\citep{littman1994markov}, where each player optimizes one of the $m$ objectives of the original \momdp. The game encodes the bidding mechanism in its transitions and rewards, and we therefore call it a \textit{Markov bidding game}. Each state records the current \momdp state, the policy selected in the last bidding round, and the remaining time until the next bidding. At each state, players independently choose an action and a bid; transitions determine the winning policy based on the bids, while rewards capture the corresponding bidding penalties. 
-
-
-\begin{definition}[Markov bidding games]\label{def:markov game}
-    Let \(\mathcal{M} = (S, A, T, R, \gamma, \mu)\) be an \momdp with \(m\) objectives, $\tau$ be the bidding interval, $\beta$ be the maximum bid, $\rho$ be the bid penalty coefficient, and $\Delta\in \{ \poorman,\allpay\}$ be the used penalty model.
-    We define the \(m\)-player Markov bidding game as a tuple \(\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho} = (\hat S, \hat{A}, \hat{T}, \hat{R}, \gamma, \hat \mu)\) where
-    \begin{itemize}
-        \item \(\hat S = S \times [1;m] \times [0;\tau - 1]\) is the state space. An element of \(\hat S\) is denoted \((s, k, t)\).
-        \item \(\hat{A} = (A \times \Z_{\geq 0})^m\) represents the joint extended action space of the \(m\) players, where each player independently selects an action from \(A\) and a nonnegative bid from $\Z_{\geq 0}$. We denote a set of actions chosen by the \(m\) players with \((\vec a, \vec b) = (a_i, b_i)_{i \in [1;m]} \in \hat{A}\).
-        \item \(\hat{T} : \hat S \times \hat{A} \times \hat S \to \R\) is the new transition function defined as,
-        \begin{equation*}
-            \hat T((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq 
-            \begin{cases}
-                T(s, a_{k'}, s') & t >0\land t' = t-1 \land k'=k,  \\
-                \frac{1}{\abs{\vec{b}_{\max}}} T(s, a_{k'}, s') & t = 0 \wedge t' = \tau-1 \wedge k' \in \vec{b}_{\max}, \\
-                0 & \text{otherwise},
-            \end{cases}
-        \end{equation*}
-        where \(\vec b_{\max} \coloneqq \{i \mid b_i = \max \{b_1, \dots, b_m\}\}\) is the set of agents with the highest bid.
-        \item \(\{\hat{R}_i : \hat S \times \hat{A} \times \hat S \to \R\}_{i \in [1; m]}\) is the set of reward functions for the \(m\) agents with
-        \begin{equation*}
-            \hat{R}_i((s, k, t), (\vec a, \vec b), (s', k', t')) \coloneqq 
-            \begin{cases}
-                R_i(s, a_{k'}, s') - \rho \cdot b_{i} & t = 0 \land \left( i = k' \lor \Delta = \allpay \right),\\
-                R_i(s, a_{k'}, s') & \text{otherwise}.
-            \end{cases}
-        \end{equation*}
-        \item $\hat \mu$ is the initial state distribution over \(\hat S\) defined as,
-        \begin{equation*}
-        	\hat \mu(s,k,t) \coloneqq
-        		\begin{cases}
-        			\mu(s)	&	t=0 \land k=i, \\
-        			0			&	\text{otherwise},
-        		\end{cases}
-        \end{equation*}
-        where $i\in [1;m]$ is an arbitrary agent.
-    \end{itemize}
+\begin{definition}[Markov bidding game]\label{def:markov-bidding-game}
+	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the maximum bid, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
+	The induced Markov bidding game between the $m$ local policies is \(\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho,\mathsf{P}}=(\hat S,\hat A,\hat T,\hat R,\hat\mu,H)\), where:
+	\begin{itemize}
+		\item \(\hat S=S\times [1;m]\times [0;\tau-1]\). A state \((s,k,q)\) records the \momdp state \(s\), the current controlling policy \(k\), and the number \(q\) of steps remaining before the next bidding round. When \(q=0\), a new bidding round occurs and the current controller \(k\) is ignored.
+		\item \(\hat A=(A\times [0;\beta])^m\) for $\mathsf{P}=\poorman$ and $\hat A=(A\times [0,\beta]^m)$ for $\mathsf{P}=\allpay$. Each policy \(i\) independently chooses an action \(a_i\in A\) and a bid $b_i$, where \(b_i\in[0;\beta]\) or $b_i\in [0,\beta]$ depending on $\mathsf{P}$. We write a joint action as \((\vec a,\vec b)=(a_i,b_i)_{i\in[1;m]}\).
+		\item Let \(W(\vec b)=\{i\in[1;m]\mid b_i=\max_j b_j\}\) be the set of highest bidders. The transition kernel \(\hat T:\hat S\times\hat A\to\dist(\hat S)\) is defined by
+		\begin{equation}
+			\hat T((s,k,q),(\vec a,\vec b),(s',k',q'))=
+			\begin{cases}
+				T(s,a_k,s') & q>0 \land k'=k \land q'=q-1,\\
+				\frac{1}{\abs{W(\vec b)}}T(s,a_{k'},s') & q=0 \land k'\in W(\vec b)\land q'=\tau-1,\\
+				0 & \text{otherwise}.
+			\end{cases}
+		\end{equation}
+		Intuitively, the case ``$q>0$'' means it is not yet a bidding round, and the currently active policy $k$ continues to be used, and the case ``$q=0$'' means it is a bidding round, and a new policy is selected via tie-breaking over the set $W$.
+		\item For each policy \(i\), the reward is inherited from the \momdp reward \(r_i\), with a bid penalty charged at bidding rounds:
+		\begin{equation}
+			\hat r_i((s,k,q),(\vec a,\vec b),(s',k',q'))
+			=
+			r_i(s,a_{k'})
+			-
+			\rho b_i\cdot \mathbf{1}\!\left[q=0\land (i=k'\lor \mathsf{P}=\allpay)\right].
+		\end{equation}
+		\item The initial distribution \(\hat\mu\) satisfies \(\hat\mu(s,k,0)=\mu(s)/m\) for every \(k\in[1;m]\), and \(\hat\mu(s,k,q)=0\) for \(q>0\).
+	\end{itemize}
 \end{definition}
+Thus a local policy $i$ in the \momdp $\M$ is a strategy $\pi_i\colon \hat S\to \hat A_i$ in the Markov bidding game $\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho,\mathsf{P}}$ maximizing its own expected cumulative values of $\mathbb{E}[\sum_{t=0}^{H-1}\hat r_i^t]$, against every other strategy $\pi_j$ that is maximizing its own expected cumulative reward $\mathbb{E}[\sum_{t=0}^{H-1}\hat r_j^t]$, while the auction rule determines which local action is executed.
+We write $\pi_i$ as a pair $(\pi_i^a,\pi_i^b)$, where \(\pi_i^a\colon \hat S\to A\) is the action component and \(\pi_i^b\colon \hat S\to [0;\beta]\) is the bid component  for \poorman and $\pi_i^b\colon \hat S\to [0,\beta]$ is the same for \allpay.
+We next analyze the bidding incentives at a single decision state, using continuation values from this game.
 
-In the Markov game $\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho}$, each player $i$ aims to compute its own selfish local policy of the form $\pi_i\colon (\hat{S}\times\hat{A})^*\times \hat{S}\mapsto (a_i,b_i)\in A\times \mathbb{Z}_{\geq 0}$, such that the discounted sum of its own reward is maximized, given that the other players are selfishly fulfilling their own objectives.
+
+\input{theory_new}
 
 \textbf{Learning policies in Markov bidding games.}
 Since the transitions of the original \momdp are unknown, the transitions of the constructed Markov game in Definition~\ref{def:markov game} will also be unknown.
