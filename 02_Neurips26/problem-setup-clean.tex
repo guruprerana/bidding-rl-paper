@@ -1,0 +1,235 @@
+\section{Auction-Based Multi-Policy Framework}
+
+We formalize the policy synthesis problem for a fixed finite horizon, and then introduce our auction-based framework for decentralized policy composition.
+
+\textbf{Multi-objective MDPs.}
+We use multi-objective Markov decision processes (\momdps) to model uncertain environments with multiple reward objectives.
+An \momdp with \(m\in \N_{>0}\) objectives is a tuple \(\mathcal{M}=(S,A,T,\mu,R,H)\), where \(S\) is the state space, \(A\) is the action space, \(H\in \N_{>0}\) is the horizon, \(T:S\times A\to \dist(S)\) is the transition kernel, \(\mu\in \dist(S)\) is the initial state distribution, and \(R=\{r_i:S\times A\to \R\}_{i\in [1;m]}\) is the set of reward functions.
+A Markov policy is a sequence \(\pi=\{\pi_t\}_{t=0}^{H-1}\), where each \(\pi_t:S\to \dist(A)\) maps the current state to a distribution over actions.
+For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\), and the aggregate reward is \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
+The value of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an optimal centralized policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\).
+
+We now replace the centralized policy by \(m\) local policies, one for each objective.
+At every bidding round, each local policy proposes both an action and a bid; the bid determines which proposed action controls the environment for the next \(\tau\in\N_{>0}\) steps.
+We use a continuous bid space \([0,\beta]\), where \(\beta\in\R_{>0}\), and resolve bidding ties uniformly at random.
+To discourage overbidding, bids are penalized with coefficient \(\rho\in(0,1)\).
+In the \poorman setting, only the selected policy pays its bid penalty; in the \allpay setting, every policy pays its own bid penalty.
+Without loss of generality, we assume that \(H\) is a multiple of \(\tau\), since the horizon can be padded with zero-reward terminal transitions.
+The following Markov game makes this composition rule explicit.
+
+\begin{definition}[Markov bidding game]\label{def:markov-bidding-game}
+	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the bid cap, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
+	The induced \(m\)-player Markov bidding game is \(\mathcal{G}^{\mathcal{M}}_{\tau,\beta,\rho,\mathsf{P}}=(\hat S,\hat A,\hat T,\hat R,\hat\mu,H)\), where:
+	\begin{itemize}
+		\item \(\hat S=S\times [1;m]\times [0;\tau-1]\). A state \((s,k,q)\) records the \momdp state \(s\), the current controlling policy \(k\), and the number \(q\) of steps remaining before the next bidding round. When \(q=0\), a new bidding round occurs and the current controller \(k\) is ignored.
+		\item \(\hat A=(A\times [0,\beta])^m\). Each policy \(i\) independently chooses an action \(a_i\in A\) and a bid \(b_i\in[0,\beta]\). We write a joint action as \((\vec a,\vec b)=(a_i,b_i)_{i\in[1;m]}\).
+		\item Let \(W(\vec b)=\{i\in[1;m]\mid b_i=\max_j b_j\}\). The transition kernel \(\hat T:\hat S\times\hat A\to\dist(\hat S)\) is defined by
+		\begin{equation}
+			\hat T((s,k,q),(\vec a,\vec b),(s',k',q'))=
+			\begin{cases}
+				T(s,a_k,s') & q>0 \land k'=k \land q'=q-1,\\
+				\frac{1}{\abs{W(\vec b)}}T(s,a_{k'},s') & q=0 \land k'\in W(\vec b)\land q'=\tau-1,\\
+				0 & \text{otherwise}.
+			\end{cases}
+		\end{equation}
+		\item For each policy \(i\), the reward is inherited from the \momdp reward \(r_i\), with a bid penalty charged at bidding states:
+		\begin{equation}
+			\hat r_i((s,k,q),(\vec a,\vec b),(s',k',q'))
+			=
+			r_i(s,a_{k'})
+			-
+			\rho b_i\cdot \mathbf{1}\!\left[q=0\land (i=k'\lor \mathsf{P}=\allpay)\right].
+		\end{equation}
+		\item The initial distribution \(\hat\mu\) satisfies \(\hat\mu(s,k,0)=\mu(s)/m\) for every \(k\in[1;m]\), and \(\hat\mu(s,k,q)=0\) for \(q>0\).
+	\end{itemize}
+\end{definition}
+
+Thus a local policy is a strategy in the Markov bidding game, which we write as \(\pi_i=(\pi_i^a,\pi_i^b)\), with an action component \(\pi_i^a\) and a bid component \(\pi_i^b\).
+Each player optimizes its own cumulative reward \(\sum_{t=0}^{H-1}\hat r_i^t\), while the auction rule determines which local action is executed.
+We next analyze the bidding incentives at a single decision state, using continuation values from this game.
+
+\smallskip
+\noindent\textbf{Existence of Nash equilibria.}
+Continuous bidding makes the Markov bidding game discontinuous at bid ties, since an arbitrarily small bid increase can change the winning policy.
+Simon and Zame~\citep{simon1990discontinuous} prove existence for discontinuous games by allowing the sharing rule at discontinuity points to be part of the equilibrium object.
+This does not directly imply existence for our game with a fixed uniform tie-breaking rule.
+Nevertheless, in the continuous all-pay equilibrium characterized below, bid ties occur with probability zero, so the particular tie-breaking rule is payoff-irrelevant for that equilibrium.
+The winner-pays result below should instead be read conditionally on the existence or selection of a pure equilibrium.
+
+\smallskip
+\noindent\textbf{Equilibrium continuation values.}
+We consider local policies \(\pi_i=(\pi_i^a,\pi_i^b)\) that form a Nash equilibrium of the Markov bidding game.
+Because the horizon is finite, the corresponding equilibrium continuation values can be defined by backward induction.
+Set \(V^*_{i,H}(s)=0\) for every objective \(i\) and terminal state \(s\).
+Suppose the game is at state \(s\) and bidding time \(t\in\{0,\tau,2\tau,\ldots,H-\tau\}\).
+
+For a policy \(i\), define its winning continuation value by
+\begin{equation}
+	\widetilde V^{\win}_{i,t}(s)
+	\coloneqq
+	\max_{\pi_i^a}
+	\E\left[
+		\sum_{q=0}^{\tau-1} r_i(s^{t+q},a^{t+q})
+		+V^*_{i,t+\tau}(s^{t+\tau})
+	\right],
+\end{equation}
+where the action sequence is generated by policy \(i\) during the control window.
+Similarly, define the losing continuation value by
+\begin{equation}
+	\widetilde V^{\lose}_{i,t}(s)
+	\coloneqq
+	\min_{j\neq i}
+	\E\left[
+		\sum_{q=0}^{\tau-1} r_i(s^{t+q},a^{t+q})
+		+V^*_{i,t+\tau}(s^{t+\tau})
+	\right],
+\end{equation}
+where policy \(j\) controls the action sequence during the window using an action policy that maximizes its own winning continuation value.
+The control gain of policy \(i\) at \((s,t)\) is
+\begin{equation}
+	G_{i,t}(s)
+	\coloneqq
+	\widetilde V^{\win}_{i,t}(s)-\widetilde V^{\lose}_{i,t}(s).
+\end{equation}
+This quantity measures the value of winning control for the next bidding interval rather than losing it.
+
+Given bids \(b=(b_1,\ldots,b_m)\), let
+\begin{equation}
+	W(b)\coloneqq \{k\in [1;m]\mid b_k=\max_{\ell\in[1;m]}b_\ell\}
+\end{equation}
+be the set of highest bidders, and let \(p_i(b)=\mathbf{1}[i\in W(b)]/\abs{W(b)}\) be the probability that \(i\) wins after tie-breaking.
+For a penalty model \(\mathsf{P}\in\{\poorman,\allpay\}\), the one-round bidding payoff is
+\begin{equation}
+	U^{\mathsf{P}}_{i,t}(s,b)
+	=
+	\begin{cases}
+		\widetilde V^{\lose}_{i,t}(s)+p_i(b)\left(G_{i,t}(s)-\rho b_i\right) & \mathsf{P}=\poorman,\\
+		\widetilde V^{\lose}_{i,t}(s)+p_i(b)G_{i,t}(s)-\rho b_i & \mathsf{P}=\allpay.
+	\end{cases}
+\end{equation}
+In the \poorman case, the bid cost is paid only in expectation over winning; in the \allpay case, the bid cost is paid regardless of the winner.
+
+A mixed bidding policy for player \(i\) at \((s,t)\) is the bid component \(\pi^b_{i,t}(\cdot\mid s)\in\dist([0,\beta])\), and a mixed bidding profile is \(\pi^b_t(\cdot\mid s)=(\pi^b_{1,t}(\cdot\mid s),\ldots,\pi^b_{m,t}(\cdot\mid s))\).
+We write \(b\sim\pi^b_t(\cdot\mid s)\) when bids are sampled independently as \(b_i\sim\pi^b_{i,t}(\cdot\mid s)\).
+A mixed bidding profile \(\pi^{b*}_t(\cdot\mid s)\) is a Nash equilibrium of the one-round bidding game at \((s,t)\) if, for every player \(i\) and every alternative bid distribution \(\pi^b_{i,t}(\cdot\mid s)\in\dist([0,\beta])\),
+\begin{equation}
+	\E_{b\sim\pi^{b*}_t(\cdot\mid s)}\!\left[U^{\mathsf{P}}_{i,t}(s,b)\right]
+	\geq
+	\E_{b_i\sim\pi^b_{i,t}(\cdot\mid s),\; b_{-i}\sim\pi^{b*}_{-i,t}(\cdot\mid s)}\!\left[U^{\mathsf{P}}_{i,t}(s,b_i,b_{-i})\right].
+\end{equation}
+The equilibrium continuation value is then
+\begin{equation}
+	V^*_{i,t}(s)
+	=
+	\E_{b\sim \pi^{b*}_t(\cdot\mid s)}\left[U^{\mathsf{P}}_{i,t}(s,b)\right],
+\end{equation}
+which completes the backward-induction definition.
+
+\smallskip
+\noindent\textbf{Theoretical analysis of the bidding schemes.}
+The first result says that the winner-pays mechanism can implement the largest-gain policy in arbitrarily good pure approximate equilibria.
+Recall that a pure bid profile is a pure \(\varepsilon\)-Nash equilibrium if no policy can improve its payoff by more than \(\varepsilon\) through a unilateral bid deviation.
+
+\begin{theorem}[Winner-pays approximate implementation]
+	In the \poorman setting, consider a single bidding round at state \(s\) and time \(t\).
+	Let \(i^*\) be a policy with largest control gain, let \(j^*\) be a policy with second-largest control gain, and suppose
+	\begin{equation}
+		G_{i^*,t}(s)>G_{j^*,t}(s).
+	\end{equation}
+	For any \(\varepsilon>0\) such that \((G_{j^*,t}(s)+\varepsilon)/\rho\leq \beta\) and \(G_{i^*,t}(s)>G_{j^*,t}(s)+\varepsilon\), there is a pure \(\varepsilon\)-Nash equilibrium in which policy \(i^*\) wins control with probability one.
+\end{theorem}
+
+\begin{proof}
+	Consider the bid profile \(b_{j^*}=G_{j^*,t}(s)/\rho\), \(b_{i^*}=(G_{j^*,t}(s)+\varepsilon)/\rho\), and \(b_k\leq b_{j^*}\) for every \(k\notin\{i^*,j^*\}\).
+	Policy \(i^*\) wins uniquely.
+	No losing policy can gain by deviating to another losing bid.
+	If \(j^*\) deviates to a winning bid, it must bid at least \(b_{i^*}\), giving payoff at most
+	\begin{equation}
+		\widetilde V^{\lose}_{j^*,t}(s)+G_{j^*,t}(s)-\rho b_{i^*}
+		=
+		\widetilde V^{\lose}_{j^*,t}(s)-\varepsilon,
+	\end{equation}
+	which is worse than losing.
+	Every other losing policy has control gain at most \(G_{j^*,t}(s)\), so the same argument applies.
+	
+	Policy \(i^*\) cannot gain by raising its bid.
+	Its best deviation is to lower its bid while still winning, which can improve its payoff by at most \(\varepsilon\), since it must bid above \(b_{j^*}\) to remain the unique winner.
+	Deviating to a losing bid gives payoff \(\widetilde V^{\lose}_{i^*,t}(s)\), while the proposed bid gives
+	\begin{equation}
+		\widetilde V^{\lose}_{i^*,t}(s)+G_{i^*,t}(s)-G_{j^*,t}(s)-\varepsilon,
+	\end{equation}
+	which is strictly larger by assumption.
+	Thus no policy can improve by more than \(\varepsilon\), so the profile is a pure \(\varepsilon\)-Nash equilibrium.
+\end{proof}
+
+The all-pay mechanism admits a standard mixed-equilibrium construction in the continuous complete-information setting.
+
+\begin{theorem}[All-pay concentration]
+	In the \allpay setting, consider a single bidding round at state \(s\) and time \(t\), with continuous bid space \([0,\beta]\).
+	Let \(i^*\) and \(j^*\) be policies satisfying
+	\begin{equation}
+		G_{i^*,t}(s)
+		>
+		G_{j^*,t}(s)
+		>
+		\max_{k\notin\{i^*,j^*\}}G_{k,t}(s),
+	\end{equation}
+	and suppose \(\rho\beta\geq G_{j^*,t}(s)\).
+	Then the continuous all-pay bidding game has no pure Nash equilibrium, and there is a mixed Nash equilibrium given by the following bid distributions:
+	\begin{itemize}
+		\item policy \(i^*\) samples uniformly from \([0,G_{j^*,t}(s)/\rho]\);
+		\item policy \(j^*\) places an atom of mass
+		\begin{equation}
+			\frac{G_{i^*,t}(s)-G_{j^*,t}(s)}
+			{G_{i^*,t}(s)}
+		\end{equation}
+		at \(0\), and otherwise has density \(\rho/G_{i^*,t}(s)\) on \((0,G_{j^*,t}(s)/\rho]\);
+		\item every other policy bids \(0\) with probability one.
+	\end{itemize}
+	In this equilibrium, policy \(i^*\) wins control with probability
+	\begin{equation}
+		1-\frac{G_{j^*,t}(s)}
+		{2G_{i^*,t}(s)}.
+	\end{equation}
+\end{theorem}
+
+\begin{proof}
+	This is a standard complete-information all-pay equilibrium~\citep{baye1996all}, applied to valuations \(G_{i,t}(s)\) and bid cost \(\rho b_i\).
+	The bid-cap assumption ensures that the equilibrium support lies inside \([0,\beta]\).
+	The stated winning probability follows by integrating the probability that \(j^*\)'s bid is below the bid of \(i^*\):
+	\begin{equation}
+	\begin{aligned}
+		P[i^*\text{ wins}]
+		&=
+		\int_0^{G_{j^*,t}(s)/\rho}
+		\left(
+			\frac{G_{i^*,t}(s)-G_{j^*,t}(s)}
+			{G_{i^*,t}(s)}
+			+
+			\frac{\rho b}{G_{i^*,t}(s)}
+		\right)
+		\frac{\rho}{G_{j^*,t}(s)}
+		db\\
+		&=
+		1-\frac{G_{j^*,t}(s)}
+		{2G_{i^*,t}(s)}.
+	\end{aligned}
+	\end{equation}
+\end{proof}
+
+\smallskip
+\noindent\textbf{Learning policies in Markov bidding games.}
+In our experiments, the transition kernel of the original \momdp is unknown, and therefore the induced Markov bidding game in Definition~\ref{def:markov-bidding-game} is also unknown.
+We learn the local policies directly with reinforcement learning.
+Following the multi-agent PPO recipe of \citet{yu2022mappo}, we train all local policies concurrently with proximal policy optimization (PPO; \citealp{schulman2017ppo}).
+Although the theoretical analysis above uses the continuous bid space \([0,\beta]\), our implementation discretizes this interval into finitely many bid levels and treats the bid as an additional categorical action.
+This makes the bidding component compatible with standard policy-gradient implementations, while retaining the interpretation of bids as calibrated control gains.
+The continuous-equilibrium statements above therefore do not apply directly to the discrete-bid implementation.
+Instead, our experiments evaluate whether PPO converges to useful approximate equilibria under this discretized mechanism, and show that the learned policies reliably coordinate through bids in the environments we study.
+Since the objectives in our environments have shared structure, the local policies share the same actor and critic networks.
+At each PPO iteration, we collect rollouts from each policy's perspective and sample minibatches from the pooled rollout data to update the shared networks.
+
+To handle a varying number of objectives, we use an attention pooling architecture that compresses the active objective set into a fixed-dimensional embedding.
+Each objective information vector is first processed by a fully connected network to produce an objective embedding.
+The embeddings are then aggregated through a weighted sum, where the weights are computed from the dot product between each embedding and a learned query vector.
+This produces a fixed-dimensional representation of the objective set while allowing the learned policies to adapt to different numbers of active objectives at deployment time.

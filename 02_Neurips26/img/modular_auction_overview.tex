@@ -1,0 +1,163 @@
+\newcommand{\figblockwidth}{4.2cm}
+% Width of the environment block.
+\newcommand{\figblockheight}{1.45cm}
+% Height of the environment block.
+\newcommand{\figpolicywidth}{3.0cm}
+% Width of each policy box.
+\newcommand{\figpolicyheight}{1.0cm}
+% Height of each policy box and AP box.
+\newcommand{\figdotgapabove}{0.05cm}
+% Vertical offset from the center policy box to the upper dots.
+\newcommand{\figdotgapbelow}{0.3cm}
+% Vertical offset from the center policy box to the lower dots.
+\newcommand{\figapdotgapabove}{0.05cm}
+% Vertical offset from the middle AP box to the upper dots.
+\newcommand{\figapdotgapbelow}{0.3cm}
+% Vertical offset from the middle AP box to the lower dots.
+\newcommand{\figapwidth}{3.25cm}
+% Width of each attention-pooling box.
+\newcommand{\figauctionwidth}{3.1cm}
+% Width of the auction box.
+\newcommand{\figauctionheight}{4.3cm}
+% Height of the auction box.
+\newcommand{\figcornerradius}{2pt}
+% Corner radius used by all rectangular blocks.
+\newcommand{\figblockinnersep}{6pt}
+% Inner padding for large blocks.
+\newcommand{\figsmallinnersep}{4pt}
+% Inner padding for policy and AP boxes.
+\newcommand{\fighsep}{2.35cm}
+% Base horizontal node spacing used by TikZ positioning.
+\newcommand{\figauccentersep}{5.65cm}
+% Horizontal separation from the center policy box to the auction box center.
+\newcommand{\figapcentercorrection}{0.575cm}
+% Extra left correction to visually balance the AP stack against the auction box.
+\newcommand{\figapshift}{2.0cm}
+% Additional left shift applied only to the AP stack.
+\newcommand{\figvsep}{0.8cm}
+% Vertical spacing between stacked policy boxes and stacked AP boxes.
+\newcommand{\figfeedbackdrop}{1.55cm}
+% Reserved vertical drop for feedback routing.
+\newcommand{\figtitlesep}{0.9cm}
+% Vertical offset from the top policy box to the main title.
+\newcommand{\fignotesep}{0.8cm}
+% Reserved offset for note-style labels.
+\newcommand{\figaptitlegap}{0.14cm}
+% Vertical gap from the top AP box to the “Attention pooling” title.
+\newcommand{\figenvgap}{0.8cm}
+% Vertical gap from the AP/auction row down to the environment box.
+\newcommand{\figrewardbusfrac}{0.15}
+% Relative location of the shared reward bus between the AP side and the policy side.
+\newcommand{\figmergeleft}{2.1cm}
+% Leftward offset from the environment box before the reward bus turns upward.
+\newcommand{\figstateleft}{0.4cm}
+% Leftward offset from the AP stack to the state bus.
+\newcommand{\figactionlabelpos}{0.24}
+% Relative position of the action label on the auction-to-environment arrow.
+\newcommand{\figstatelabelxshift}{-0.9cm}
+% Horizontal shift applied to the state-bus label.
+\newcommand{\figpolicylabelpos}{0.78}
+% Relative position of the upper and lower policy-branch labels.
+\newcommand{\figpolicylabelxshift}{-1.1cm}
+% Horizontal shift applied to labels on the policy-input arrows.
+\newcommand{\figcenterpolicylabelxshift}{0.5cm}
+% Horizontal shift applied to labels on the center policy-input arrow.
+\newcommand{\figrewardlabelxshift}{0.05cm}
+% Horizontal shift applied to the shared reward-vector label.
+\newcommand{\figbboxheighttop}{0.5cm}
+% Height of the explicit bounding box above the center policy box.
+\newcommand{\figbboxheightbottom}{0.5cm}
+% Height of the explicit bounding box below the center policy box.
+\newcommand{\figbboxleftpad}{0cm}
+% Extra padding added to the left of the AP boxes in the explicit bounding box.
+\newcommand{\figbboxrightpad}{1cm}
+% Extra padding added to the right of the auction box in the explicit bounding box.
+\newcommand{\figflowwidth}{1.0pt}
+% Line width for primary action-flow arrows.
+\newcommand{\figfeedbackwidth}{0.9pt}
+% Line width for feedback and merge connectors.
+
+\begin{tikzpicture}[
+  >=Latex,
+  font=\normalsize,
+  node distance=\figvsep and \fighsep,
+  title/.style={font=\bfseries\large},
+  block/.style={
+    draw,
+    rounded corners=\figcornerradius,
+    align=center,
+    minimum width=\figblockwidth,
+    minimum height=\figblockheight,
+    inner sep=\figblockinnersep
+  },
+  smallblock/.style={
+    draw,
+    rounded corners=\figcornerradius,
+    align=center,
+    minimum width=\figpolicywidth,
+    minimum height=\figpolicyheight,
+    inner sep=\figsmallinnersep
+  },
+  apblock/.style={
+    draw,
+    rounded corners=\figcornerradius,
+    align=center,
+    minimum width=\figapwidth,
+    minimum height=\figpolicyheight,
+    inner sep=\figsmallinnersep
+  },
+  auction/.style={
+    draw,
+    rounded corners=\figcornerradius,
+    align=center,
+    minimum width=\figauctionwidth,
+    minimum height=\figauctionheight,
+    inner sep=\figblockinnersep
+  },
+  flow/.style={->, line width=\figflowwidth},
+  feedback/.style={->, line width=\figfeedbackwidth},
+  note/.style={align=center, font=\small}
+]
+  \node[smallblock] (pol1) {$\pi_1$};
+  \node[smallblock, below=of pol1] (pol2) {$\pi_{i^\star}$};
+  \node[smallblock, below=of pol2] (polm) {$\pi_m$};
+  \node[font=\Large] at ($(pol2.north)+(0,\figpolicyheight/2+\figdotgapabove)$) {$\vdots$};
+  \node[font=\Large] at ($(pol2.south)+(0,-\figdotgapbelow)$) {$\vdots$};
+
+  \node[auction] (auc) at ($(pol2.center)+(\figauccentersep,0)$) {$i^\star \in \arg\max_i b_i^{(t)}$\\[4pt]\footnotesize chosen uniformly\\\footnotesize at random};
+  \node[apblock] (ap2) at ($(pol2.center)+(-\figauccentersep-\figapcentercorrection-\figapshift,0)$) {$\textsf{AP}_2 : S \to \mathbb{R}^m$};
+  \node[apblock, above=of ap2] (ap1) {$\textsf{AP}_1 : S \to \mathbb{R}^m$};
+  \node[apblock, below=of ap2] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^m$};
+  \node[font=\Large] at ($(ap2.north)+(0,\figpolicyheight/2+\figapdotgapabove)$) {$\vdots$};
+  \node[font=\Large] at ($(ap2.south)+(0,-\figapdotgapbelow)$) {$\vdots$};
+  \node[note, above=\figaptitlegap of ap1, font=\small\bfseries] (aptitle) {Attention pooling};
+  \node[note, font=\small\bfseries] at (pol2.center |- aptitle.center) {Policies};
+  \node[note, font=\small\bfseries] at (auc.center |- aptitle.center) {Auction};
+  \coordinate (statebus) at ($(ap2.west)+(-\figstateleft,0)$);
+  \coordinate (rewardbus) at ($(ap2.east)!\figrewardbusfrac!(pol2.west)$);
+  \path ($(apm.south)!0.5!(auc.south)$) node[block, below=\figenvgap] (env) {Environment + active objectives};
+  \coordinate (clipnw) at ($(ap1.west |- aptitle.north)+(-\figbboxleftpad,\figbboxheighttop)$);
+  \coordinate (clipse) at ($(auc.east |- env.south)+(\figbboxrightpad,-\figbboxheightbottom)$);
+
+  \draw[flow] (pol1.east) -- node[above, font=\small] {$(b_1^{(t)}, a_1^{(t)})$} (auc.west |- pol1.east);
+  \draw[flow] (pol2.east) -- node[above, font=\small] {$(b_{i^\star}^{(t)}, a_{i^\star}^{(t)})$} (auc.west |- pol2.east);
+  \draw[flow] (polm.east) -- node[below, font=\small] {$(b_m^{(t)}, a_m^{(t)})$} (auc.west |- polm.east);
+
+  \draw[flow] (auc.south) |- node[right, font=\small, pos=\figactionlabelpos] {$a_{i^\star}^{(t)}$} (env.east);
+
+  \draw[line width=\figfeedbackwidth] (env.west) -- (statebus |- env.west) coordinate (statecorner) -- (statebus);
+  \draw[feedback] (statebus) |- (ap1.west);
+  \draw[feedback] (statebus) -- (ap2.west);
+  \draw[feedback] (statebus) |- (apm.west);
+  \path ($(env.west)!0.5!(statecorner)$) node[below, font=\small, xshift=\figstatelabelxshift] {$\vec s^{(t+1)}$};
+  \draw[line width=\figflowwidth] (env.west) -- ++(-\figmergeleft,0) coordinate (envrewardcorner) -- (rewardbus |- env.west) -- (rewardbus |- pol1.center);
+  \path ($(rewardbus |- env.west)!0.5!(rewardbus |- pol1.center)$) node[xshift=\figrewardlabelxshift, left, font=\small, yshift=-2.15cm] {$\vec r^{(t)}$};
+  \draw[feedback] (ap1.east) -- node[pos=\figpolicylabelpos, above, font=\small, xshift=\figpolicylabelxshift] {$\textsf{AP}_1(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift] {$r_1^{(t)} - \rho b_1^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (pol1.west);
+  \draw[feedback] (ap2.east) -- node[midway, above, font=\small, xshift=\figcenterpolicylabelxshift] {$\textsf{AP}_{i^\star}(s^{(t+1)})$} node[midway, below, font=\small, xshift=\figcenterpolicylabelxshift] {$r_{i^\star}^{(t)} - \rho b_{i^*}^{(t)}  $} (pol2.west);
+  \draw[feedback] (apm.east) -- node[pos=\figpolicylabelpos, above, font=\small, xshift=\figpolicylabelxshift] {$\textsf{AP}_m(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift] {$r_m^{(t)} - \rho b_m^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (polm.west);
+  \path[use as bounding box]
+    (clipnw)
+    rectangle
+    (clipse);
+
+\end{tikzpicture}

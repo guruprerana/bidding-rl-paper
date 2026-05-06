@@ -1,0 +1,71 @@
+\newcommand{\stdfigblockwidth}{3.5cm}
+% Width of the environment and policy blocks.
+\newcommand{\stdfigblockheight}{1.45cm}
+% Height of the environment and policy blocks.
+\newcommand{\stdfigcornerradius}{2pt}
+% Corner radius used by the rectangular blocks.
+\newcommand{\stdfigblockinnersep}{6pt}
+% Inner padding for the rectangular blocks.
+\newcommand{\stdfigvsep}{2.1cm}
+% Vertical separation between the environment and policy blocks.
+\newcommand{\stdfigtitlesep}{0.9cm}
+% Vertical offset from the environment block to the title.
+\newcommand{\stdfigactionright}{1.0cm}
+% Rightward excursion of the action-feedback loop.
+\newcommand{\stdfigstateleft}{1.2cm}
+% Leftward excursion of the state-feedback loop.
+\newcommand{\stdfigactionlabelpos}{0.82}
+% Relative position of the action label on the right feedback loop.
+\newcommand{\stdfigvertlabelpos}{0.5}
+% Relative position of labels along the vertical arrow segments.
+\newcommand{\stdfigbboxleftpad}{0.8cm}
+% Extra left padding for the explicit bounding box.
+\newcommand{\stdfigbboxrightpad}{0.8cm}
+% Extra right padding for the explicit bounding box.
+\newcommand{\stdfigbboxtoppad}{0.7cm}
+% Extra top padding for the explicit bounding box.
+\newcommand{\stdfigbboxbottompad}{6cm}
+% Extra bottom padding for the explicit bounding box.
+\newcommand{\stdfigflowwidth}{1.05pt}
+% Line width for the primary reward/action arrows.
+\newcommand{\stdfigfeedbackwidth}{0.95pt}
+% Line width for the state-feedback arrow.
+
+\begin{tikzpicture}[
+  >=Latex,
+  font=\normalsize,
+  node distance=\stdfigvsep,
+  title/.style={font=\bfseries\large},
+  block/.style={
+    draw,
+    rounded corners=\stdfigcornerradius,
+    align=center,
+    minimum width=\stdfigblockwidth,
+    minimum height=\stdfigblockheight,
+    inner sep=\stdfigblockinnersep
+  },
+  flow/.style={->, line width=\stdfigflowwidth},
+  feedback/.style={->, line width=\stdfigfeedbackwidth}
+]
+  \node[block] (policy) {Policy $\pi$};
+  \node[block, below=of policy] (env) {Environment};
+  % \node[title, above=\stdfigtitlesep of policy] {Standard RL controller};
+
+  \coordinate (actionright) at ($(policy.east)+(\stdfigactionright,0)$);
+  \coordinate (stateleft) at ($(env.west)+(-\stdfigstateleft,0)$);
+  \coordinate (actionup) at (actionright |- policy.east);
+  \coordinate (actiondown) at (actionright |- env.east);
+  \coordinate (stateup) at (stateleft |- policy.west);
+  \coordinate (statedown) at (stateleft |- env.west);
+  \coordinate (bboxnw) at ($(stateleft |- env.north)+(-\stdfigbboxleftpad,\stdfigbboxtoppad)$);
+  \coordinate (bboxse) at ($(actionright |- policy.south)+(\stdfigbboxrightpad,-\stdfigbboxbottompad)$);
+
+  \draw[flow] (env) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$\sum_{i=1}^m r_i^{(t)}$} (policy);
+  \draw[flow] (policy.east) -- (actionup) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$a^{(t)}$} (actiondown) -- (env.east);
+  \draw[feedback] (env.west) -- (statedown) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$s^{(t+1)}$} (stateup) -- (policy.west);
+
+  \path[use as bounding box]
+    (bboxnw)
+    rectangle
+    (bboxse);
+\end{tikzpicture}
