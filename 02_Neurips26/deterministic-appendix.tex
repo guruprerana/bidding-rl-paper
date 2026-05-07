@@ -1,7 +1,13 @@
-\section{A Deterministic Time-Bounded Path-Planning Problem}
+\section{A Special Case of \momdps: Deterministic Time-Bounded Reachability with Multiple Stationary Goals}
 \label{app:deterministic-path-planning}
 
-We first isolate a deterministic path-planning special case that provides useful intuition for the auction mechanism.
+We now  isolate a deterministic path-planning special case that provides useful intuition for the auction mechanism.
+This setting is simple enough that we can even show that our auction-based framework would coincide with one of the standard algorithms (called LSTF, introduced later) for solving this problem (see Sec.~\ref{app:lstf-analysis}).
+This shows that, while in the most general \momdp setting we are not able to make theoretical claims on optimality, additional assumptions sometime will bridge this gap.
+
+
+\subsection{The Model and the Shape of the Optimal Policy}
+
 The special case can be stated directly as follows.
 An agent moves without uncertainty in a location space \(L\), starting from \(l_0\in L\).
 There are \(m\) stationary goals \(g_1,\ldots,g_m\), where goal \(g_i\) has deadline \(d_i\in\mathbb{N}_{>0}\), reward \(r_i\in\mathbb{R}_{>0}\), and missed-deadline penalty \(-M\).
@@ -40,4 +46,110 @@ Slack is well matched to stationary goals and deterministic travel times, but it
 For the general setting, our theory instead uses the control gain of each local policy: the marginal continuation-value advantage of granting that policy the next control interval rather than deferring control to another policy.
 This reward-aware urgency captures both deadline pressure and whether another policy's action would incidentally help the same objective.
 
-Appendix~\ref{app:lstf-analysis} shows that, in the deterministic stationary-goal special case above, the auction mechanism recovers the LSTF choice whenever one goal is critically urgent and the remaining goals have sufficient slack.
+\subsection{The Guarantees Provided by the Auction-Based Framework}
+\label{app:lstf-analysis}
+
+We now connect the auction mechanism to least slack time first (LSTF) in the deterministic stationary-goal setting from the previous section.
+Recall that each goal \(g_i\) is stationary, the agent moves deterministically, and \(d(x,g_i)\) is the minimum travel time from location \(x\) to goal \(g_i\).
+At location \(x\) and time \(t\), define the slack of goal \(i\) by
+\[
+  \slack_i(x,t)\coloneqq d_i-t-d(x,g_i).
+\]
+Once \(g_i\) is reached, it disappears from the map and we write \(\slack_i(x,t)=\bot\).
+The least slack time first rule schedules a goal with minimum nonnegative slack~\citep{brown2020optimal}.
+Formally, at location \(x\) and time \(t\), LSTF selects any goal
+\[
+  i_{\mathrm{LSTF}}\in
+  \arg\min_{i:\slack_i(x,t)\geq 0}
+  \slack_i(x,t),
+\]
+with ties broken arbitrarily.
+Thus LSTF gives control to the goal whose deadline is closest after accounting for travel time.
+
+We show that, when one goal is critically urgent and all other goals are safely non-urgent, the auction selects the same goal as LSTF.
+At each bidding round, every goal \(i\) is represented by a local policy that proposes an action and submits a nonnegative bid.
+The highest bidder controls the agent for the next \(\tau\in\mathbb{N}_{>0}\) time steps, with ties broken uniformly at random.
+Bids are bounded by \(\beta\), and \(\rho>0\) is the bid penalty coefficient.
+For \poorman, bids are integer values in \([0;\beta]\); for \allpay, bids are real values in \([0,\beta]\).
+We analyze two payment rules: in \poorman, only the winning policy pays \(\rho b_i\), while in \allpay, every policy pays \(\rho b_i\).
+
+In the remainder of this appendix, \(s\in L\) denotes the current agent location and \(t\) denotes the current time.
+Suppose \(\pi_i\) is the local policy for the \(i\)-th goal, mapping each pair \((s,t)\) to a bid \(b_i\) and an action \(a_i\).
+We write \(\pi_i^b\colon (s,t)\mapsto b_i\) and \(\pi_i^a\colon (s,t)\mapsto a_i\) for the bidding and action components.
+In this deterministic setting, \(\pi_i^a\) proceeds toward its goal \(g_i\) along a shortest path, and \(T^\tau(s,\pi_i^a)\) denotes the state reached by applying \(\pi_i^a\) for \(\tau\) steps from \(s\).
+
+For a bidding round at time \(t\), define \(V_i^{\win}(s,t,b_i)\) and \(V_i^{\lose}(s,t,b_i)\) as the value to policy \(i\) when it bids \(b_i\) and respectively wins or loses the next bidding interval.
+Let \(V_i^{\cont}(s,t)\) denote the Nash equilibrium continuation value of the subgame starting from \((s,t)\).
+The value functions are defined by backward induction as
+\begin{align*}
+  V_i^{\win}(s,t,b_i)
+  &\coloneqq
+  \gamma^\tau V_i^{\cont}(T^\tau(s,\pi_i^a),t+\tau)-\rho b_i,\\
+  V_i^{\lose}(s,t,b_i)
+  &\coloneqq
+  \gamma^\tau V_i^{\cont}(T^\tau(s,\pi_j^a),t+\tau)-\rho b_i\cdot \mathbf{1}[\text{\allpay}],
+\end{align*}
+where \(j\) is the policy that wins control when \(i\) loses.
+The net gain from winning rather than losing is
+\begin{align*}
+  \Delta_i^{\mathrm{net}}(s,t,b_i)
+  &\coloneqq
+  V_i^{\win}(s,t,b_i)-V_i^{\lose}(s,t,b_i)\\
+  &=
+  \Delta_i^{\mathrm{gross}}(s,t)-\rho b_i\cdot \mathbf{1}[\text{\poorman}],
+\end{align*}
+where the gross gain
+\[
+  \Delta_i^{\mathrm{gross}}(s,t)
+  \coloneqq
+  \gamma^\tau\left[
+    V_i^{\cont}(T^\tau(s,\pi_i^a),t+\tau)
+    -
+    V_i^{\cont}(T^\tau(s,\pi_j^a),t+\tau)
+  \right]
+\]
+measures the value advantage to objective \(i\) of winning the next bidding interval.
+
+\begin{lemma}\label{lem:app-lstf-critical-regime-gap}
+  In both \poorman and \allpay settings, if policy \(i^*\) is in the critical regime, i.e., \(\slack_{i^*}(s,t)\in[0,\tau]\), and every other policy \(j\neq i^*\) is in the safe regime, i.e., \(\slack_j(s,t)>\tau\), then
+  \begin{align}\label{eq:app-lstf-gross-gain-urgency}
+    \Delta_{i^*}^{\mathrm{gross}}(s,t)
+    -
+    \max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)
+    > M-r_{\max}>0.
+  \end{align}
+\end{lemma}
+
+\begin{proof}
+  Since \(\slack_{i^*}(s,t)\leq \tau\), losing the bidding interval causes \(i^*\) to miss its deadline unless the winning policy reaches \(g_{i^*}\) incidentally during that interval.
+  In the worst case represented by the losing continuation value, this incidental help does not occur.
+  Hence \(V_{i^*}^{\lose}(s,t,b_{i^*})=-M-\rho b_{i^*}\cdot\mathbf{1}[\text{\allpay}]\).
+  On the other hand, if \(i^*\) wins the bidding, then \(V_{i^*}^{\win}(s,t,b_{i^*})\geq -\rho b_{i^*}\), with strict inequality if the goal is reached during the next \(\tau\) steps.
+  Therefore
+  \[
+    \Delta_{i^*}^{\mathrm{gross}}(s,t)\geq M.
+  \]
+
+  For any \(j\neq i^*\), the safe-regime condition \(\slack_j(s,t)>\tau\) implies that losing the next bidding interval does not by itself force \(j\) to miss its deadline.
+  Thus \(V_j^{\win}(s,t,b_j)\leq \gamma^{\tau+1}r_j-\rho b_j\) and \(V_j^{\lose}(s,t,b_j)\geq-\rho b_j\cdot\mathbf{1}[\text{\allpay}]\), so
+  \[
+    \Delta_j^{\mathrm{gross}}(s,t)
+    \leq
+    \gamma^{\tau+1}r_j
+    < r_j
+    \leq r_{\max}.
+  \]
+  Combining the two bounds gives
+  \[
+    \Delta_{i^*}^{\mathrm{gross}}(s,t)-\max_{j\neq i^*}\Delta_j^{\mathrm{gross}}(s,t)
+    > M-r_{\max}.
+  \]
+  Since \(M>r_{\max}\), the right-hand side is positive.
+\end{proof}
+
+Lemma~\ref{lem:app-lstf-critical-regime-gap} is the only special-case ingredient needed to relate the auction mechanism to LSTF.
+It says that a critically urgent goal has a strictly larger gross gain than every safe goal.
+Therefore, in the \poorman setting, if \(0<\rho<M-r_{\max}\), the margin condition in Theorem~\ref{thm:poorman-favors-high-control-gain} is satisfied and the critically urgent LSTF goal wins in any pure Nash equilibrium.
+In the \allpay setting, the same gross-gain ordering is the input to Theorem~\ref{thm:allpay-favors-high-control-gain}; hence the mixed equilibrium concentrates control on the critically urgent LSTF goal, with concentration increasing as the urgent goal's gross gain dominates the runner-up's gross gain.
+
+
