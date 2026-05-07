@@ -76,14 +76,16 @@ Additional training and implementation details are reported in~\Cref{sec:reprod-
 \textbf{Baseline approaches.}
 We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citep{rosero2024multi}). 
 For the PPO baseline, since all objectives have the same importance across the environments, we use the total reward across objectives at each step as the reward function.
-We note that in Atari Assault, the single-policy PPO reward includes enemy-destroy rewards, raw score rewards, life-loss penalties, overheat penalties, and fire-while-hot penalties, but no bid or action-window terms.
+We note that in Atari Assault and Air-raid, the single-policy PPO reward includes enemy-destroy rewards, raw score rewards, life-loss penalties, overheat penalties, and fire-while-hot penalties, but no bid or action-window terms.
 The observation space remains the same as the multi-policy setting. 
 In the Cat Feeder environment, we implement three reward mechanisms to help guide learning: one only with the sparse rewards from the environment, one with distance-based dense reward with respect to the nearest feeding request (denoted Nearest Shaping/NS in the experiments), and finally one where we provide distance-based reward with respect to the request that has the least amount of time until expiration (denoted Expiry Shaping/ES).
+The single-policy PPO baseline does not use an action window: because there is no policy-switching decision, it selects a new action at every environment step. The action window \(\tau\) applies only to multi-policy methods, where it determines how long the selected local policy retains control after a bidding or W-network selection event.
 The PPO implementation is taken from CleanRL~\citep{huang2022cleanrl}.
 We use the specified PPO hyperparameters from CleanRL for the Atari games and we tune the hyperparameters for the Cat Feeder environment with 40 Optuna iterations~\citep{akiba2019optuna}.
 
 DWN is another multi-policy method for multi-objective RL that uses DQN for each of the local policies and additionally learns a W-network for each policy that predict scalar weights. 
 These weights are used to choose which policy's action should be played at each step. 
+For temporal consistency among multi-policy methods, DWN uses the same action window \(\tau\) as our bidding methods.
 The W-network is trained alongside the Q-network by updating it with a gradient step to predict the negative temporal difference (TD) error when the policy does not get to play its action.
 The assertion here is that the negative TD-error quantifies how important it is for the policy to play its action. 
 The implementation is borrowed from the repository of \citep{rosero2024multi}. All hyperparameters for the baselines are listed in~\Cref{sec:reprod-details}.
