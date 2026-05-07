@@ -70,7 +70,7 @@ We use the same action window \(\tau\) for DWN.
 \textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the three environments. 
 While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal shapes with the other two environments. 
 The curves for \allpay and \poorman methods start growing around the same time.
-The variants with no attention pooling for targets only start growing much later.
+\textbf{The variants without attention pooling for targets only start learning much later.}
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
 We remark that, based on the multi-agent PPO recipe of Yu et al.~\citep{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain stable but slower convergence of the policies towards an equilibrium.
 
@@ -78,9 +78,9 @@ We remark that, based on the multi-agent PPO recipe of Yu et al.~\citep{yu2022ma
 Our multi-policy methods outperform the baselines by a substantial margin.
 In the Cat Feeder and Atari Assault environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
 Additional reward shaping only provides moderate gains.
-In Atari Assault, since we only use single frame observations, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
-In Atari Air-raid, we provide concatenated four frame observations and we see that the single-policy PPO is able to learn to succeed.
-On the other hand, the credit assignment becomes easier when we separate the objectives and each learner only has to focus on one target, as it is able to learn even with only one frame.
+In Atari Assault, since we only use \textit{single frame observations}, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
+In Atari Air-raid, we provide concatenated four frame observations and here we see that the single-policy PPO is able to perform well.
+On the other hand, \textbf{credit assignment becomes easier when we separate the objectives} and each learner only has to focus on one target, evident from the fact that it is able to learn even with only one frame.
 
 DWN performs poorly in all experiments.
 We recall that this method learns a W-network trained to predict the negative TD-error for each policy when the policy does not play its action.
@@ -151,7 +151,7 @@ This is because there is a constant stream of enemy ships that each policy has t
 
 \textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which the number of cats seen during testing is larger than that during training. 
 This is achieved by deploying more copies of the same policy that optimize the additional objectives.
-\Cref{fig:bidding-mechanism-scaling} shows that the policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.
+\Cref{fig:bidding-mechanism-scaling} shows that the \textbf{policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.}
 The attention pooling mechanism plays a critical role as it can generate useful embeddings of an arbitrary number of competing targets.
 
 \textbf{Hyperparameter ablations.}\quad \Cref{fig:gridworld-bid-upper-bound} shows that at least two bid levels are needed for good performance; with only one level, policies cannot compete effectively. \Cref{fig:gridworld-bid-penalty} evaluates the bid penalty factor: without penalties all policies overbid, hurting performance, while overly large penalties discourage bidding. Additional action-window ablations are reported in Appendix~\ref{app:additional-experimental-results}.
