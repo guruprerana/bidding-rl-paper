@@ -74,7 +74,7 @@ Additional training and implementation details are reported in~\Cref{sec:reprod-
 
 
 \textbf{Baseline approaches.}
-We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citet{rosero2024multi}). 
+We compare our method against two baselines: a single policy PPO with weighted rewards and deep W-learning (DWN; \citep{rosero2024multi}). 
 For the PPO baseline, since all objectives have the same importance across the environments, we use the total reward across objectives at each step as the reward function.
 We note that in Atari Assault, the single-policy PPO reward includes enemy-destroy rewards, raw score rewards, life-loss penalties, overheat penalties, and fire-while-hot penalties, but no bid or action-window terms.
 The observation space remains the same as the multi-policy setting. 
@@ -86,4 +86,4 @@ DWN is another multi-policy method for multi-objective RL that uses DQN for each
 These weights are used to choose which policy's action should be played at each step. 
 The W-network is trained alongside the Q-network by updating it with a gradient step to predict the negative temporal difference (TD) error when the policy does not get to play its action.
 The assertion here is that the negative TD-error quantifies how important it is for the policy to play its action. 
-The implementation is borrowed from the repository of \citet{rosero2024multi}. All hyperparameters for the baselines are listed in~\Cref{sec:reprod-details}.
+The implementation is borrowed from the repository of \citep{rosero2024multi}. All hyperparameters for the baselines are listed in~\Cref{sec:reprod-details}.

@@ -45,7 +45,8 @@
     inner sep=\stdfigblockinnersep
   },
   flow/.style={->, line width=\stdfigflowwidth},
-  feedback/.style={->, line width=\stdfigfeedbackwidth}
+  feedback/.style={->, line width=\stdfigfeedbackwidth},
+  rewardfeedback/.style={->, line width=\stdfigfeedbackwidth, dotted}
 ]
   \node[block, fill=blue!10, draw=blue!45!black] (policy) {Policy $\pi$};
   \node[block, below=of policy, fill=gray!12, draw=gray!55!black] (env) {Multi-Objective\\Environment};
@@ -60,9 +61,9 @@
   \coordinate (bboxnw) at ($(stateleft |- env.north)+(-\stdfigbboxleftpad,\stdfigbboxtoppad)$);
   \coordinate (bboxse) at ($(actionright |- policy.south)+(\stdfigbboxrightpad,-\stdfigbboxbottompad)$);
 
-  \draw[flow] (env) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$\sum_{i=1}^m r_i^{(t)}$} (policy);
+  \draw[rewardfeedback] (env) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$\sum_{i=1}^m r_i^{(t)}$} (policy);
   \draw[flow] (policy.east) -- (actionup) -- node[pos=\stdfigvertlabelpos, right, font=\small] {$a^{(t)}$} (actiondown) -- (env.east);
-  \draw[feedback] (env.west) -- (statedown) -- node[pos=\stdfigvertlabelpos, left, font=\small] {} node[pos=\stdfigvertlabelpos, right, font=\small] {$\vec s^{(t+1)}$} (stateup) -- (policy.west);
+  \draw[feedback] (env.west) -- (statedown) -- node[pos=\stdfigvertlabelpos, left, font=\small] {} node[pos=\stdfigvertlabelpos, right, font=\small] {$\vec s^{(t)}$} (stateup) -- (policy.west);
 
   \path[use as bounding box]
     (bboxnw)
