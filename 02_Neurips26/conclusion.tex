@@ -8,7 +8,7 @@ The advantages of the framework over the baselines include: better learning and 
 \textbf{Limitations.} 
 Our auction-based mechanism selects policies based on the relative urgency of the most urgent policy compared to the rest.
 In doing so, sometimes the framework could sacrifice overall optimality: 
-in the cat feeder example, if the most urgent target is isolated in one corner, and the rest are concentrated in the opposite corner, the agent would prioritize the single urgent task over the \emph{majority} of less urgent tasks, even if pursuing the majority would lead to greater overall payoff.
+in the cat feeder example, if the most urgent target is isolated in one corner, and the rest are concentrated in the opposite corner, the agent could prioritize the single urgent task over the \emph{majority} of less urgent tasks, even if pursuing the majority would lead to greater overall payoff.
 
 
 \textbf{Future directions.}
@@ -16,5 +16,5 @@ Several directions exist.
 First, we will attempt to mitigate the above limitation by extending our auction-mechanism to include ``group urgencies'' into considerations, e.g., by incorporating mechanisms like majority voting.
 Second, we assumed that all objectives belong to the same family, which we will relax in the future.
 In some cases, a lexicographic ordering of priorities over objective types would be interesting, like safety usually gets higher priority than the rest.
-Finally, in our experiments, we observed that the auction mechanism is fairness while pursuing the objectives, whereas monolithic policies could potentially starve some objectives to improve the overall payoff.
-If this is true in general, it could imply that our framework achieves much more than merely maximizing the sum of individual payoffs: we will continue investigating this in a future work.
+Finally, in our experiments, we observe that the auction mechanism treats all objectives \textit{fairly}, whereas monolithic policies tend to focus on one or few objectives.
+If true in general, it could imply that our framework achieves much more than merely maximizing the sum of individual payoffs: we will continue investigating this in future work.
