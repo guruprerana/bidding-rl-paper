@@ -1,0 +1,19 @@
+\section{Proof of the \poorman Control-Gain Result}
+\label{app:poorman-control-gain-proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:poorman-favors-high-control-gain}]
+	Suppose for contradiction, some other policy $j\neq i^*$ wins control by bidding $b_j$, while policy $i^*$ bids $b_{i^*}<b_j$. 
+	As this is a Nash equilibrium, it must hold that 
+	$U_{j,t}^{\mathsf{P}}(s,b_j) > \widetilde V^{\lose}_{j,t}(s)$, i.e., $G_{j,t}(s) - \rho b_j > 0$,
+	because otherwise, policy $j$ would be better off by losing the bidding instead.
+	This gives us the upper bound $\rho b_j < G_{j,t}(s)$.
+	It follows from $\rho\beta > \max_{k\in [1;m]}G_{k,t}(s)$ that $\rho b_j < \rho\beta$, and hence $b_j<\beta$, i.e., the policy $j$ does not make the maximum bid.
+	
+	Now we assumed that policy $i^*$ had bid $b_{i^*}<b_j$, but we show that policy $i^*$ would achieve a higher one-round bidding payoff by bidding $b_j+1$ (valid, since $b_j<\beta\implies b_j+1\leq \beta$), contradicting the Nash equilibrium:	 
+$	U_{i^*,t}^{\mathsf{P}}(s,b_j+1) 
+	= \widetilde V^{\lose}_{i^*,t}(s)+G_{i^*,t}(s) - \rho(b_j+1) 
+	= \widetilde V^{\lose}_{i^*,t}(s)+ G_{i^*,t}(s) - \rho b_j -\rho  
+	> \widetilde V^{\lose}_{i^*,t}(s)+ G_{i^*,t}(s) - G_{j,t}(s) -\rho
+	> \widetilde V^{\lose}_{i^*,t}(s) = U_{i^*,t}^{\mathsf{P}}(s,b_j)
+$.
+\end{proof}

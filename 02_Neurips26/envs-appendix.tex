@@ -11,6 +11,7 @@ Each cat disappears after a given number of time steps.
 If the agent reaches a cat before it disappears, it receives a reward, and otherwise it receives a penalty of equal magnitude.
 To avoid sparsity of the reward function, we provide each policy a small reward for going closer to its target.
 Performance is measured as the difference between the number of feeding requests completed and the number of those that expired.
+The Cat Feeder environment parameters are listed in~\Cref{tab:cat-feeder-env-params}, and the corresponding multi-policy, single-policy PPO, and DWN training parameters are listed in~\Cref{tab:cat-feeder-mappo-hparams,tab:cat-feeder-ppo-hparams,tab:cat-feeder-dwn-hparams}.
 
 In our modular framework, each cat will be chased by a dedicated local policy.
 The observation space of each local policy includes the current position of the robot, the current locations of the active requests, and the time steps until the expiration of the requests.
@@ -55,6 +56,7 @@ For local policy $i$, the Assault reward is
 The destroy reward is credited to the policy assigned to the destroyed enemy, while life-loss, overheat, and fire-while-hot penalties discourage unsafe firing behavior.
 The bid and action-window terms account for the auction mechanism.
 Lastly, we use the game score as the metric for evaluation.
+The Assault environment parameters are listed in~\Cref{tab:assault-env-params}, and the corresponding multi-policy, single-policy PPO, and DWN training parameters are listed in~\Cref{tab:assault-mappo-hparams,tab:assault-ppo-hparams,tab:assault-dwn-hparams}.
 
 \textbf{Environment III: Atari Air-Raid.} Air-Raid uses the same modular Atari setup: each incoming enemy is treated as an objective and assigned to a local policy.
 Positive score changes are interpreted as enemy kills, and each kill yields a destroy reward proportional to the score increase.
@@ -68,6 +70,7 @@ For local policy $i$, the Air-Raid reward is
 \]
 Destroy rewards are credited to the policy associated with the hit enemy when that policy owns the player missile that caused the score event, near-hit penalties are assigned to the policy currently controlling the player, and bid penalties are applied according to the auction rule.
 The single-policy PPO baseline uses the destroy and near-hit terms without bid penalties.
+Additional training and implementation details are reported in~\Cref{sec:reprod-details}.
 
 
 \textbf{Baseline approaches.}

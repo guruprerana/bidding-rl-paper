@@ -1,7 +1,9 @@
 \section{Experimental Results}\label{sec:experimental-results}
 
-We conduct experiments to show the superior performance of our method compared to baselines including standard PPO. 
-We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune them.
+The framework presented so far is compatible with arbitrary multi-objective environments.
+However, for evaluating our method, we consider environments that consist of multiple evolving reachability objectives.
+We show the superior performance of our method compared to baselines including standard PPO. 
+We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune hyperparameters.
 A detailed description of the environments and the baseline approaches is provided in Appendix~\ref{app:experimental setup}, below we include a summary.
 
 \textbf{Environments.}
@@ -27,15 +29,14 @@ Additionally, the supplementary material includes our codebase and recorded roll
 
 
 \textbf{Baseline approaches.}
-We compare against two baselines: a single PPO policy with cumulative rewards across objectives and deep W-learning (DWN)~\citep{rosero2024multi}. 
+We compare against two baselines: a single PPO policy optimizing the objective-aggregated reward and deep W-learning (DWN)~\citep{rosero2024multi}. 
 These baselines also access the same object-centric observations in the Atari games.
 The PPO baseline is implemented using CleanRL~\citep{huang2022cleanrl}. 
-Since we provide distance-based reward shaping in our method, to ensure a fair comparison, we test two distance-based reward shaping strategies in the Cat Feeder environment.
+Since we provide distance-based reward shaping to help our policies learn, to ensure a fair comparison, we test two distance-based reward shaping strategies in the Cat Feeder environment.
 Hyperparameters are provided in~\Cref{sec:reprod-details}. 
-PPO parameters for Cat Feeder were tuned using Optuna~\citep{akiba2019optuna} while standard CleanRL Atari hyperparameters were used for the Atari games.
+PPO parameters for Cat Feeder were tuned using 40 Optuna iterations~\citep{akiba2019optuna} while standard CleanRL Atari hyperparameters were used for the Atari games.
 The baseline is trained with the same number of environment samples as our method.
 DWN trains one DQN policy per objective together with W-networks that estimate urgency scores of states. 
-DWN is trained with a smaller number of environment samples since it is an off-policy method that converges faster, evident from the learning curves included in Appendix ??.
 We use the same action window \(\tau\) for DWN.
 \GS{minimal changes here.}
 

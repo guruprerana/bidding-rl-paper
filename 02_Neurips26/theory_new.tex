@@ -70,7 +70,7 @@ A mixed bidding profile \(\pi^{b*}_t(\cdot\mid s)\) is a Nash equilibrium of the
 	\geq
 	\E_{b_i\sim\pi^b_{i,t}(\cdot\mid s),\; b_{-i}\sim\pi^{b*}_{-i,t}(\cdot\mid s)}\!\left[U^{\mathsf{P}}_{i,t}(s,b_i,b_{-i})\right].
 \end{equation}
-For the \poorman setting, the existence of the Nash equilibrium is guaranteed due to the finiteness of the action space $\hat A$~\cite{?}, and for the \allpay setting, the same follows from known results in the literature~\cite{baye1996all}.
+For the \poorman setting, the existence of the Nash equilibrium is guaranteed due to the finiteness of the action space $\hat A$~\citep{nash1951noncooperative}, and for the \allpay setting, the same follows from known results in the literature~\citep{baye1996all}.
 The equilibrium continuation value is then
 \begin{equation}
 	V^*_{i,t}(s)
@@ -83,13 +83,11 @@ which completes the backward-induction definition.
 \noindent\textbf{Theoretical analysis of the bidding schemes.}
 We will now prove that, if all policies follow the Nash equilibrium and if some mild assumptions hold true, then the policy with the highest control gain is guaranteed to get the control at each state and time.
 Consequently, we obtain a greedy solution to maximize the global reward (the sum of local cumulative rewards).
-Not only that, from Eq.~\eqref{eq:losing continuation value} it follows that the control gains are actually environment-aware, i.e., if the goal of policy $i$ is aligned with every other policy (like for the cat feeder, all cats are crowded in one corner), then the control gain of $i$ would be automatically low.
-While this does not automatically imply equivalence to the centralized optimal solution, we obtain an environment-aware, greedy approximation.
-In Appendix~\ref{?}, we prove that when the \momdp models a path planning task for a deterministic agent with multiple stationary goals that have their respective deadlines to reach, whenever one goal is critically urgent, it would be automatically selected by our auction mechanism.
-This actually matches one of the most widely used scheduling algorithms in the literature, called least slack time first (LSTF)~\cite{?}.
+Further, from Eq.~\eqref{eq:losing continuation value} it follows that the control gains are actually environment-aware, i.e., if the goal of policy $i$ is aligned with every other policy (like for the cat feeder, all cats are crowded in one corner), then the control gain of $i$ would be automatically low.
+We state our two results here but defer the proofs to~\Cref{app:poorman-control-gain-proof,app:allpay-control-gain-proof}.
 
 
-\begin{theorem}[\poorman favors high control gain]
+\begin{theorem}[\poorman favors high control gain]\label{thm:poorman-favors-high-control-gain}
 	In the \poorman setting, consider a single bidding round $t$ at the agent state $s\in S$.
   	Suppose the parameters $\rho$ and $\beta$ are so chosen that $\rho\beta > \max_{j\in [1;m]}G_{j,t}(s)$.
 	Let $i^*$ be the policy with the largest control gain, such that the following margin condition is fulfilled:
@@ -99,24 +97,7 @@ This actually matches one of the most widely used scheduling algorithms in the l
 	Then in any pure Nash equilibrium, policy $i^*$ wins control.
 \end{theorem}
 
-\begin{proof}
-	Suppose for contradiction, some other policy $j\neq i^*$ wins control by bidding $b_j$, while policy $i^*$ bids $b_{i^*}<b_j$. 
-	As this is a Nash equilibrium, it must hold that 
-	$U_{j,t}^{\mathsf{P}}(s,b_j) > \widetilde V^{\lose}_{j,t}(s)$, i.e., $G_{j,t}(s) - \rho b_j > 0$,
-	because otherwise, policy $j$ would be better off by losing the bidding instead.
-	This gives us the upper bound $\rho b_j < G_{j,t}(s)$.
-	It follows from $\rho\beta > \max_{k\in [1;m]}G_{k,t}(s)$ that $\rho b_j < \rho\beta$, and hence $b_j<\beta$, i.e., the policy $j$ does not make the maximum bid.
-	
-	Now we assumed that policy $i^*$ had bid $b_{i^*}<b_j$, but we show that policy $i^*$ would achieve a higher one-round bidding payoff by bidding $b_j+1$ (valid, since $b_j<\beta\implies b_j+1\leq \beta$), contradicting the Nash equilibrium:	 
-$	U_{i^*,t}^{\mathsf{P}}(s,b_j+1) 
-	= \widetilde V^{\lose}_{i^*,t}(s)+G_{i^*,t}(s) - \rho(b_j+1) 
-	= \widetilde V^{\lose}_{i^*,t}(s)+ G_{i^*,t}(s) - \rho b_j -\rho  
-	> \widetilde V^{\lose}_{i^*,t}(s)+ G_{i^*,t}(s) - G_{j,t}(s) -\rho
-	> \widetilde V^{\lose}_{i^*,t}(s) = U_{i^*,t}^{\mathsf{P}}(s,b_j)
-$.
-\end{proof}
-
-\begin{theorem}[\allpay favors high control gain]
+\begin{theorem}[\allpay favors high control gain]\label{thm:allpay-favors-high-control-gain}
 	In the \allpay setting with $m\geq 3$, consider a single bidding round $t$ at the agent state $s\in S$.
 	Let $i^*$ and $j^*$ be policies for which the following gross gain order holds:
 	\begin{align}\label{eqn:allpay urgency gap}
@@ -126,28 +107,10 @@ $.
 	In this Nash equilibrium, policy $i^*$ wins control with probability $1-\sfrac{G_{j^*,t}}{2G_{i^*,t}}$.	
 \end{theorem}
 
-\begin{proof}
-	It follows from the work of Baye et al.~\cite{baye1996all} that in the Nash equilibrium, the optimal bid of the policies are as follows.
-	The policy $i^*$ picks a uniformly random bid $b_i^*$ from $[0,G_{j^*,t}/\rho]$, the policy $j^*$ picks a uniformly random bid $b_j^*$ from $(0,G_{j^*,t}/\rho]$ while picking the bid $0$ with probability $(G_{i^*,t} - G_{j^*,t})/G_{i^*,t}$, and every other policy $k\notin\{i^*,j^*\}$ deterministically picks the bid $0$.
-	Clearly, if $b_i^*>b_j^*$, then $i^*$ wins control, and we need to show that $P[b_i^* > b_j^*]  = 1- \sfrac{G_{j^*,t}}{2G_{i^*,t}}$.
-	To show this, consider the probability density function $f_{i^*}(b) = \sfrac{\rho }{G_{j^*,t}}$ of $b_{i^*}$, and the cumulative distribution function $F_{j^*}(b) = (G_{i^*,t} - G_{j^*,t})/G_{i^*,t} + \sfrac{\rho b}{G_{i^*,t}}$ of $b_{j^*}$.
-	Then,
-	\begin{align*}
-		P[b_i^* > b_j^*] 
-		&= \int_{-\infty}^\infty F_{j^*}(b)f_{i^*}(b)db\\
-		&= \int_{0}^{G_{j^*,t}/\rho} \left(\frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} + \frac{\rho b}{G_{i^*,t}}\right)\cdot \frac{\rho }{G_{j^*,t}} \cdot db \\
-		&= \int_{0}^{G_{j^*,t}/\rho} \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} \cdot \frac{\rho }{G_{j^*,t}} \cdot db
-		+ \int_{0}^{G_{j^*,t}/\rho} \frac{\rho b}{G_{i^*,t}}\frac{\rho }{G_{j^*,t}} \cdot db\\
-		&=  \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} \cdot \frac{\rho }{G_{j^*,t}} \cdot \frac{G_{j^*,t}}{\rho}
-		+ \frac{\rho^2}{G_{i^*,t}G_{j^*,t}}\cdot \frac{\left(G_{j^*,t}\right)^2}{2\rho^2}\\
-		&= \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} + \frac{G_{j^*,t}}{2G_{i^*,t}}\\
-		&= 1-\frac{G_{j^*,t}}{G_{i^*,t}} + \frac{G_{j^*,t}}{2G_{i^*,t}}\\
-		&= 1-\frac{G_{j^*,t}}{2G_{i^*,t}}
-	\end{align*}
-\end{proof}
-
-
-\GS{final remark about optimality, heuristic, LSTF, has flavor of scheduling. reminding this is a simplified setting where the goals are not changing. but we solve unbounded number of objectives using RL.}
+While these results do not automatically imply equivalence to the centralized optimal solution, we obtain an environment-aware, greedy approximation.
+This gives a scheduling perspective on the auction: each bidding round picks the objective to receive control based on its urgency.
+In Appendix~\ref{app:lstf-analysis}, we prove that in deterministic environments with stationary targets and varying deadlines, a Nash equilibrium in our auction mechanism always selects critically urgent goals, if any.
+This matches the least slack time first (LSTF) rule, a widely used scheduling heuristic~\citep{brown2020optimal}.
 
 
 %

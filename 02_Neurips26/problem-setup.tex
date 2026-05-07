@@ -1,25 +1,25 @@
-\section{Multi-Objective Policy Synthesis: Problem Setup}
+\section{Auction-Based Multi-Policy Framework}\label{sec:auction-framework}
 
-We formalize the policy synthesis problem for a fixed number of goals, and then introduce our auction-based framework for this setting. 
-Afterwards, we will describe how our framework naturally extends to the setting with dynamic goal appearance and disappearance.
-
-\textbf{Centralized optimal policy synthesis for multiple objectives.}
-We use \textit{multi-objective Markov decision processes} (\momdps) to model uncertain environments with multiple reward objectives.
+\paragraph{\momdps, Policies, and Values.}
+We use multi-objective Markov decision processes to model uncertain environments with multiple reward objectives.
 An \momdp with \(m\in \N_{>0}\) objectives is a tuple \(\mathcal{M}=(S,A,T,\mu,R,H)\), where \(S\) is the \textit{state} space, \(A\) is the \textit{action} space, \(T\colon S\times A\to \dist(S)\) is the \textit{transition} kernel, \(\mu\in \dist(S)\) is the \textit{initial state} distribution, \(R=\{r_i\colon S\times A\to \R\}_{i\in [1;m]}\) is the set of \textit{reward functions}, and $H\in \mathbb{N}_{>0}$ is the \textit{time horizon}.
-A (Markov) \textit{policy} is a sequence \(\pi=\{\pi_t\}_{t=0}^{H-1}\), where each \(\pi_t:S\to \dist(A)\) maps the current state to a distribution over actions.
-For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\), and the \textit{global} reward is \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
-The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\).
+A (Markov) \textit{policy} \(\pi:S\to \dist(A)\) maps the current state to a distribution over actions. 
+For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\).
+In the environments we consider, the optimization metric is the cumulative reward across objectives and so we define the \textit{global} reward as \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
+The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\). 
 
-Our formulation of \momdp can model a broad class of RL problems in the literature, including\GS{citations?}~\cite{?}.
-For our cat feeder example, the states include the agent's and cats' positions as well as the elapsed time, the actions include the movement of the agent, the probabilistic transitions model both the aleatoric uncertainties in the agent's movement (like occasional skidding due to slippery floor, etc.) as well as the epistemic uncertainties in the cats' movement, and the reward function for each cat assigns a positive reward upon reaching the cat within a given deadline and a negative reward upon missing the deadline.
-We will assume that the agent observes the states, but the transition kernel is unknown.
+
+% Our formulation of \momdp can model a broad class of RL problems in the literature, including\GS{citations?}~\cite{?}.
+% For our cat feeder example, the states include the agent's and cats' positions as well as the elapsed time, the actions include the movement of the agent, the probabilistic transitions model both the aleatoric uncertainties in the agent's movement (like occasional skidding due to slippery floor, etc.) as well as the epistemic uncertainties in the cats' movement, and the reward function for each cat assigns a positive reward upon reaching the cat within a given deadline and a negative reward upon missing the deadline.
+% We will assume that the agent observes the states, but the transition kernel is unknown.
 
 %Before presenting our modular framework to compute a policy, let us comment on the hardness of the optimal policy synthesis problem.
 %Even in the simpler case when all the transition probabilities are known, the optimal policy synthesis problem can be shown to be an NP-hard problem.
 %This is because, one can encode 
 
+\smallskip
 
-\section{Auction-Based Multi-Policy Framework: Theory}
+Having established the required definitions and our optimization metric, we proceed to describing our framework.
 We consider the compositional approach to policy synthesis for \momdps, where we will design a selfish, \emph{local} policy maximizing each individual value component, towards the fulfillment of some required global coordination requirements.
 The main crux is in the composition process, where each local policy may propose a different action, but the composition must decide one of the actions that will be actually executed.
 Importantly, the composition must be implementable in a distributed manner, meaning we will \emph{not} use any global policy that would pick an action by analyzing all local policies and their reward functions.
@@ -43,7 +43,8 @@ This way, we obtain a purely decentralized scheme to coordinate local policies i
 
 The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \emph{maximum bid}, and \emph{bid penalty coefficient}, respectively. Ablation studies in Section~\ref{sec:experimental-results} highlight their importance. If $\tau$ is too small, policies switch too frequently, risking suboptimal outcomes. If $\beta$ is too small, policies cannot express preference strength, leading to near-random control. If $\rho$ is too large, policies tend to abstain from bidding.
 
-To connect the bidding urgencies with the objectives, we formulate the local policy synthesis question as a game theoretic problem defined below.
+% To connect the bidding urgencies with the objectives, we formulate the local policy synthesis question as a game theoretic problem defined below.
+We formulate our framework as a general-sum game between multiple policies and is defined as follows.
 
 \begin{definition}[Markov bidding game]\label{def:markov-bidding-game}
 	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the maximum bid, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
@@ -60,7 +61,7 @@ To connect the bidding urgencies with the objectives, we formulate the local pol
 				0 & \text{otherwise}.
 			\end{cases}
 		\end{equation}
-		Intuitively, the case ``$q>0$'' means it is not yet a bidding round, and the currently active policy $k$ continues to be used, and the case ``$q=0$'' means it is a bidding round, and a new policy is selected via tie-breaking over the set $W$.
+		Intuitively, the case ``$q>0$'' means it is not yet a bidding round, and the currently active policy $k$ continues to be used, and the case ``$q=0$'' means it is a bidding round, and a new policy is selected via uniform tie-breaking over the set $W$.
 		\item For each policy \(i\), the reward is inherited from the \momdp reward \(r_i\), with a bid penalty charged at bidding rounds:
 		\begin{equation}
 			\hat r_i((s,k,q),(\vec a,\vec b),(s',k',q'))

@@ -1,36 +1,7 @@
 \subsection*{Related Work}
 
-A large body of work in multi-objective reinforcement learning (MORL) relies on \textit{scalarization}, where multiple reward functions are aggregated into a single scalar objective so that standard RL algorithms can be applied. The simplest approach uses weighted sums of rewards~\citep{gass1955computational}, though nonlinear scalarization methods have also been proposed~\citep{van2013scalarized}. A key limitation is that the induced importance among rewards may not reflect the designer’s intent, often leading to a tedious debugging process~\citep{hayes2022practicalguidemorl}. In contrast, our approach achieves a trade-off among reward components without collapsing them into a fixed scalar objective.
+Most multi-objective reinforcement learning (MORL) methods reduce multiple rewards to a single decision rule, either through scalarization~\citep{gass1955computational,van2013scalarized}, Pareto-based criteria~\citep{van2014multi,pirotta2015multi}, or fairness objectives~\citep{park2024max,byeon2025multi,siddique2020learning}. These approaches typically learn a monolithic policy for a fixed set of reward components. In contrast, our method keeps objectives modular: each local policy pursues one objective, and the auction mechanism composes their actions at runtime.
 
-Other works address trade-offs by adopting a specific optimality notion, such as Pareto optimality~\citep{van2014multi} and its approximations~\citep{pirotta2015multi}, or fairness-based criteria across rewards~\citep{park2024max,byeon2025multi,siddique2020learning}. These approaches typically learn a single monolithic policy satisfying the chosen criterion. By contrast, we learn independent, selfish policies for each reward component and compose them at runtime, preserving modularity while achieving a coherent global trade-off.
+The closest distributed MORL approaches are W-learning and Deep W-learning~\citep{humphrys1995w,rosero2024multi}, which train separate policies and select among them using learned urgency-like scores. Other decomposition methods combine action values or votes through fixed aggregation rules~\citep{russell2003q,mendez2019multi}. Our approach differs by using bids as the coordination interface, which lets standard policy-gradient training learn both the local action and the urgency signal without a separate meta-policy.
 
-Only a few works consider distributed policies for multiple rewards. W-learning~\citep{humphrys1995w} and its deep RL extension~\citep{rosero2024multi} train separate policies alongside meta-functions that score states by urgency, selecting the policy with the highest score at runtime. Other methods aggregate decisions through ranked voting~\citep{mendez2019multi} or fixed rules such as summing action values~\citep{russell2003q}. Our approach is simpler: it uses an engineered reward structure that enables standard RL algorithms (e.g., PPO) without additional meta-policies or complex aggregation. Moreover, to the best of our knowledge, we are the first to study the incremental MORL setting, where reward components can be added or removed at runtime.
-
-For hierarchical RL, we refer to a recent survey by~\citet{klissarov2025discovering}. 
-The similarities between our approach and hierarchical RL are in the desiderata of the design: modularity of design, so that solutions of a given problem can be reused in other problems, and compositionality, where different solutions can be combined to create solutions for a wider range of more complex tasks. 
-However the approach is fundamentally different: in hierarchical RL, the above desiderata is achieved by dividing a given learning task to a series of high-level sub-tasks issued by a “manager” with each sub-task being pursued by a lower-level “worker” policy. 
-In contrast, we take a “flat”, democratic approach: there is no “manager” and the “workers” still learn to collaborate with each other via a bidding-based conflict-resolution mechanism. 
-In the future, it would be interesting to study if these two ideas could be combined into a hybrid architecture.
-
-In multi-policy multi-objective RL~\citep{ding2024multi,zhao2025multi}, each policy represents one point on the Pareto frontier, usually in a way that none of the policies is dominated by some other policy from the collection. 
-Then the goal is to pick one of the Pareto optimal policies in a way such that some additional criteria are fulfilled. 
-This is fundamentally different from our work: our multiple policies stem from a separation of concern for the objectives, such that each policy pursues a single individual objective. 
-In multi-policy MORL, each policy pursues all the objectives simultaneously, which has the same drawbacks as any other monolithic design (lack of reusability, etc., see our introduction).
-
-The idea of bidding-based selfish policies is inspired by auction mechanisms for multi-objective path planning on graphs~\citep{avni2024auction} and by the literature on bidding games~\citep{lazarus1999combinatorial,avni2019infinite,avni2025bidding}. These works use explicit model-based approaches and do not readily extend to the model-free setting of RL.
-Besides, they are restricted to the setting with two objectives.
-
-
-
-%%% ------- List of all related works collected by Guru --------------------
-%\begin{enumerate}
-%    \item Fairly comprehensive reference survey of multi-objective RL:~\citet{hayes2022practicalguidemorl}
-%    \item Reference for definitions of multi agent RL:~\citet{bucsoniu2010multiagentoverview}.
-%    \item W-learning and more recent Deep W learning:~\citet{humphrys1995w,rosero2024multi}
-%    \item General multi-objective deep RL works.~\citet{nguyen2020multi} introduce a multi-policy DQN algorithm to learn multiple policies in parallel such that they have access to any possible linear weighting of the objectives. Also has a good lit review from where I got a few of these other citations.
-%    \item Multi objective Q learning (tabular):~\citet{van2013scalarized},~\citet{van2014multi} for pareto Q learning (maintains a set of policies and updates them), local search after normal learning:~\citet{van2014novel}
-%    \item Use gradient approximation to iteratively build parametrized policies representing pareto frontier~\citet{pirotta2015multi}
-%    \item Maximin (fairness) MORL:~\citet{park2024max,byeon2025multi}, fair deep RL:~\citet{siddique2020learning}.
-%    \item These two are only vaguely related and look at decomposing an objective into multiple smaller objectives: Q-function decomposition for a single agent with multiple reward components:~\citet{russell2003q} and on a similar note hybrid reward architecture:~\citet{van2017hybrid}
-%\end{enumerate}
-%%% --------------------------------------------------------------------------
+Our design is also related to hierarchical RL, which uses modular subpolicies under a higher-level manager~\citep{klissarov2025discovering}, and to auction mechanisms for graph-based multi-objective planning and bidding games~\citep{avni2024auction,lazarus1999combinatorial,avni2019infinite,avni2025bidding}. Unlike hierarchical RL, our composition is flat and competitive rather than manager-driven; and unlike prior auction-based planning work, our setting is model-free, reinforcement-learning based, and supports a varying number of objectives. Additional related work is discussed in Appendix~\ref{app:additional-related-work}.

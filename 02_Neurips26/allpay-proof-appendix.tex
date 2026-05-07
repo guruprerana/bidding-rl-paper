@@ -1,0 +1,22 @@
+\section{Proof of the \allpay Control-Gain Result}
+\label{app:allpay-control-gain-proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:allpay-favors-high-control-gain}]
+	It follows from the work of Baye et al.~\cite{baye1996all} that in the Nash equilibrium, the optimal bid of the policies are as follows.
+	The policy $i^*$ picks a uniformly random bid $b_i^*$ from $[0,G_{j^*,t}/\rho]$, the policy $j^*$ picks a uniformly random bid $b_j^*$ from $(0,G_{j^*,t}/\rho]$ while picking the bid $0$ with probability $(G_{i^*,t} - G_{j^*,t})/G_{i^*,t}$, and every other policy $k\notin\{i^*,j^*\}$ deterministically picks the bid $0$.
+	Clearly, if $b_i^*>b_j^*$, then $i^*$ wins control, and we need to show that $P[b_i^* > b_j^*]  = 1- \sfrac{G_{j^*,t}}{2G_{i^*,t}}$.
+	To show this, consider the probability density function $f_{i^*}(b) = \sfrac{\rho }{G_{j^*,t}}$ of $b_{i^*}$, and the cumulative distribution function $F_{j^*}(b) = (G_{i^*,t} - G_{j^*,t})/G_{i^*,t} + \sfrac{\rho b}{G_{i^*,t}}$ of $b_{j^*}$.
+	Then,
+	\begin{align*}
+		P[b_i^* > b_j^*] 
+		&= \int_{-\infty}^\infty F_{j^*}(b)f_{i^*}(b)db\\
+		&= \int_{0}^{G_{j^*,t}/\rho} \left(\frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} + \frac{\rho b}{G_{i^*,t}}\right)\cdot \frac{\rho }{G_{j^*,t}} \cdot db \\
+		&= \int_{0}^{G_{j^*,t}/\rho} \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} \cdot \frac{\rho }{G_{j^*,t}} \cdot db
+		+ \int_{0}^{G_{j^*,t}/\rho} \frac{\rho b}{G_{i^*,t}}\frac{\rho }{G_{j^*,t}} \cdot db\\
+		&=  \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} \cdot \frac{\rho }{G_{j^*,t}} \cdot \frac{G_{j^*,t}}{\rho}
+		+ \frac{\rho^2}{G_{i^*,t}G_{j^*,t}}\cdot \frac{\left(G_{j^*,t}\right)^2}{2\rho^2}\\
+		&= \frac{G_{i^*,t} - G_{j^*,t}}{G_{i^*,t}} + \frac{G_{j^*,t}}{2G_{i^*,t}}\\
+		&= 1-\frac{G_{j^*,t}}{G_{i^*,t}} + \frac{G_{j^*,t}}{2G_{i^*,t}}\\
+		&= 1-\frac{G_{j^*,t}}{2G_{i^*,t}}.
+	\end{align*}
+\end{proof}
