@@ -1,19 +1,20 @@
 
 
-\section{Discussion and Conclusion}
+\section{Concluding Remarks}
 
 We propose a novel modular framework for solving multi-objective RL tasks, where each objective is pursued by a dedicated local policy, and policies bid for the right to execute their action.
 The advantages of the framework over the baselines include: better learning and policy performances, and superior adaptability in the face of appearing and disappearing objectives at runtime.
 
 \textbf{Limitations.} 
 Our auction-based mechanism selects policies based on the relative urgency of the most urgent policy compared to the rest.
-In doing so, there could be situations where the framework would sacrifice optimality: 
-for instance, in the cat feeder example, if the most urgent target is isolated in one corner, whereas the rest of the targets are concentrated in the opposite corner, the agent would prioritize the single urgent task over the \emph{majority} of less urgent tasks; this could affect optimality.
-Future works will pursue mechanisms that would include ``group urgencies'' into considerations.
+In doing so, sometimes the framework could sacrifice overall optimality: 
+in the cat feeder example, if the most urgent target is isolated in one corner, and the rest are concentrated in the opposite corner, the agent would prioritize the single urgent task over the \emph{majority} of less urgent tasks, even if pursuing the majority would lead to greater overall payoff.
+
 
 \textbf{Future directions.}
-The above example motivates future study that attempts using alternative mechanisms for choosing between policies like majority voting---which would result in the optimal action in the example.
-In this work, we considered multi-objective environments in which the objectives belong to the same family, and we seek to extend the framework to combinations of objective classes. 
-The difficulty lies in the fact that a policy learned to compete against opponents from a given class may not work against opponents for a novel class of objectives seen at runtime.
-Additionally, richer bidding mechanisms might be necessary. 
-For instance, while combining reachability and safety objectives, usually safety needs to get the priority when there is a tie in the bidding, instead of a random resolution.
+Several directions exist.
+First, we will attempt to mitigate the above limitation by extending our auction-mechanism to include ``group urgencies'' into considerations, e.g., by incorporating mechanisms like majority voting.
+Second, we assumed that all objectives belong to the same family, which we will relax in the future.
+In some cases, a lexicographic ordering of priorities over objective types would be interesting, like safety usually gets higher priority than the rest.
+Finally, in our experiments, we observed that the auction mechanism is fairness while pursuing the objectives, whereas monolithic policies could potentially starve some objectives to improve the overall payoff.
+If this is true in general, it could imply that our framework achieves much more than merely maximizing the sum of individual payoffs: we will continue investigating this in a future work.
