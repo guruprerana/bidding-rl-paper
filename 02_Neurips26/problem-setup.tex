@@ -5,7 +5,7 @@ We use multi-objective Markov decision processes to model uncertain environments
 An \momdp with \(m\in \N_{>0}\) objectives is a tuple \(\mathcal{M}=(S,A,T,\mu,R,H)\), where \(S\) is the \textit{state} space, \(A\) is the \textit{action} space, \(T\colon S\times A\to \dist(S)\) is the \textit{transition} kernel, \(\mu\in \dist(S)\) is the \textit{initial state} distribution, \(R=\{r_i\colon S\times A\to \R\}_{i\in [1;m]}\) is the set of \textit{reward functions}, and $H\in \mathbb{N}_{>0}$ is the \textit{time horizon}.
 A (Markov) \textit{policy} \(\pi:S\to \dist(A)\) maps the current state to a distribution over actions. 
 For a trace \(\rho=s^0a^0s^1a^1\ldots s^H\), the accumulated \textit{local} reward of objective \(i\) is \(w_i(\rho)=\sum_{t=0}^{H-1} r_i(s^t,a^t)\).
-In the environments we consider, the optimization metric is the cumulative reward across objectives and so we define the \textit{global} reward as \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
+In the environments we consider, the optimization metric is the cumulative reward across objectives and so we define the \textit{global} reward (aka, scalarized reward~\cite{van2013scalarized}) as \(w(\rho)=\sum_{i=1}^m w_i(\rho)\).
 The \textit{value} of a policy is \(V^\pi=\E^\pi[w(\rho)]\), and an \textit{optimal} policy is any policy \(\pi^*\in \arg\max_\pi V^\pi\). 
 
 
