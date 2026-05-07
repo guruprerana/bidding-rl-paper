@@ -35,16 +35,16 @@ For real-valued bids in \poorman, it is unclear if Nash equilibria would always 
 For integer-valued bids in \allpay, the shape of the Nash equilibria policies is only known for the two-policy case~\cite{dziubinski2023discrete}, but the general case is still open.
 We leave these unresolved cases for a future work.
 }
-In both settings, the highest bidder's actions get executed for $\tau$ consecutive steps, with bidding ties resolved uniformly at random.
+In both settings, the highest bidder's actions get executed for $\tau$ consecutive steps, with bidding ties being resolved uniformly at random.
 To encourage truthfulness, we penalize the policies proportional to their bids scaled with a constant $\rho\in (0,1)$.
 In the \poorman model, only the executed policy (one of the highest bidders) pays the penalty, whereas in \allpay, all policies pay penalties.
-The penalties force policies to select their bids to reflect how critical their action is in the current state.
+The penalties force policies to truthfully select their bids to reflect how critical their action actually is in the current state.
 % Through this mechanism, policies select their bids to reflect how critical their action is in the current state, and the bidding penalty incentivizes truthful urgency.
 We remark that this framework is a purely decentralized scheme to coordinate local policies in a given \momdp.
-The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \emph{maximum bid}, and \emph{bid penalty coefficient}, respectively. Ablation studies in Section~\ref{sec:experimental-results} highlight their importance. If $\tau$ is too small, policies switch too frequently, risking suboptimal outcomes. If $\beta$ is too small, policies cannot express preference strength, leading to near-random control. If $\rho$ is too large, policies tend to abstain from bidding.
+The parameters $\tau$, $\beta$, and $\rho$ denote the \emph{bidding interval}, \emph{maximum bid}, and \emph{bid penalty coefficient}, respectively. Ablation studies in Section~\ref{sec:experimental-results} highlight their importance. If $\tau$ is too small, policies switch too frequently, risking suboptimal outcomes. If $\beta$ is too small, policies cannot express preference strength, leading to near-random control. If $\rho$ is too large, policies tend to abstain from participating in the bidding.
 
 % To connect the bidding urgencies with the objectives, we formulate the local policy synthesis question as a game theoretic problem defined below.
-We formulate our framework as a general-sum game between multiple policies.
+We formalize our framework as a general-sum game between multiple policies.
 
 \begin{definition}[Markov bidding game]\label{def:markov-bidding-game}
 	Let \(\mathcal{M}=(S,A,T,\mu,R,H)\) be an \momdp with \(m\) objectives, let \(\tau\in\N_{>0}\) be the bidding interval, let \(\beta\in\R_{>0}\) be the maximum bid, let \(\rho\in(0,1)\) be the bid penalty coefficient, and let \(\mathsf{P}\in\{\poorman,\allpay\}\) be the penalty model.
