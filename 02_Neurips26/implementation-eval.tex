@@ -76,7 +76,7 @@ The curves for \allpay and \poorman methods start growing around the same time.
 % Meanwhile, the variants with only local observations for each policy start growing much earlier.
 The variants with no attention pooling for targets only start growing much later.
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
-We remark that, based on the multi-agent PPO recipe of \citet{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards an equilibrium.
+We remark that, based on the multi-agent PPO recipe of Yu et al.~\cite{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards an equilibrium.
 
 \textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our multi-policy methods outperform the baselines by a substantial margin.
