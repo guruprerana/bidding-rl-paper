@@ -70,7 +70,7 @@ While the curves are more noisy with Atari Assault, they exhibit clearly disting
 The curves for \allpay and \poorman methods start growing around the same time.
 The variants with no attention pooling for targets only start growing much later.
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
-We remark that, based on the multi-agent PPO recipe of \citep{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain stable but slower convergence of the policies towards an equilibrium.
+We remark that, based on the multi-agent PPO recipe of Yu et al.~\citep{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain stable but slower convergence of the policies towards an equilibrium.
 
 \textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our multi-policy methods outperform the baselines by a substantial margin.
