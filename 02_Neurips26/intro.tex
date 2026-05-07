@@ -49,8 +49,8 @@ Yet another advantage of our modular framework is interpretability.
 At any moment, we can determine the policy in control, and thereby the objective currently being pursued by the agent. 
 This explanation is beneficial in a range of real-world situations, like providing post-hoc explanations of failures, and also feedback on biases in pursuing different objectives.
 
-We implement our modular framework as a general-sum game between local policies seeking to fulfill their assigned objectives, and this game is set up using a simple wrapper around existing multi-objective environments. 
-Each agent's action space is augmented with an additional numeric variable representing the bids, and the transitions between the game's states encode the execution of the action selected by the highest bidder.
+We implement our modular framework as a general-sum game between local policies seeking to fulfill their assigned objectives.
+Each agent's action space is augmented with an additional numeric variable representing the bids, and the action from the highest bidder is played with uniform tie-breaking in case of draws.
 However, we still need to address some challenges.
 
 \textbf{Challenge I: Enforcing honest bids.}
@@ -81,13 +81,13 @@ This architecture also lets policies operate with more objectives at test time t
 
 We test our framework on three environments with dynamic reachability objectives: the cat feeder environment implemented as a gridworld, and two Atari games: Assault and Air-raid~\citep{bellemare13arcade}.
 We use proximal policy optimization (PPO; \citet{schulman2017ppo}) to train our policies by running one instance of PPO for each policy while they compete against each other.
-We observe empirical convergence of training and substantially better or equal performance compared to baselines in the three environments.
+We observe empirical convergence of training and substantially better or comparable performance to baselines in the three environments.
 By deploying copies of trained policies, we demonstrate the ability of our method to generalize to more objectives at test-time than during training.
-Lastly, to aid interpretability in renderings of rollouts, we implement visualization of the policy in control and the objective being pursued, using which we empirically observe strategic bidding behaviors between policies.
+Lastly, to aid interpretability in renderings of rollouts, we implement visualization of the policy in control and the objective being pursued, using which we observe strategic bidding behaviors learned by the policies.
 
-In summary, our contributions consist of the following:
-\begin{enumerate}
-  \item We formulate an auction-based modular framework for multi-objective RL that consists of objective-specific local policies competing with each other through auctions. Also, theoretical guarantees for urgency-based policy selection are established in~\Cref{sec:auction-framework}.
-  \item We introduce a multi-policy architecture that can handle varying numbers of objectives, and provide a PPO-based training procedure in~\Cref{sec:learning-local-policies}.
-  \item We evaluate the method on three multi-objective environments comparing against baselines in~\Cref{sec:experimental-results} and demonstrate the superior performance of our policies.
-\end{enumerate}
+% In summary, our contributions consist of the following:
+% \begin{enumerate}
+%   \item We formulate an auction-based modular framework for multi-objective RL that consists of objective-specific local policies competing with each other through auctions. Also, theoretical guarantees for urgency-based policy selection are established in~\Cref{sec:auction-framework}.
+%   \item We introduce a multi-policy architecture that can handle varying numbers of objectives, and provide a PPO-based training procedure in~\Cref{sec:learning-local-policies}.
+%   \item We evaluate the method on three multi-objective environments comparing against baselines in~\Cref{sec:experimental-results} and demonstrate the superior performance of our policies.
+% \end{enumerate}

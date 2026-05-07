@@ -62,8 +62,8 @@ For a penalty model \(\mathsf{P}\in\{\poorman,\allpay\}\), the \textit{one-round
 In the \poorman case, the bid cost is paid only in expectation over winning; in the \allpay case, the bid cost is paid regardless of the winner.
 Effectively, in the Markov game, the goal of policy $i$ boils down to maximizing the one-round bidding payoff $U^{\mathsf{P}}_{i,t}(s,b)$ at each state $s$ and bidding round $t$. 
 
-A mixed bidding policy for player \(i\) at \((s,t)\) is the bid component \(\pi^b_{i,t}(\cdot\mid s)\in\dist([0,\beta])\), and a mixed bidding profile is \(\pi^b_t(\cdot\mid s)=(\pi^b_{1,t}(\cdot\mid s),\ldots,\pi^b_{m,t}(\cdot\mid s))\).
-We write \(b\sim\pi^b_t(\cdot\mid s)\) when bids are sampled independently as \(b_i\sim\pi^b_{i,t}(\cdot\mid s)\).
+A mixed bidding policy for player \(i\) at \((s,t)\) is denoted \(\pi^b_{i,t}(\cdot\mid s)\in\dist([0,\beta])\), and a mixed bidding profile is \(\pi^b_t(\cdot\mid s)=(\pi^b_{1,t}(\cdot\mid s),\ldots,\pi^b_{m,t}(\cdot\mid s))\).
+% We write \(b\sim\pi^b_t(\cdot\mid s)\) when bids are sampled independently as \(b_i\sim\pi^b_{i,t}(\cdot\mid s)\).
 A mixed bidding profile \(\pi^{b*}_t(\cdot\mid s)\) is a Nash equilibrium of the one-round bidding game at \((s,t)\) if, for every player \(i\) and every alternative bid distribution $\pi^b_{i,t}$, where \(\pi^b_{i,t}(\cdot\mid s)\in\dist([0;\beta])\) for $\mathsf{P}=\poorman$ and $\mathsf{P}=\allpay$,
 \begin{equation}
 	\E_{b\sim\pi^{b*}_t(\cdot\mid s)}\!\left[U^{\mathsf{P}}_{i,t}(s,b)\right]
@@ -81,9 +81,9 @@ which completes the backward-induction definition.
 
 \smallskip
 \noindent\textbf{Theoretical analysis of the bidding schemes.}
-We will now prove that, if all policies follow the Nash equilibrium and if some mild assumptions hold true, then the policy with the highest control gain is guaranteed to get the control at each state and time.
+We prove under mild assumptions that if all policies follow the Nash equilibrium then the policy with the highest control gain is guaranteed to obtain control.
 Consequently, we obtain a greedy solution to maximize the global reward (the sum of local cumulative rewards).
-Further, from Eq.~\eqref{eq:losing continuation value} it follows that the control gains are actually environment-aware, i.e., if the goal of policy $i$ is aligned with every other policy (like for the cat feeder, all cats are crowded in one corner), then the control gain of $i$ would be automatically low.
+Further, from Eq.~\eqref{eq:losing continuation value} it follows that the control gains are actually environment-aware, i.e., if the goal of policy $i$ is aligned with other policies (like for the cat feeder, all cats are crowded in one corner), then the control gain of $i$ would be automatically low as it would not mind losing the auction.
 We state our two results here but defer the proofs to~\Cref{app:poorman-control-gain-proof,app:allpay-control-gain-proof}.
 
 
