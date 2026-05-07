@@ -1,23 +1,23 @@
 \begin{table}
-  \caption{Performance (mean and standard deviation across 10 seeds) averaged over each seed's last 5 evaluation iterations, over 50 PPO iterations. Cat Feeder values measure performance as the difference between number of feeding requests completed and those that expired. Atari Assault and Air-raid values are the game score.}
+  \caption{Performance (mean and mean standard deviation across 10 seeds) averaged over each seed's last 5 evaluation iterations. Cat Feeder measure performance as the difference between number of feeding requests completed and those that expired. Atari Assault and Air-raid values are the game scores.}
   \label{tab:all_methods_comp}
   \centering
-  \begin{tabular}{lll}
+  \begin{tabular}{llll}
     \toprule
-    {\bf Method} & {\bf Cat Feeder} & {\bf Atari Assault} \\
+    {\bf Method} & {\bf Cat Feeder} & {\bf Atari Assault} & {\bf Atari AirRaid} \\
     \midrule
-    Winner-Pays & $49.44$ {\small\textcolor{gray}{$(4.19)$}} & $556.05$ {\small\textcolor{gray}{$(29.23)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $63.76$ {\small$(3.85)$}} & \textcolor{gray}{\itshape $557.55$ {\small$(36.92)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $51.72$ {\small$(3.97)$}} & \textcolor{gray}{\itshape ---} \\
-    All-Pay & $\textbf{72.52}$ {\small\textcolor{gray}{$(4.23)$}} & $\textbf{576.64}$ {\small\textcolor{gray}{$(43.19)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $64.96$ {\small$(3.82)$}} & \textcolor{gray}{\itshape $564.36$ {\small$(20.68)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $37.72$ {\small$(50.32)$}} & \textcolor{gray}{\itshape ---} \\
+    Winner-Pays & $49.44$ {\small\textcolor{gray}{$(4.19)$}} & $556.05$ {\small\textcolor{gray}{$(29.23)$}} & $3902.55$ {\small\textcolor{gray}{$(90.44)$}} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $63.76$ {\small$(3.85)$}} & \textcolor{gray}{\itshape $557.55$ {\small$(36.92)$}} & \textcolor{gray}{\itshape $4016.79$ {\small$(150.21)$}} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $51.72$ {\small$(3.97)$}} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
+    All-Pay & $\textbf{72.52}$ {\small\textcolor{gray}{$(4.23)$}} & $\textbf{576.64}$ {\small\textcolor{gray}{$(43.19)$}} & $3870.45$ {\small\textcolor{gray}{$(76.72)$}} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. Local Obs} & \textcolor{gray}{\itshape $64.96$ {\small$(3.82)$}} & \textcolor{gray}{\itshape $564.36$ {\small$(20.68)$}} & { $\textbf{4059.75}$ {\small$(55.50)$}} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. No Attn. Pool.} & \textcolor{gray}{\itshape $37.72$ {\small$(50.32)$}} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
     \midrule
-    DWN & $-10.27$ {\small\textcolor{gray}{$(2.38)$}} & $310.80$ {\small\textcolor{gray}{$(159.54)$}} \\
-    Single-Policy PPO & $-51.59$ {\small\textcolor{gray}{$(5.33)$}} & $\textbf{358.60}$ {\small\textcolor{gray}{$(25.99)$}} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. No Reward Shaping} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Nearest Shaping} & \textcolor{gray}{\itshape $-14.15$ {\small$(41.88)$}} & \textcolor{gray}{\itshape ---} \\
-    \textcolor{gray}{\itshape\hspace{1em}w. Expiry Shaping} & \textcolor{gray}{\itshape $-47.62$ {\small$(1.52)$}} & \textcolor{gray}{\itshape ---} \\
+    DWN & $\textbf{-10.27}$ {\small\textcolor{gray}{$(2.38)$}} & $310.80$ {\small\textcolor{gray}{$(159.54)$}} & $2438.38$ {\small\textcolor{gray}{$(625.97)$}} \\
+    Single-Policy PPO & $-51.59$ {\small\textcolor{gray}{$(5.33)$}} & $\textbf{358.60}$ {\small\textcolor{gray}{$(25.99)$}} & $\textbf{3549.33}$ {\small\textcolor{gray}{$(1170.14)$}} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. No Reward Shaping} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. Nearest Shaping} & \textcolor{gray}{\itshape $-14.15$ {\small$(41.88)$}} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
+    \textcolor{gray}{\itshape\hspace{1em}w. Expiry Shaping} & \textcolor{gray}{\itshape $-47.62$ {\small$(1.52)$}} & \textcolor{gray}{\itshape ---} & \textcolor{gray}{\itshape ---} \\
     \bottomrule
   \end{tabular}
 \end{table}
