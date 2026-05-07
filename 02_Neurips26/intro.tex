@@ -23,7 +23,7 @@ Our goal is to design adaptive policies that update their behavior seamlessly as
 The class of problems we study is relevant to many real-world scenarios.
 For example, a warehouse robot must be responsive to changing pickup, delivery, and sorting tasks, and this setting has motivated work on warehouse robot path planning and resource allocation~\citep{chen2023warehouserobot,shen2023amazonrobotics}.
 More broadly, such problems have been extensively studied in the planning literature~\citep{fox2006plan}, typically assuming that a precise environment model (like a graph) is available without uncertainties. 
-Existing reinforcement learning-based path planning methods~\citep{singh2023reviewrlpathplanning} are able to handle uncertainties but cannot adapt to varying number of objectives at deploying time.
+Existing reinforcement learning-based path planning methods~\citep{singh2023reviewrlpathplanning} are able to handle uncertainties but cannot adapt to varying number of objectives at deployment time.
 % In contrast, within reinforcement learning (RL) settings---where the environment may be uncertain and a model may not be available---this problem has not been studied to the best of our knowledge.
 
 To solve this problem, we propose a novel compositional RL framework, where each objective is served using a local policy, selfishly maximizing its assigned objective by competing against the other policies.
@@ -34,9 +34,9 @@ Returning to the cat feeder example, suppose the robot approaches an intersectio
 Since both actions cannot be executed simultaneously, a trade-off is unavoidable. 
 The auction mechanism determines which objective is prioritized, based on the relative urgency encoded in the bids.
 
-This compositional design yields strong modularity, facilitating fast adaptation:
+This compositional design yields modularity, facilitating fast adaptation:
 when an objective appears or disappears, only the corresponding policy needs to be added or removed.
-Furthermore, when objectives belong to the identical family---which is reachability in the cat feeder example---a single generalized policy can be trained for the entire family. 
+Furthermore, when the objectives belong to the identical family---which is reachability in the cat feeder example---a single generalized policy can be trained for the entire family. 
 We can deploy identical \emph{copies} of this policy when new objectives arrive, enabling immediate adaptation. 
 Modularity also permits us to define objective-specific reward signals while the auction mechanism takes care of the trade-offs between objectives.
 For example, we can easily define a distance-based dense reward signal for each policy.
@@ -46,15 +46,14 @@ In contrast, in the monolithic case, it is challenging to define such a dense re
 We show in our experiments that monolithic policies, trained with both sparse rewards and different types of scalarized dense rewards, achieves significantly lower payoffs as compared to our modular approach.
 
 Yet another advantage of our modular framework is interpretability.
-At any moment, we can observe which policy has the control, and thereby the objective currently being pursued by the agent. 
+At any moment, we can observe the policy in control, and thereby the objective currently being pursued by the agent. 
 This explanation is beneficial in a range of real-world situations, like providing post-hoc explanations of failures, and also feedback on biases in pursuing different objectives.
 
-We implement our modular framework as a general-sum Markov game between local policies seeking to fulfill their assigned objectives, where each agent's action space is augmented with an additional numeric variable representing the bids.
-There are some additional challenges, and below we summarize how we overcome them.
+We implement our modular framework as a general-sum Markov game between local policies seeking to fulfill their assigned objectives, where each policy's action space is augmented with an additional numeric variable representing the bids.
+However, new challenges arise, and below we summarize how we overcome them.
 
 \textbf{Challenge I: Enforcing honest bids.}
-The auction mechanism implicitly assumes that the policies would be truthful in selecting their bid values according to the true urgency.
-What if policies learn to overbid to suppress competitors?
+The success of the auction mechanism hinges on the policies faithfully selecting their bid values according to their true urgency. But what if policies learn to overbid to suppress competitors?
 This would lead to suboptimal results. 
 To prevent this, policies are penalized in proportion to their bid values.
 As a consequence, excessive bidding reduces the net return of a policy, which is the total accumulated rewards minus the total accumulated bidding penalties. 
@@ -66,7 +65,7 @@ Effective bidding not only depends on the current state and the local objective,
 For instance, in the cat feeder problem, if two requests are spatially close, their policies need not compete aggressively. 
 Conversely, if requests lie in opposite directions, the urgent policy must bid sufficiently high to win. 
 To enable such environment-aware bidding, we allow the policies to observe all the objectives, i.e., the policies have information about the global state. 
-But a large number of objectives makes the global state vector very big, resulting in a sluggish training process. 
+But a large number of objectives makes the global state vector very big, resulting in sluggish training. 
 We equip policies with an \textit{attention pooling} architecture that can extract relevant information from the active objectives into a succinct embedding vector, so that it can be fed as input to the policy.
 Each local policy is equipped with its own pooling module which is co-trained with the policy.
 
