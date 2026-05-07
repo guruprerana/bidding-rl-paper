@@ -20,13 +20,13 @@
     \label{fig:modular_auction_overview}
   \end{subfigure}
 
-  \caption{Comparison of the standard monolithic RL policy and our auction-based framework for multi-objective RL.}
+  \caption{Comparison between the standard monolithic setting and our auction-based framework.}
   \label{fig:intro_control_overview}
 \end{figure*}
 
 Our goal is to learn the local policy of each player in the Markov bidding game from~\Cref{def:markov-bidding-game} using reinforcement learning.
 \Cref{fig:modular_auction_overview} visualizes the architecture of our framework.
-\citet{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently.
+Yu et al.~\cite{yu2022mappo} demonstrate that proximal policy optimization (PPO; \cite{schulman2017ppo}) can be effective to train multiple policies concurrently.
 We follow their recipe and also train the local policies concurrently with one instance of PPO per policy.
 At each iteration, rollouts are collected from the environment by executing the policies, and each PPO instance uses them.
 % For each local policy, we compute a PPO loss from the rollouts collected from that policy's perspective, and optimize the shared actor-critic parameters using the aggregate of these local losses.
@@ -46,17 +46,29 @@ This design enables the agent to operate with an arbitrary number of policies (i
 Formally, the attention pooling module is a permutation-invariant map $\textsf{AP}: \bigcup_{m \geq 1}(\mathbb{R}^{d_z})^m \to \mathbb{R}^{d_h}$ from a variable-size collection of objective vectors to a fixed-dimensional embedding.
 Let $(z_1,\ldots,z_m)$ represent the current state of the system, where $z_j$ denotes the information vector for objective $j$; for example, $z_j$ may encode the position of a target.
 Each objective information vector is first processed by a fully connected neural network $f_\psi$ to produce an embedding $h_j = f_\psi(z_j)$. 
-Given a learned query vector $q$, we compute attention weights and the pooled embedding as
-\begin{align}
-  \alpha_j
-  &=
-  \frac{\exp(q^\top h_j)}
+Given a learned query vector $q$, we compute attention weights and the pooled embedding as 
+$
+\alpha_j
+  =
+  \sfrac{\exp(q^\top h_j)}
        {\sum_{\ell=1}^{m} \exp(q^\top h_\ell)},
-  &
-	  h_{\mathrm{pool}}
-	  &=
-	  \sum_{j=1}^{m} \alpha_j h_j .
-\end{align}
+$ and 
+$
+h_{\mathrm{pool}}
+	  =
+	  \sum_{j=1}^{m} \alpha_j h_j 
+$.
+%
+%\begin{align}
+%  \alpha_j
+%  &=
+%  \frac{\exp(q^\top h_j)}
+%       {\sum_{\ell=1}^{m} \exp(q^\top h_\ell)},
+%  &
+%	  h_{\mathrm{pool}}
+%	  &=
+%	  \sum_{j=1}^{m} \alpha_j h_j .
+%\end{align}
 The final embedding produced by the module is $\textsf{AP}(z_1,\ldots,z_m)=h_{\mathrm{pool}}$.
 Each local policy has its own attention pooling module. 
 % while the downstream actor-critic network is shared across policies in our symmetric-objective experiments.

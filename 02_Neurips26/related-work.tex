@@ -2,4 +2,7 @@
 
 The closest distributed MORL approaches are W-learning and Deep W-learning~\citep{humphrys1995w,rosero2024multi}, which train separate policies and select among them using learned urgency-like scores. Other decomposition methods combine action values or votes through fixed aggregation rules~\citep{russell2003q,mendez2019multi}. Our approach differs by using bids as the coordination interface, which lets standard policy-gradient training learn both the local action and the urgency signal without a separate meta-policy.
 
-Our design is also related to hierarchical RL, which uses modular subpolicies under a higher-level manager~\citep{klissarov2025discovering}, and to auction mechanisms for graph-based multi-objective planning and bidding games~\citep{avni2024auction,lazarus1999combinatorial,avni2019infinite,avni2025bidding}. Unlike hierarchical RL, our composition is flat and competitive rather than manager-driven; and unlike prior auction-based planning work, our setting is model-free, reinforcement-learning based, and supports a varying number of objectives.
+Our design is also related to hierarchical RL, which uses modular subpolicies under a higher-level manager~\citep{klissarov2025discovering}.
+In comparison, our composition is flat and competitive rather than manager-driven.
+Another related line of work is using auction mechanisms for model-based multi-objective planning and bidding games~\citep{avni2024auction,lazarus1999combinatorial,avni2019infinite,avni2025bidding}.
+In comparison, our setting uses model-free RL and supports a varying number of objectives.
