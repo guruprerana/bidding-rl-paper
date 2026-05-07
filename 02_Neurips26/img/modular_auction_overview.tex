@@ -135,10 +135,10 @@
   \node[font=\Large] at ($(pol2.north)+(0,\figpolicyheight/2+\figdotgapabove)$) {$\vdots$};
   \node[font=\Large] at ($(pol2.south)+(0,-\figdotgapbelow)$) {$\vdots$};
 
-  \node[auction, fill=purple!8, draw=purple!45!black] (auc) at ($(pol2.center)+(\figauccentersep,0)$) {$i^\star \in \arg\max_i b_i^{(t)}$\\[4pt]\footnotesize chosen uniformly\\\footnotesize at random};
-  \node[apblock, fill=green!10, draw=green!45!black] (ap2) at ($(pol2.center)+(-\figauccentersep-\figapcentercorrection-\figapshift,0)$) {$\textsf{AP}_2 : S \to \mathbb{R}^m$};
-  \node[apblock, above=of ap2, fill=blue!10, draw=blue!45!black] (ap1) {$\textsf{AP}_1 : S \to \mathbb{R}^m$};
-  \node[apblock, below=of ap2, fill=orange!12, draw=orange!55!black] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^m$};
+  \node[auction, fill=purple!8, draw=purple!45!black] (auc) at ($(pol2.center)+(\figauccentersep,0)$) {$i^\star \in \arg\max_i b_i^{(t)}$\\[4pt]\footnotesize ties broken\\\footnotesize uniformly at random};
+  \node[apblock, fill=green!10, draw=green!45!black] (ap2) at ($(pol2.center)+(-\figauccentersep-\figapcentercorrection-\figapshift,0)$) {$\textsf{AP}_2 : S \to \mathbb{R}^{d_h}$};
+  \node[apblock, above=of ap2, fill=blue!10, draw=blue!45!black] (ap1) {$\textsf{AP}_1 : S \to \mathbb{R}^{d_h}$};
+  \node[apblock, below=of ap2, fill=orange!12, draw=orange!55!black] (apm) {$\textsf{AP}_m : S \to \mathbb{R}^{d_h}$};
   \node[font=\Large] at ($(ap2.north)+(0,\figpolicyheight/2+\figapdotgapabove)$) {$\vdots$};
   \node[font=\Large] at ($(ap2.south)+(0,-\figapdotgapbelow)$) {$\vdots$};
   \node[note, above=\figaptitlegap of ap1] (aptitle) {\small\bfseries Attention pooling\\[-1pt]\scriptsize\normalfont Extract global state features};
@@ -162,7 +162,7 @@
   \draw[feedback] (statebus) |- (ap1.west);
   \draw[feedback] (statebus) -- (ap2.west);
   \draw[feedback] (statebus) |- (apm.west);
-  \path ($(env.west)!0.5!(statecorner)$) node[below, font=\small, xshift=\figstatelabelxshift] {$\vec s^{(t+1)}$};
+  \path ($(env.west)!0.5!(statecorner)$) node[below, font=\small, xshift=\figstatelabelxshift] {$\vec s^{(t)}$};
   \draw[line width=\figflowwidth] (env.west) -- ++(-\figmergeleft,0) coordinate (envrewardcorner);
   \path ($(env.west)!0.5!(envrewardcorner)$) node[below, font=\small, xshift=\figrewardlabelxshift] {$\vec r^{(t)}$};
   \newcommand{\drawrewardarc}[1]{%
@@ -180,9 +180,9 @@
   \drawrewardarc{rewardjoin1}
   \drawrewardarc{rewardjoin2}
   \drawrewardarc{rewardjoinm}
-  \draw[feedback] (ap1.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_1(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_1^{(t)} - \rho b_1^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (pol1.west);
-  \draw[feedback] (ap2.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_{i^\star}(s^{(t+1)})$} node[midway, below, font=\small, xshift=\figcenterpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_{i^\star}^{(t)} - \rho b_{i^*}^{(t)}  $} (pol2.west);
-  \draw[feedback] (apm.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_m(s^{(t+1)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_m^{(t)} - \rho b_m^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (polm.west);
+  \draw[feedback] (ap1.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_1(s^{(t)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_1^{(t)} - \rho b_1^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (pol1.west);
+  \draw[feedback] (ap2.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_{i^\star}(s^{(t)})$} node[midway, below, font=\small, xshift=\figcenterpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_{i^\star}^{(t)} - \rho b_{i^*}^{(t)}  $} (pol2.west);
+  \draw[feedback] (apm.east) -- node[pos=\figaplabelpos, above, font=\small, anchor=west, xshift=\figaplabelxshift, yshift=\figaplabelyshift] {$\textsf{AP}_m(s^{(t)})$} node[pos=\figpolicylabelpos, below, font=\small, xshift=\figpolicylabelxshift, yshift=\figpolicylabelyshift] {$r_m^{(t)} - \rho b_m^{(t)}\cdot \mathbf{1}[\text{\allpay}]$} (polm.west);
   \path[use as bounding box]
     (clipnw)
     rectangle

@@ -1,0 +1,9 @@
+\section{Additional Implementation Details}
+\label{app:additional-implementation-details}
+
+\subsection{Parameter Sharing}
+\label{app:parameter-sharing}
+
+In our experiments, the objectives are symmetric: each local policy solves the same type of reachability task, but for a different assigned target. We therefore share the actor-critic network parameters across local policies. This reduces the number of learned parameters and lets the shared network receive PPO updates from all local-policy objectives.
+
+Parameter sharing does not make the local policies indistinguishable. For each local policy \(i\), the policy input contains both a pooled embedding of the full set of objective vectors and the objective-specific vector \(z_i\) for that policy's assigned target. Thus two policy copies share network weights, but are conditioned on different \(z_i\)'s and receive different local rewards. In Cat Feeder, \(z_i\) encodes the assigned feeding request, including its position and remaining lifetime; in the Atari environments, \(z_i\) encodes the assigned enemy object exposed by the object-centric observation.

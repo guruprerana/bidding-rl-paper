@@ -5,6 +5,7 @@ However, for evaluating our method, we consider environments that consist of mul
 We show the superior performance of our method compared to baselines including standard PPO. 
 We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune hyperparameters.
 A detailed description of the environments and the baseline approaches is provided in Appendix~\ref{app:experimental setup}, below we include a summary.
+The supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
 
 \textbf{Environments.}
 We evaluate our approach on three environments: a mobile cat feeder environment, introduced in Section~\ref{sec:introduction}, and the two Atari games Assault and Air-raid. 
@@ -14,18 +15,13 @@ In the Cat Feeder environment, a robot moves on a $30\times 30$ grid to feed up 
 Each cat disappears after a fixed number of steps; feeding it yields a reward, while disappearance incurs a penalty of equal magnitude. 
 We train with $m=8$ cats in the environment and demonstrate generalization up to $14$. 
 Each cat is served by a dedicated policy whose observation includes the robot position, the locations of active cats, and their remaining lifetimes.
+As an ablation, we consider a variant of the environment without attention pooling.
 
 In both the Atari games---Assault (Figure~\ref{fig:assault_preview}) and Air-raid---the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. 
 Although this is not traditionally seen as a multi-objective environment, we treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. 
 In lieu of the standard pixel observations, we employ the object-centric variant of the Atari environments~\citep{delfosse2023ocatari} which provides the environment state information to the policies.
 Destroying a target yields reward, losing a life incurs a penalty.
-
-We also consider two variants of each environment: one without the attention pooling module (only for Cat Feeder; we do not use attention pooling for Atari Assault since there are only up to 3 targets) and another in which the local policies can only observe their own objectives (denoted Local Obs). 
-%\ifpreprint
-%Our codebase\footnote{\url{https://github.com/guruprerana/bidding-rl}} includes recorded rollouts of our bidding-based policies on the two environments.
-%\else
-Additionally, the supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
-%\fi
+We do not use attention pooling in the Atari games since there are only up to 3 targets.
 
 
 \textbf{Baseline approaches.}
@@ -38,7 +34,6 @@ PPO parameters for Cat Feeder were tuned using 40 Optuna iterations~\citep{akiba
 The baseline is trained with the same number of environment samples as our method.
 DWN trains one DQN policy per objective together with W-networks that estimate urgency scores of states. 
 We use the same action window \(\tau\) for DWN.
-\GS{minimal changes here.}
 
 % \input{tables/gridworld_results_table}
 % \input{tables/assault_results_table}
@@ -73,16 +68,14 @@ We use the same action window \(\tau\) for DWN.
 \textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the three environments. 
 While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal shapes with the other two environments. 
 The curves for \allpay and \poorman methods start growing around the same time.
-% Meanwhile, the variants with only local observations for each policy start growing much earlier.
 The variants with no attention pooling for targets only start growing much later.
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
-We remark that, based on the multi-agent PPO recipe of Yu et al.~\cite{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain slower but stable convergence of the policies towards an equilibrium.
+We remark that, based on the multi-agent PPO recipe of Yu et al.~\citep{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain stable but slower convergence of the policies towards an equilibrium.
 
 \textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
 Our multi-policy methods outperform the baselines by a substantial margin.
 In the Cat Feeder and Atari Assault environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
 Additional reward shaping only provides moderate gains.
-% In the Atari Assault environment, there is a delay between shooting a missile and it reaching its target.
 In Atari Assault, since we only use single frame observations, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
 In Atari Air-raid, we provide concatenated four frame observations and we see that the single-policy PPO is able to learn to succeed.
 On the other hand, the credit assignment becomes easier when we separate the objectives and each learner only has to focus on one target, as it is able to learn even with only one frame.
