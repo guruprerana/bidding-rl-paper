@@ -1,39 +1,39 @@
 \section{Experimental Results}\label{sec:experimental-results}
 
-The framework presented so far is compatible with arbitrary multi-objective environments.
-However, for evaluating our method, we consider environments that consist of multiple evolving reachability objectives.
-We show the superior performance of our method compared to baselines including standard PPO. 
-We also perform ablations with respect to all the key components of the framework; and draw insights on their importance and how we can tune hyperparameters.
+We evaluate the PPO implementation of our auction framework on evolving reachability objectives and a heterogeneous extension combining feeding priorities and battery charging.
+We compare against centralized PPO and DWN, and ablate observations, pooling, and auction hyperparameters.
 A detailed description of the environments and the baseline approaches is provided in Appendix~\ref{app:experimental setup}, below we include a summary.
-The supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the two environments.
+The supplementary material includes our codebase and recorded rollouts of our bidding-based policies on the three base environments.
 
 \textbf{Environments.}
-We evaluate our approach on three environments: a mobile cat feeder environment, introduced in Section~\ref{sec:introduction}, and the two Atari games Assault and Air-raid. 
+We evaluate our approach on three environments: a mobile cat feeder environment, introduced in Section~\ref{sec:introduction}, and the two Atari games Assault and Air-raid.
 In all these environments, the metric being optimized is the cumulative reward across all objectives.
 
-In the Cat Feeder environment, a robot moves on a $30\times 30$ grid to feed up to $m$ cats that move stochastically. 
-Each cat disappears after a fixed number of steps; feeding it yields a reward, while disappearance incurs a penalty of equal magnitude. 
-We train with $m=8$ cats in the environment and demonstrate generalization up to $14$. 
+In the Cat Feeder environment, a robot moves on a $30\times 30$ grid to feed up to $m$ cats that move stochastically.
+Each cat disappears after a fixed number of steps; feeding it yields a reward, while disappearance incurs a penalty of equal magnitude.
+We train with $m=8$ cats in the environment and demonstrate generalization up to $14$.
 Each cat is served by a dedicated policy whose observation includes the robot position, the locations of active cats, and their remaining lifetimes.
-As an ablation, we consider a variant of the environment without attention pooling.
+We ablate global observations with attention pooling, global observations with fixed concatenation (no pooling), and local observations only (blind).
 
-In both the Atari games---Assault (Figure~\ref{fig:assault_preview}) and Air-raid---the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}. 
-Although this is not traditionally seen as a multi-objective environment, we treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design. 
+In both the Atari games---Assault (Figure~\ref{fig:assault_preview}) and Air-raid---the agent controls a missile launcher to destroy incoming alien ships while avoiding enemy missiles~\citep{bellemare13arcade}.
+Although this is not traditionally seen as a multi-objective environment, we treat each ship as a separate objective and assign a local policy to pursue it, enabling a modular and interpretable design.
 In lieu of the standard pixel observations, we employ the object-centric variant of the Atari environments~\citep{delfosse2023ocatari} which provides the environment state information to the policies.
 Destroying a target yields reward, losing a life incurs a penalty.
 We do not use attention pooling in the Atari games since there are only up to 3 targets.
 
 
 \textbf{Baseline approaches.}
-We compare against two baselines: a single PPO policy optimizing the objective-aggregated reward and deep W-learning (DWN)~\citep{rosero2024multi}. 
+We compare against two baselines: a single PPO policy optimizing the objective-aggregated reward and deep W-learning (DWN)~\citep{rosero2024multi}.
 These baselines also access the same object-centric observations in the Atari games.
-The PPO baseline is implemented using CleanRL~\citep{huang2022cleanrl}. 
-Since we provide distance-based reward shaping to help our policies learn, to ensure a fair comparison, we test two distance-based reward shaping strategies in the Cat Feeder environment.
-Hyperparameters are provided in~\Cref{sec:reprod-details}. 
+The PPO baseline is implemented using CleanRL~\citep{huang2022cleanrl}.
+Since we provide distance-based reward shaping to help our policies learn, to ensure a fair comparison, we test nearest-target and earliest-expiry distance shaping, as well as urgency-weighted scalarization of objective rewards, in Cat Feeder.
+Hyperparameters are provided in~\Cref{sec:reprod-details}.
 PPO parameters for Cat Feeder were tuned using 40 Optuna iterations~\citep{akiba2019optuna} while standard CleanRL Atari hyperparameters were used for the Atari games.
-The baseline is trained with the same number of environment samples as our method.
-DWN trains one DQN policy per objective together with W-networks that estimate urgency scores of states. 
+The centralized PPO baseline is trained with the same number of environment samples as our method.
+DWN trains one DQN policy per objective together with W-networks that estimate urgency scores of states.
 We use the same action window \(\tau\) for DWN.
+Training budgets are fixed in advance: 400 PPO iterations for Cat Feeder and Air-Raid, and 150 for Assault.
+For each of ten runs, one seed initializes the environment and algorithm; evaluation uses subsequent non-overlapping draws from that seeded stream, rather than independently chosen seed identifiers.
 
 
 \begin{figure}%[h]
@@ -67,26 +67,40 @@ We use the same action window \(\tau\) for DWN.
 \input{tables/performance_table}
 
 
-\textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the three environments. 
-While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal shapes with the other two environments. 
+\textbf{Learning dynamics.}\quad \Cref{fig:learning-curves} shows the learning curves for multi-policy bidding and single-policy PPO algorithms on the three environments.
+While the curves are more noisy with Atari Assault, they exhibit clearly distinguishable sigmoidal shapes with the other two environments.
 The curves for \allpay and \poorman methods start growing around the same time.
 \textbf{The variants without attention pooling for targets only start learning much later.}
 This validates the use of the attention pooling architecture to learn useful embeddings of targets.
 We remark that, based on the multi-agent PPO recipe of Yu et al.~\citep{yu2022mappo}, we also found that using a small clip coefficient (\({\sim}0.05\)) and large batch sizes was crucial to obtain stable but slower convergence of the policies towards an equilibrium.
 
-\textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists the performance of our method as well as the baselines on both environments. 
-Our multi-policy methods outperform the baselines by a substantial margin.
-In the Cat Feeder and Atari Assault environments, we speculate that the poor performance of the single-policy PPO learner is due to the difficulty of credit assignment over a rollout in which there are multiple objectives that provide a positive reward.
-Additional reward shaping only provides moderate gains.
-In Atari Assault, since we only use \textit{single frame observations}, the learner could find it hard to associate the action of shooting and the reward from the death of a ship, especially if there is subsequent firing.
-In Atari Air-raid, we provide concatenated four frame observations and here we see that the single-policy PPO is able to perform well.
-On the other hand, \textbf{credit assignment becomes easier when we separate the objectives} and each learner only has to focus on one target, evident from the fact that it is able to learn even with only one frame.
+\textbf{Comparison with baselines.}\quad \Cref{tab:all_methods_comp} lists performance across the three base environments.
+Urgency-weighted scalarization raises centralized PPO's Cat Feeder score to $51.78\pm14.31$, comparable in mean to Winner-Pays ($49.44\pm4.19$), while All-Pay achieves $72.52\pm4.23$.
+Thus the stronger baseline changes the comparison materially: All-Pay retains an advantage, whereas Winner-Pays does not outperform urgency-weighted PPO in mean score.
+Separating objective rewards may ease credit assignment, but these comparisons do not isolate its causal contribution.
+In Assault, single extracted frames may omit velocities and projectile directions; the four-frame observations in Air-Raid may reduce this partial observability.
+We did not conduct a dedicated frame-stack ablation, so this remains a possible explanation rather than an established effect.
 
-DWN performs poorly in all experiments.
-We recall that this method learns a W-network trained to predict the negative TD-error for each policy when the policy does not play its action.
-However, in our environments, we have a long horizon and all the objectives are symmetric with similar Q-values.
-This means that the TD-error is small and does not provide a strong signal to choose between policies at most timesteps.
-In contrast, our approach allows the policies themselves to indicate the importance of playing an action.
+DWN is included as a closely related multi-policy MORL method that learns a state-dependent arbitration signal.
+Its low scores suggest that TD-error-based arbitration is less effective in these experiments; they do not establish that its architecture alone causes the difference.
+Our empirical comparisons concern this PPO implementation, rather than a general replacement for PPO across domains.
+
+\textbf{Observations and pooling.}\quad
+The non-pooled variants retain all target information through fixed concatenation.
+Winner-Pays scores with and without pooling ($49.44\pm4.19$ versus $51.72\pm3.97$) are close relative to the across-seed variation; this does not establish superiority of the non-pooled architecture.
+Pooling supports variable-size objective sets and earlier learning in the reported curves.
+All-Pay with pooling has a higher mean than its blind variant ($67.55\pm3.79$); blind Winner-Pays has a higher mean ($55.80$) but greater variability ($11.42$), so the observations do not show a consistent final-score benefit for both auction mechanisms.
+
+\textbf{Heterogeneous objectives and priorities.}\quad
+We extend Cat Feeder to eight cats with feeding priorities from 1 to 4 and three charging stations, all moving stochastically on a $30\times30$ grid.
+The robot has a capacity-50 battery; depletion away from a station triggers a tow and refill.
+One local policy serves each cat, and a separate charging policy receives a battery-dependent effective bid boost (Appendix~\ref{app:heterogeneous-implementation}).
+Feeding rewards scale with cat priority.
+Table~\ref{tab:heterogeneous-cat-feeder} reports the sum of priorities of fed cats and battery depletions, against centralized PPO with an unweighted reward sum.
+All-Pay achieves a higher feeding score and fewer battery depletions than centralized PPO, demonstrating coordination across feeding and charging objectives; the nonzero depletion rate does not constitute a safety guarantee.
+Appendix~\ref{app:heterogeneous-results} reports feeding counts by priority.
+
+\input{tables/heterogeneous_results_table}
 
 \begin{figure}[h]
     \centering
@@ -143,15 +157,17 @@ In contrast, our approach allows the policies themselves to indicate the importa
 
 
 \textbf{Policy behaviors and interpretability.}\quad
-Video rollouts show that bidding-based policies take control when they can accumulate reward within the action window, while each policy pursues only its own objective. \Cref{fig:control-bid-dist} presents the bid distributions.
-% and control distributions are reported in Appendix~\ref{app:additional-experimental-results}. 
-In Assault, bids are usually 0, indicating that random control assignment suffices since targets do not expire. In contrast, the Cat Feeder environment shows a wider bid spread (0--6). Here, \allpay yields more conservative policies with mostly low bids, while \poorman produces a more even distribution, reflecting greater willingness to bid high.
-Finally, in Air-raid, we see policies biding the highest value more often, although they also bid lower values.
+Video rollouts illustrate control allocation as each policy pursues its assigned objective; completion need not occur within one action window. \Cref{fig:control-bid-dist} presents the bid distributions.
+% and control distributions are reported in Appendix~\ref{app:additional-experimental-results}.
+In Assault, bids are usually 0, making allocation close to random tie-breaking; the gains here may arise primarily from objective decomposition rather than learned urgency arbitration. In contrast, the Cat Feeder environment shows a wider bid spread (0--6). Here, \allpay yields more conservative policies with mostly low bids, while \poorman produces a more even distribution, reflecting greater willingness to bid high.
+Finally, in Air-raid, we see policies bidding the highest value more often, although they also bid lower values.
 This is because there is a constant stream of enemy ships that each policy has to destroy and so they want to take control more often to avoid missing out on points.
 
-\textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which the number of cats seen during testing is larger than that during training. 
+\textbf{Scaling number of targets.}\quad We conduct an experiment with the Cat Feeder environment in which the number of cats seen during testing is larger than that during training.
 This is achieved by deploying more copies of the same policy that optimize the additional objectives.
-\Cref{fig:bidding-mechanism-scaling} shows that the \textbf{policies continue to perform well up to 14 targets even though they were only trained to compete with up to 7 other policies.}
-The attention pooling mechanism plays a critical role as it can generate useful embeddings of an arbitrary number of competing targets.
+\Cref{fig:bidding-mechanism-scaling} evaluates transfer from eight training targets to as many as fourteen testing targets without retraining.
+The plot uses eight times mean per-episode average performance; scaling selects a single best periodic checkpoint rather than averaging the final five.
+With fixed episode length, more requests can expire as target count grows (Appendix~\ref{app:scaling-coverage}).
+The minimum reported per-target completion count remains positive at every tested size (Appendix~\ref{app:scaling-coverage}), supporting continued service across all targets rather than constant performance as their number grows.
 
 \textbf{Hyperparameter ablations.}\quad \Cref{fig:gridworld-bid-upper-bound} shows that at least two bid levels are needed for good performance; with only one level, policies cannot compete effectively. \Cref{fig:gridworld-bid-penalty} evaluates the bid penalty factor: without penalties all policies overbid, hurting performance, while overly large penalties discourage bidding. Additional action-window ablations are reported in Appendix~\ref{app:additional-experimental-results}.

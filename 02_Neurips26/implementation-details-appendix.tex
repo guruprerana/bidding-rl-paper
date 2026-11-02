@@ -4,6 +4,81 @@
 \subsection{Parameter Sharing}
 \label{app:parameter-sharing}
 
-In our experiments, the objectives are symmetric: each local policy solves the same type of reachability task, but for a different assigned target. We therefore share the actor-critic network parameters across local policies. This reduces the number of learned parameters and lets the shared network receive PPO updates from all local-policy objectives.
+In our homogeneous-objective experiments, the objectives are symmetric: each local policy solves the same type of reachability task, but for a different assigned target. We therefore share the actor-critic network parameters across local policies. This reduces the number of learned parameters and lets the shared network receive PPO updates from all local-policy objectives.
 
 Parameter sharing does not make the local policies indistinguishable. For each local policy \(i\), the policy input contains both a pooled embedding of the full set of objective vectors and the objective-specific vector \(z_i\) for that policy's assigned target. Thus two policy copies share network weights, but are conditioned on different \(z_i\)'s and receive different local rewards. In Cat Feeder, \(z_i\) encodes the assigned feeding request, including its position and remaining lifetime; in the Atari environments, \(z_i\) encodes the assigned enemy object exposed by the object-centric observation.
+
+\subsection{Urgency-Weighted Scalarization}
+\label{app:urgency-scalarization}
+Let $L$ denote the target expiry interval (\texttt{target\_expiry\_steps}), distinct from the episode horizon $H$, and let $c_{i,t}$ be target $i$'s age counter in the state before action $t$.
+Define its clamped remaining lifetime, urgency, and normalized weight by
+\begin{align}
+  \ell_{i,t} &= \max\{L-c_{i,t},1\}, &
+  q_{i,t} &= \frac{\mathbf{1}[i\text{ active at }t]}{\ell_{i,t}}, \\
+  w_{i,t} &=
+  \begin{cases}
+    q_{i,t}/\sum_j q_{j,t}, & \sum_j q_{j,t}>0,\\
+    0, & \text{otherwise}.
+  \end{cases}
+\end{align}
+The weights are computed before movement, counter increments, expiration, or respawn.
+Active weights sum to one, reached static targets receive zero weight, and there is no additional normalization by the number of targets.
+For example, two active targets with remaining lifetimes 1 and 4 receive weights $0.8$ and $0.2$.
+The scalar reward is
+\begin{equation}
+  r_t = \sum_i w_{i,t} r^{\mathrm{obj}}_{i,t}
+        -\lambda_B\mathbf{1}[\text{battery depletion at }t],
+\end{equation}
+where $r^{\mathrm{obj}}_{i,t}$ includes distance-improvement shaping, priority-weighted completion reward, and the expiry penalty.
+The depletion term applies only in battery-enabled environments and is not multiplied by target urgency weights.
+
+\subsection{Heterogeneous Cat Feeder Implementation}
+\label{app:heterogeneous-implementation}
+\paragraph{Battery and stations.}
+The reported moving-station comparison uses battery capacity 50.
+The three stations start at $(0,0)$, $(15,15)$, and $(29,29)$ and follow independent bounded persistent random walks, moving every 15 steps with direction-change probability $0.1$.
+A successful one-cell movement consumes one battery unit; boundary or no-movement steps consume none.
+Occupying a charging station immediately restores the battery to capacity.
+Reaching zero away from a station causes an immediate tow to the nearest station and a full refill; we count such events as battery depletions.
+A capacity-40 fixed-station reference configuration is a different benchmark and is not the configuration used for the reported moving-station results.
+
+\paragraph{Effective bids and payments.}
+Feeders and charger both choose raw categorical bids in $\{0,\ldots,6\}$.
+Let $B_t$ be the current battery level and $e_t$ the energy required to reach the nearest station.
+The charger is forced to bid zero unless $B_t\leq e_t+8$.
+For a permitted raw charger bid $b_{\mathrm{chg},t}$, the bid used to determine the winner is
+\begin{equation}
+  b^{\mathrm{eff}}_{\mathrm{chg},t}
+  = b_{\mathrm{chg},t}
+    +2\mathbf{1}[b_{\mathrm{chg},t}>0\ \land\ B_t\leq25].
+\end{equation}
+Thus the effective charger ceiling is 8 when the boost applies, versus 6 for feeders.
+The All-Pay payment uses the raw bid, not the boosted effective bid.
+This battery-dependent priority rule is an implementation extension to the common-cap auction analyzed in the theory.
+
+\paragraph{Parameter sharing.}
+The eight feeder controllers share one actor--critic network, with observations reordered according to the assigned target identity.
+The charger uses a completely separate actor--critic with separate direction and bid actor trunks in the moving-station experiment.
+No parameters are shared between feeders and charger.
+
+\paragraph{Centralized baseline.}
+The unassisted centralized PPO baseline in Table~\ref{tab:heterogeneous-cat-feeder} directly chooses body movement without bidding, an action window, or an execution-time action override.
+Let $d_{i,t}$ be distance to target $i$, $p_i\in\{1,2,3,4\}$ its feeding priority, and $D_t$ the battery-depletion indicator.
+Its unweighted scalar reward is
+\begin{equation}
+\begin{split}
+ r_t={}&\sum_i\bigl[0.6(d_{i,t}-d_{i,t+1})
+       +20p_i\mathbf{1}[i\text{ reached at }t]\\
+       &\hspace{3em}-50\mathbf{1}[i\text{ expired at }t]\bigr]-10D_t.
+\end{split}
+\end{equation}
+An assisted centralized variant adds reserve-gated progress shaping toward a station, a refill bonus proportional to the restored battery fraction, and an additional depletion penalty of $100$.
+It also has no execution-time action override; these auxiliary terms are not part of the unassisted baseline reported here.
+
+\subsection{Evaluation Aggregation}
+\label{app:evaluation-aggregation}
+For Table~\ref{tab:all_methods_comp}, PPO results first average each seed's last five available evaluation checkpoints, then report the mean and sample standard deviation across seed averages.
+The local-observation ablation (\texttt{visible\_targets=0}, called blind in the discussion) uses the same aggregation as the other PPO variants.
+Scaling evaluations use a different checkpoint-selection procedure: a single periodic checkpoint is selected by the largest \texttt{avg\_avg\_performance}, rather than averaging the final five checkpoints.
+This selection uses evaluation performance and should be distinguished from evaluating a prespecified final checkpoint on an independent test set.
+The scaling plot displays eight times the mean per-episode average performance, which is distinct from the minimum-completion statistic defined in Appendix~\ref{app:scaling-coverage}.

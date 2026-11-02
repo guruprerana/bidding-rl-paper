@@ -47,3 +47,52 @@
 \Cref{fig:action-window} studies the action-window size in the Cat Feeder and Atari Assault environments.
 Smaller windows cause excessive switching between policies, while larger windows prevent sufficient switching to serve all objectives.
 The best performance occurs at an intermediate action-window size.
+
+\subsection{Heterogeneous Cat Feeder: Feeding Counts by Priority}
+\label{app:heterogeneous-results}
+Table~\ref{tab:priority-feeding-counts} breaks down completed feeding requests by priority in the heterogeneous environment.
+The priority-weighted score in Table~\ref{tab:heterogeneous-cat-feeder} is the sum of these completion counts weighted by their priorities.
+The results show service across all four priority levels while the charging policy competes for control.
+
+\begin{table}[ht]
+  \caption{Completed feeding requests by priority: mean (standard deviation). Priority 4 is the highest feeding priority.}
+  \label{tab:priority-feeding-counts}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    Method & Priority 1 & Priority 2 & Priority 3 & Priority 4 \\
+    \midrule
+    All-Pay & $17.45\;(0.32)$ & $18.75\;(0.70)$ & $19.56\;(0.73)$ & $20.23\;(0.64)$ \\
+    Centralized PPO & $6.82\;(1.55)$ & $8.61\;(3.12)$ & $11.72\;(6.13)$ & $13.17\;(7.77)$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Target Coverage under Scaling}
+\label{app:scaling-coverage}
+Table~\ref{tab:scaling-coverage} reports the minimum per-target completion count when increasing the number of targets at deployment, averaged over twenty evaluation episodes.
+For episode $e$ and target $i$, let $C_{e,i}$ be its completion count.
+The reported statistic is
+\begin{equation}
+  \overline C_{\min}=\frac{1}{E}\sum_{e=1}^{E}\min_i C_{e,i},
+  \qquad E=20.
+\end{equation}
+The minimum is taken within each episode before averaging, rather than taking the minimum of per-target episode averages.
+These values are read from the saved JSON field \texttt{statistics.avg\_min\_targets\_reached} and recompute from the twenty episode-level minima.
+Scaling selects the single periodic checkpoint with the highest \texttt{avg\_avg\_performance}, as detailed in Appendix~\ref{app:evaluation-aggregation}.
+The model is trained with eight targets and transferred by adding copies of the learned policy, each conditioned on its assigned target.
+The episode length remains fixed, so additional targets divide the available service time and may expire before being reached.
+Positive coverage at every tested size indicates that no target is entirely excluded in this aggregate, but does not imply equal service or invariant performance.
+
+\begin{table}[ht]
+  \caption{Scaling Cat Feeder: mean of the per-episode minimum target-completion counts across twenty episodes.}
+  \label{tab:scaling-coverage}
+  \centering
+  \begin{tabular}{lrrrr}
+    \toprule
+    Number of targets & 8 & 10 & 12 & 14 \\
+    \midrule
+    Minimum completion count & 8.2 & 5.7 & 5.9 & 4.1 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

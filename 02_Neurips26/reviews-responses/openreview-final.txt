@@ -1,0 +1,847 @@
+OpenReview
+.net
+Search articles, authors and reviews...
+Notificationsunread
+Activity
+Tasks
+Guruprerana Shabadi 
+back arrowGo to NeurIPS 2026 Conference homepage
+Auction-Based Online Policy Adaptation for Evolving Objectives
+Download PDF
+Guruprerana Shabadi, Kaushik Mallik 
+Published: 24 Sept 2026, Last Modified: 24 Sept 2026
+NeurIPS 2026 poster
+Conference, Senior Area Chairs, Area Chairs, Reviewers, Authors
+Revisions
+BibTeX
+CC BY 4.0
+Abstract:
+We consider multi-objective reinforcement learning problems where objectives come from an identical family---such as the class of reachability objectives---and may appear or disappear at runtime. Our goal is to design adaptive policies that can efficiently adjust their behaviors as the set of active objectives changes. To solve this problem, we propose a modular framework where each objective is supported by a selfish local policy, and coordination is achieved through a novel auction-based mechanism: policies bid for the right to execute their actions, with bids reflecting the urgency of the current state. The highest bidder selects the action, enabling a dynamic and interpretable trade-off among objectives. Going back to the original adaptation problem, when objectives change, the system adapts by simply adding or removing the corresponding policies. Moreover, as objectives arise from the same family, identical copies of a parameterized policy can be deployed, facilitating immediate adaptation at runtime. We show how the selfish local policies can be computed by turning the problem into a general-sum Markov game, where the policies compete against each other to fulfill their own objectives. To succeed, each policy must not only optimize its own objective, but also reason about the presence of other goals and learn to produce calibrated bids that reflect relative priority. Under mild assumptions, we prove the existence of Nash equilibria where dishonest bidding leads to suboptimal outcome, and the most urgent objectives win control automatically. In our implementation, the policies are trained concurrently using proximal policy optimization (PPO). We evaluate on two Atari games and a gridworld-based path-planning task with dynamic targets. Our method achieves substantially better performance than monolithic policies trained with PPO.
+
+Checklist Confirmation: I confirm that I have included a paper checklist in the paper PDF.
+Supplementary Material:  zip
+Responsible Reviewing: We acknowledge the responsible reviewing obligations as authors.
+Primary Area: Decision making, reinforcement learning, and control (e.g., hierarchical RL, multi-agent systems, agentic AI)
+Secondary Area: Robotics, embodied systems, and engineering (e.g., autonomous vehicles, industrial control, hardware sensing), Generalization and multi-task learning (e.g., transfer learning, meta-learning, OOD generalization)
+Contribution Type: General: Most submissions will fall into this type.
+Academic Integrity: I acknowledge that I have read the NeurIPS Handbook and commit to adhering to all policies in the Handbook (https://neurips.cc/Conferences/2026/MainTrackHandbook), the NeurIPS Code of Conduct and the NeurIPS Academic Integrity Policy.
+LLM Usage: Editing (e.g., grammar, spelling, word choice), Facilitating or running experiments, Proving theorems, Implementing standard methods, Visualizing results for submission
+Declaration: I confirm that the above information is accurate.
+Reviewer Nomination:  Guruprerana Shabadi
+LLM Feedback Request:  Kaushik Mallik
+Submission Number: 21218
+Discussion
+Filter by reply type...
+Filter by author...
+Search keywords...
+
+Sort: Newest First
+24 / 24 replies shown
+Paper Decision
+Decisionby Program Chairs24 Sept 2026, 07:23 (modified: 24 Sept 2026, 12:25)Program Chairs, AuthorsRevisions
+Decision: Accept (poster)
+Metareview:
+The paper considers environments where the active set of goals changes during deployment. Instead of training one policy to jointly optimise every possible combination, it assigns each objective a local policy and lets these policies compete for control through learned bids. A pooling mechanism allows a policy to account for a variable number of concurrent goals. Theoretical results analyse desirable bidding behaviour, while experiments suggest that the modular system adapts more effectively than the reported monolithic PPO baselines.
+
+Reviewers acknowledge that the auction mechanism is original, interpretable and naturally suited to changing objective sets. The modular design and theoretical treatment are appealing.
+
+However, the reviewers have pointed out several issues, centered around the adequacy of the baseline comparisons, interpretation of the learned bidding behaviour, and the breadth and scalability of the evaluation.
+
+Apart from the other reviewer comments, please respond to the following issues:
+
+Please address Reviewers HLic and C6kf’s concerns regarding the strength of the centralised comparisons, particularly the absence of an urgency-weighted scalarisation baseline.
+Please address Reviewer HLic’s concern regarding why the non-pooled Winner-Pays method outperforms the pooled variant.
+Please address Reviewers MWV4 and C6kf’s concerns regarding generalisation beyond closely related reachability objectives and to larger objective sets.
+Please address Reviewers MWV4 and C6kf’s concerns regarding the assumption that objectives are known and separable by clearly defining the intended problem setting.
+Final Justification:
+The authors addressed the main concerns raised in the initial meta-review. The centralised baseline, clarification of the role of pooling, and additional results in a more heterogeneous environment have provided more clarity about the approach and its generalisation performance. While the empirical evaluation is still limited in breadth, the main contribution is not undermined by it. Overall, the paper presents an interesting and technically sound approach to adapting policies under changing objectives with improved empirical justifications after rebuttal. I therefore recommend the paper for acceptance.
+
+Citation Checker by Program Chairs
+Citation Checkerby Program Chairs04 Aug 2026, 14:23 (modified: 05 Sept 2026, 01:16)Program Chairs, Senior Area Chairs, Area Chairs, AuthorsRevisions
+Comment:
+Automatically flagged references
+Here we list the references that were automatically flagged by our checker. Note that our checker may miss many hallucinated references, and some of the listed references may have been flagged erroneously. It is therefore crucial that you check them manually, following the guidance above. We rely on the Area Chairs to decide whether these constitute violations of responsible authorship.
+
+For papers falling into either of the following categories, we expect your default recommendation to be a rejection on the grounds of irresponsible authorship. This is strong presumption rather than a strict rule; as the Area Chair, you retain discretion, and may recommend otherwise where the specific circumstances of a paper warrant it:
+
+The paper contains at least two hallucinated references according to the criteria described below the report.
+The paper contains one hallucinated reference and there is some additional evidence of AI slop.
+If a paper has only one problematic reference, but no additional concerns about the quality of the paper or its presentation, please simply alert the authors in your meta-review.
+
+Please complete the form “Hallucinated References Investigation” to communicate the results of your investigation prior to completing your meta reviews.
+
+Citation Checker Report
+Reference Check Summary
+0/33 problematic references.
+
+Hallucinated/problematic reference criteria
+These are adopted from ICLR and ICML 2026 hallucinated reference guidance:
+
+If you are unable to find any document or publication with a title anywhere near the one provided in the reference, it should be considered hallucinated. Minor differences in title should not be considered evidence of a hallucinated reference.
+If the reference's authors are only slightly incorrect, e.g., a few subtle misspellings, missing a few authors, or wrong authorship order, we do not consider this to imply a hallucinated reference, but please let the submission's authors know in your meta-review that they should fix this issue.
+If the author list has additional issues, e.g., added authors that are not actually authors of that publication or missing a large fraction of authors, then the reference should be considered hallucinated.
+If the reference's venue is a real venue but is incorrect for that reference, we do not consider this to imply a hallucinated reference, but please tell the submission's authors in your meta-review, these include wrong journal name, arXiv ID, etc.
+If there is no evidence that the reference's venue exists, the reference should be considered hallucinated.
+Finally, we note that there are many generic references that refer to existing artifacts (e.g. "GPT-4o, OpenAI et al. 2024") but do not refer to any real document. These are fine.
+Even with the above guidelines in mind, there will likely be some borderline cases. Please bring those up with your SAC if you need additional guidance.
+Tasks before discussions close
+Official Commentby Area Chair XuuU02 Aug 2026, 21:57Program Chairs, Reviewer C6kf, Reviewer HLic, Reviewer MWV4, Reviewer SnJg, Senior Area Chairs, Area Chairs, Reviewers, Reviewers Submitted, Authors
+Comment:
+Dear reviewers,
+
+In case you have any further points to discuss with the authors, please do so as soon as possible, as the discussion period is coming to a close soon.
+
+Reviewers - If you have not already done so, could you please acknowledge the author responses as well and mention how they affect your initial takes on the paper?
+
+Thanks,
+
+AC
+
+Commencing discussions
+Official Commentby Area Chair XuuU28 Jul 2026, 19:59Program Chairs, Reviewer C6kf, Reviewer HLic, Reviewer MWV4, Reviewer SnJg, Senior Area Chairs, Area Chairs, Reviewers, Reviewers Submitted, Authors
+Comment:
+Dear reviewers,
+
+Thanks for your initial reviews. The authors have taken the time and effort to carefully address each of your concerns. Do go through them, acknowledge the responses/modify your scores (if applicable) and indicate any issues that need further discussion/clarification. Please start as early as possible so that there is enough time for substatial discussions.
+
+Thanks, AC
+
+Common response to the Area Chair and Reviewers
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)28 Jul 2026, 13:04 (modified: 28 Jul 2026, 13:15)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers, Reviewers Submitted, AuthorsRevisions
+Comment:
+We thank the Area Chair and reviewers for the constructive feedback. We address the central concerns of the Meta Review:
+
+1. Urgency-weighted scalarization baseline
+We are grateful to reviewer HLic for suggesting a better scalarization compared to an unweighted sum of rewards. With this, we observed strong improvement of the centralized PPO baseline. We report the results in the table below. Evaluation is performed in the same manner as described in the paper.
+
+Method	Cat Feeder env. avg. score (std. deviation)
+Urgency-weighted Scalarization	51.78 (14.31)
+Winner-pays (from Table 1)	49.44 (4.19)
+All-pay (from Table 1)	72.52 (4.23)
+The urgency-weighted baseline improves substantially over all three original centralized PPO variants and matches Winner-Pays. All-Pay nevertheless remains substantially better and more stable across seeds.
+
+2. Clarifying the non-pooled ablation
+In the ablation without attention pooling, the policies still observe all the objectives and are not “blind”. The ablation only removes the attention pooling module in the policy network. We will explicitly clarify this in the final draft.
+
+Nonetheless, to address the reviewer’s concern, we agree that Table 1 can give the impression that removing pooling improves Winner-Pays. However, the difference in mean score is small: 51.72±3.97 versus 49.44±4.19. We do not interpret this as evidence that the non-pooled architecture is superior. The more consistent effect of pooling is faster learning, as shown by the learning curves, and support for variable-size objective sets.
+
+3. Generalizability beyond reachability objectives
+The auction interface itself does not require all objectives to share the same reward function or policy parameters. Heterogeneous objectives can be incorporated by training objective-specific local policies while retaining the same auction mechanism. What is lost relative to the homogeneous setting is the ability to deploy arbitrary copies of a single shared policy without additional training.
+
+Implementation of a Cat Feeder env. variant with heterogenous objectives
+
+To directly address the question of generalizability, we implement a more complex variant of the Cat Feeder env. in which each cat has a different priority for feeding such that feeding a cat with higher priority yields a larger reward. Additionally, the robot has a limited battery that needs to be recharged at charging stations before it runs out. There are 8 cats and 3 charging stations all of which are moving stochastically in a 30x30 gridworld.
+
+We use our auction-based approach with one policy for each cat along with an additional policy responsible for charging the robot before it dies. We encode the safety-critical status of battery charging through a larger bid cap, illustrating one simple mechanism for incorporating known objective-level priorities.
+
+Training and evaluation is performed as in the paper. We report the results here, where the priority score is the sum of the priorities of the cats that have been successfully fed, ranging from 1 to 4 with 4 being the highest priority.
+
+Method	Cat Feeder Priority Sum	Number of battery depletions
+All-pay	194.56 (4.67)	0.07 (0.05)
+Single-policy PPO	111.86 (57.08)	3.81 (5.03)
+In the following table we also report the distribution of priorities of cats that have been successfully fed by the policies.
+
+Method	Priority 1	Priority 2	Priority 3	Priority 4
+All-pay	17.45 (0.32)	18.75 (0.70)	19.56 (0.73)	20.23 (0.64)
+Single-policy PPO	6.82 (1.55)	8.61 (3.12)	11.72 (6.13)	13.17 (7.77)
+The results indicate that our auction-based policies are able to effectively tradeoff between proximity, urgency, and priorities of the goals along with ensuring that the battery stays charged.
+
+4. Separability of objectives
+Explicit separation of objectives is a standard assumption in multi-objective reinforcement learning in which we have access to the reward components corresponding to each objective [13,30,31,22,...]. There are many practical scenarios when this is reasonable. For instance, in factory settings where robots need to perform a series of manufacturing tasks [A]. As a second example, consider the traveling salesman problem, which requires multiple target vertices to be visited (i.e., multiple objectives) on a given graph, with clearly marked targets. Needless to mention, the traveling salesmen problem has numerous variants and many applications in computer science.
+
+We agree that situations where the objectives are not separately given is also interesting; we will consider this in future works.
+
+References:
+[A] Zhang et al. 2021. A hybrid multi-objective approach for real-time flexible production scheduling and rescheduling under dynamic environment in Industry 4.0 context. Computers & Operations Research 132 p.105267.
+
+Official Review of Submission21218 by Reviewer SnJg
+Official Reviewby Reviewer SnJg20 Jul 2026, 00:36 (modified: 24 Sept 2026, 13:02)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer SnJgRevisions
+Summary:
+The authors introduce an auction-based solution to multi objective reinforcement learning. Rather than have a single monolithic policy that decides which objective to pursue, each objective places a bid to control actions for the next 
+ time steps. The authors find this method increase performance on a number of test cases they introduce
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths:
+
+Combines auction theory with RL to help introduce a novel solution to the multi objective problem
+
+The result seem promising in the situations presented
+
+The algorithm presents is shuffle-invariant to the order the objectives are presented in
+
+Weaknesses:
+
+The objectives are required to be rather homogenous. There's no way for objectives to have different budgets based on importance in the work presented
+
+There seems to be a high dependence on 
+ that isn't addressed. Objectives that can;t be finished in a single set of instructions seem harder to win bids so the policy accepted has a dependence on it
+
+Ignores results from auction theory that guarantee DSIC auctions (like second price auctions)
+
+Quality: 3: good
+Clarity: 3: good
+Significance: 3: good
+Originality: 3: good
+Questions:
+Is there sensitivity to the time window selected, 
+? It seems like the objective to be selected would need to be completed inside a singular time window, so can see very different policies as this changes
+
+In winner-pays, why not use a second price auction like is generally done in the literature?
+
+Is there an easy way to alter the algorithm t make some objectives more important than others? Is there a way to bake in some sort of time dependency to the objectives?
+
+Limitations:
+yes
+
+Rating: 5: Accept: Technically solid paper, with high potential value on at least one sub-area of AI or moderate-to-high impact on more than one area of AI, with good-to-excellent evaluation, resources, reproducibility, and no unaddressed ethical considerations.
+Confidence: 4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+None
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)28 Jul 2026, 13:07Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer SnJg
+Comment:
+We thank the reviewer for the careful reading and constructive questions. Below, we address each question.
+
+1. Dependence on 
+The parameter 
+ specifies the number of timesteps a policy receives control once it wins an auction. In other words, auctions occur at time points 
+, and in between 
+ and 
+, the policy that won the 
+-th auction remains active and picks the actions. So, if a policy wants to remain active for 
+ consecutive steps, then it must win 
+ auctions. Naturally, if 
+ is small but 
+ is relatively large, then the policy needs to win many consecutive auctions. Hence, there is some dependency between 
+, task deadlines, and the aggressiveness of the bidding. However, it is not true that “objectives need to be completed inside a single window”: in particular, if two goals are nearby, then the respective policies might deliberately lose some of the biddings and rely on the other policy driving the system in the intended direction.
+
+We request the reviewer to refer to Figure 8 in Appendix E for the ablation experiments varying 
+. We observe in these figures that if 
+ is too small, then there is too much oscillation between different policies pulling the robot in different directions and if 
+ is too big then it is harder to adapt to stochastically moving objectives.
+
+2. On second price auctions
+We thank the reviewer for the suggestion, second price auctions would be worthwhile for future work. We were primarily following the auction settings used in the existing bidding games on graphs literature [2,3,4,17]. Our framework is extensible to other auction mechanisms, and it would be interesting to see how the performance changes for the second price auction.
+
+3. Relative importance of objectives
+Yes, there are many tweaks one can make to increase the importance of some objectives relative to others. While the simplest method is to scale the rewards of the different objectives, another approach would be to modify the maximum bid a controller can place in an auction which would give it more/less influence over the outcome of the auction.
+
+We request the reviewer to also consult Part 3 of the common response above for additional experimental results in which we consider a variant of the Cat Feeder env. with heterogenous objectives: some cats have priority over others (given by scaled rewards) and the robot also has a limited battery that needs to be recharged periodically (the charging policy is given a higher bid cap).
+
+Official Comment by Reviewer SnJg
+Official Commentby Reviewer SnJg01 Aug 2026, 19:32Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer SnJg
+Comment:
+I thank the authors for their response. I will leave my score as is
+
+Official Review of Submission21218 by Reviewer HLic
+Official Reviewby Reviewer HLic05 Jul 2026, 18:52 (modified: 24 Sept 2026, 13:02)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLicRevisions
+Summary:
+Summary
+This paper addresses a fundamental bottleneck in Multi-Objective Reinforcement Learning (MORL): adapting to a highly dynamic, fluctuating number of objectives at runtime. Standard centralized PPO policies fail in these environments due to the combinatorial explosion of the state space and severe credit assignment issues. To solve this, the authors propose a modular, decentralized architecture where independent local policies handle navigation, while a separate bidding network utilizes an Attention Pooling "radar" to evaluate global urgency. Control of the agent is then dynamically allocated via an auction mechanism (Winner-Pays or All-Pay) governed by a bid penalty. This structural decoupling of "who controls" from "how to act" successfully enables zero-shot transfer to environments with significantly higher objective counts than seen during training.
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths
+Elegant Solution to the Credit Assignment Problem: By abandoning global linear scalarization (the "monolithic brain" approach), the framework fundamentally sidesteps the noisy gradient updates that plague standard RL in dense environments. Local policies only receive reward signals for their specific assigned target, making the mathematical feedback loop for movement dynamics incredibly clean and sample-efficient.
+Zero-Shot Scalability via Attention Pooling: The inclusion of the Attention Pooling module bridges the gap between fixed-architecture neural networks and dynamic environments. By squashing an arbitrary number of targets into a fixed-size embedding, the system breaks the rigid input-layer constraints of standard PPO, allowing a model trained on 8 objectives to flawlessly execute in a 14-objective environment without retraining.
+High Interpretability: Unlike the "black box" nature of a centralized reward sum, the auction framework is highly transparent. Researchers can directly observe the bid distributions to understand exactly how the agent is prioritizing tasks in real-time.
+Theoretical Rigor & Incentive Alignment: The theoretical formulation of the problem and the subsequent analysis are commendable. The auction mechanism, specifically the Winner-Pays setting combined with a bid penalty, elegantly solves the Nash equilibrium problem among competing sub-policies.
+Weaknesses
+The major weaknesses of the paper are twofold, primarily concerning the theoretical justification of the ablation studies and the choice of baselines for the fully observable setting.
+
+1. The Theoretical & Empirical Disconnect in the Absence of Pooling
+Consider the ablation case where attention pooling is removed. Without this module, policies are effectively blind to the global state and cannot estimate their competitors' urgencies. Assuming a discrete bidding range of 0 to 6 and 8 competing policies, consider the following dynamics:
+
+If a policy bids a middle value (e.g., 3), the probability of winning the auction (assuming competitors randomly distribute their bids or tie-break) is extremely low. For instance, the probability of all 7 other policies bidding 3 or lower is roughly 
+%, meaning the probability of losing is 
+% (Simplified calculation to demonstrate the overall idea.).
+In the All-Pay setting, this near-certainty of losing while still paying the penalty mathematically forces the policies to bid 0 to avoid bleeding points. This perfectly explains the poor, highly variant (high standard deviation) empirical performance shown for All-Pay without pooling.
+In the Winner-Pays setting, however, losing the auction costs nothing. If a policy's target is extremely urgent, it must bid the maximum value to have any chance of winning. If the target is safe, it bids 0. Theoretically, this should result in a highly polarized, bimodal bid distribution (0 or Max) where multiple blind policies frequently tie at the maximum bid during concurrent emergencies, leading to random tie-breaking.
+The Discrepancy: Theoretically, this blind, tie-breaking approach should yield suboptimal coordination compared to the globally aware pooled method. Yet, the empirical results (Table 1) show superior and stable (Less standard deviation) performance for the non-pooled Winner-Pays model. It is unclear why an empirically blind, bimodal strategy outperforms the theoretically superior pooled coordination on the training set.
+2. Absence of a Strong Urgency-Weighted Baseline
+When attention pooling is active, the global state and all task urgencies are fully observable to the system. Therefore, comparing this to a simple linear scalarization (an unweighted global reward sum) is not entirely fair. A much stronger, standard MORL baseline for a fully observable setting would be dynamic linear scalarization, where the reward components are weighted by their normalized urgency:
+
+ 
+ 
+
+(where 
+ is the urgency/time-to-live of policy 
+ at time 
+)
+
+While I recognize this centralized scalarization struggles with credit assignment as the number of policies scales, it is the most competent baseline for the static 8-target environment. Testing against this would provide a much clearer picture of the auction framework's relative efficacy.
+
+Minor Comments & Notation Issues
+Definition 1, Bullet Point 2: The notation here is highly confusing. For example, in a navigation setting, the first notation intuitively reads as ((left, 2), (right, 3)...). However, the second notation reads as (((left, right, ...), (2.5, 3.5...))), which does not make intuitive sense in this context. A clearer notational structure would be appreciated.
+Definition of 
+: The text states 
+ is "the set of highest bidders". It would be mathematically clearer to define this as "the indices of the highest bidders".
+Equation 7: The function 
+ accepts three arguments here, whereas the original definition of the function only accepts two. Please reconcile this notation.
+Quality: 3: good
+Clarity: 3: good
+Significance: 3: good
+Originality: 4: excellent
+Questions:
+Actionable Suggestions for the Authors
+Clarify the Non-Pooled Winner-Pays Results: Please provide an explanation for why the non-pooled Winner-Pays variant empirically outperforms the pooled version, despite lacking global coordination.
+Provide Non-Pooled Bid Distributions: Please empirically verify and plot the bid distributions for the models where attention pooling is absent. This would help confirm if the policies are indeed collapsing into the theoretical bimodal (Winner-Pays) and zero-spike (All-Pay) distributions.
+Implement an Urgency-Weighted Baseline: Please implement and include a centralized PPO baseline that utilizes the dynamically weighted reward function (based on urgency) described above to ensure a fair comparison in the fully observable setting.
+Limitations:
+Limitations
+As described above.
+
+Rating: 4: Borderline accept: Technically solid paper where reasons to accept outweigh reasons to reject, e.g., limited evaluation. Please use sparingly.
+Confidence: 4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+Nil
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Final Justification:
+All of my concerns have been addressed and additional empirical validation is provided.
+
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)28 Jul 2026, 13:08Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLic
+Comment:
+We thank the reviewer for the careful reading and constructive questions. Below, we address each question.
+
+1. Clarifying the ablation without attention pooling
+In the ablation of our auction-based methods without attention pooling, the policies still observe all the objectives and are not “blind”. The ablation only removes the attention pooling module in the policy network architecture. We will explicitly clarify this in the final version of the paper.
+
+Nonetheless, to address the reviewer’s concern, we agree that Table 1 can give the impression that removing pooling improves Winner-Pays. However, the difference in mean score is small relative to the across-seed variation: 51.72±3.97 versus 49.44±4.19. We therefore do not interpret this as evidence that the non-pooled architecture is superior. The clearer and more consistent effect of pooling is faster learning, as shown by the learning curves, and improved support for variable-size objective sets. Both variants retain global target information; the distinction is whether that information is encoded through permutation-invariant attention pooling or fixed concatenation.
+
+2. Non-pooled bid distributions
+The bid distributions of the variants without attention pooling take the same shape as their counterparts since they can also observe all the objectives.
+
+3. Urgency-weighted baseline
+We are grateful to the reviewer for suggesting a better approach to scalarizing the multi-objective rewards compared to an unweighted sum. We implemented this baseline and observed strong improvement in the performance of the centralized PPO baseline. We report the results in Part 1 of the common response above and request the reviewer to consult it.
+
+The results indicate that our All-pay auction-based multi-policy method still outperforms the stronger baseline and also exhibits a much lower variance between seeds.
+
+Official comment
+Official Commentby Reviewer HLic02 Aug 2026, 21:58 (modified: 02 Aug 2026, 21:59)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLicRevisions
+Comment:
+I thanks the authors for clarifying the concerns. However, the clarification of the observability of others objectives is still not clear to me. If it able to observe the objective of the others, What is the significance of the attention?
+
+ Replying to Official comment
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)02 Aug 2026, 23:41Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLic
+Comment:
+The attention pooling module enables the policies to observe a variable number of objectives at deployment time. The module takes in the state information of all current objectives/targets and produces a fixed dimensional embedding that is passed to the policy network. The complete description of the module can be found in Section 3, lines 246-259.
+
+The plot in Figure 5(a) shows the results of the experiment where policies---trained to play alongside 8 other policies pursuing their respective targets---are evaluated to compete against 14 other policies. This is achieved by deploying more copies of the same policy corresponding to the new objectives. The results indicate that the policies successfully adapt to the variable number of objectives at deployment time.
+
+We hope this clarifies the reviewer's question and thank them again for their time. We remain available to answer any additional concerns that may arise.
+
+ Replying to Official Comment by Authors
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)03 Aug 2026, 04:11Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLic
+Comment:
+To add to the above comment, if the policies are "blind", then they would treat other objectives adversarially and cannot coordinate with each other when, for example, two objectives are along the same direction. This would hurt the overall performance. In the early phase of this work, we did experience this performance degradation in our experiments and we stopped pursuing this approach; however, we commit to including this additional ablation in the final version.
+
+Ablation of the auction-based policies without global observations
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)03 Aug 2026, 08:49 (modified: 03 Aug 2026, 08:51)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLicRevisions
+Comment:
+We were able to complete the ablation for the Cat Feeder env. where the individual policies are "blind" and cannot observe other objectives. We include the complete table here evaluated across the same 10 seeds, over 20 episodes each.
+
+Method	Mean performance (standard deviation)
+All-pay (with attention pooling)	72.52 (4.23)
+All-pay (without attention pooling)	37.72 (50.32)
+All-pay (blind)	67.55 (3.79)
+Winner-pays (with attention pooling)	49.44 (4.19)
+Winner-pays (without attention pooling)	51.72 (3.97)
+Winner-pays (blind)	55.80 (11.42)
+Single Agent PPO (urgency weighted reward shaping)	51.78 (14.31)
+In the case of All-pay, we observe a clear advantage of using global observations with attention pooling. With Winner-pays, the blind variant has a higher mean but very high variance which makes the comparison inconclusive in this case. Regardless, most of the auction-based policies outperform the single agent PPO.
+
+ Replying to Ablation of the auction-based policies without global observations
+Official comment from reviewer HLic
+Official Commentby Reviewer HLic03 Aug 2026, 17:57Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer HLic
+Comment:
+Thanks for clarifying the concerns. I reckon all my concerns have been resolved and therefore I'll revise my rating. Thanks again.
+
+Official Review of Submission21218 by Reviewer MWV4
+Official Reviewby Reviewer MWV425 Jun 2026, 16:12 (modified: 24 Sept 2026, 13:02)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer MWV4Revisions
+Summary:
+The paper considers the setting of multi-objective environment where there might objectives that may be impossible to mutually satisfy them. They propose to model the policy as N separate policies corresponding to N separate objectives. These policies then bid in an auction for the right to take the next few actions. The policies are trained with their own reward and a negative reward for bidding high values. This allows the optimal policy to emerge from N separate policies bidding for their behavior.
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths:
+
+The framing of a policy as N separate policies which must auction against each other is an elegant design that touches on the ideas of self-organization and emergence.
+has theory to backup the convergence of this auctioning process
+Weaknesses:
+
+The problem setting does not seem that practical. Can you provide more examples of environments that have this explicit multi-objective separation?
+You need to know the number of objectives ahead of time, and decide the number of policies accordingly. In real problems, you rarely know the number of, let alone the exact separate objectives in the environment.
+There are not enough results/experiments in this for it to be a neurips paper.
+The experiments consist of the 3 domains: cat domain, and two Atari domains. This is not enough domains to robustly draw conclusions. Even Atari is considered relatively small/toy nowadays. I don't necessarily mind it being toy, but you need to either 1) show it on a more complex domain or 2) justify the toy domains to be rich enough to represent real settings.
+Quality: 1: poor
+Clarity: 3: good
+Significance: 2: not good
+Originality: 3: good
+Questions:
+Can you quantify how much easier the credit assignment problem becomes when separating out the objectives? You mention this in the paper and say it is evident from the reward curves. More analysis on precisely why this is an easier credit assignment problem would be very useful.
+
+When is it safe to assume we know the separate objectives vs not? Do we then need a separate unsupervised objective detection if we don't have the explicitly separated objectives? What about more complex environments where the reward is naturally a combination of many objectives, but they are not obvious to the algorithm? Overall, the explicit knowledge of objectives makes this a uninteresting setting.
+
+More experiments are needed. It would be interesting to show what happens when this algorithm is deployed in single objective environments. If the policies can be done in an unsupervised manner, what does each policy learn from the environment? More domains, experiments, and analyses are required to make this a proper neurips paper.
+
+Limitations:
+Yes.
+
+Rating: 2: Reject: For instance, a paper with technical flaws, weak evaluation, inadequate reproducibility and incompletely addressed ethical considerations.
+Confidence: 3: You are fairly confident in your assessment. It is possible that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work. Math/other details were not carefully checked.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+Related Work section should be separate outside of introduction.
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Final Justification:
+Thank you for clarifying the multiple objectives motivation, which I concede.
+
+My main concern is still about experimentation. Thank you for adding the new environment in your common response. However, I still feel that proposing a replacement to the standard PPO requires strong evidence across diverse domains (because PPO is so standard). Showing that this method beats PPO on a single grid world environment is not enough to convince most researchers that they should use this method consistently in all multi-objective environments. Additionally, I still feel the analysis surrounding this method (Figure 4, 5) is lacking and not up to Neurips standard.
+
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)28 Jul 2026, 13:10Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer MWV4
+Comment:
+We thank the reviewer for the constructive questions. Below, we address each of them.
+
+1. Quantifying the ease of credit assignment
+While it is hard to quantify the credit assignment other than through the performance of the policies, a concrete example can clarify the credit assignment advantage with the multi-controller approach: if two objectives are located on opposite sides, then the distance-based reward shaping terms would cancel each other out when training a single policy with a sum of rewards. But the separate rewards are maintained with the multi-policy training. More generally, the centralized policy must infer both which objective should currently be pursued and which action advances it from a single scalar return. Our method separates these roles: local policies learn objective-specific actions, while the auction learns control allocation.
+
+2. Explicit knowledge of various objectives
+Explicit separation of multiple objectives/rewards is a standard assumption in the vast literature of multi-objective reinforcement learning in which we have access to the reward components corresponding to each objective [13,30,31,22,...]. There are many practical scenarios when this is reasonable. For instance, in factory settings where robots need to perform a series of manufacturing tasks [A]. As a second example, consider the traveling salesman problem, which requires multiple target vertices to be visited (i.e., multiple objectives) on a given graph, with clearly marked targets. Needless to mention, the traveling salesmen problem has numerous variants and many applications in computer science.
+
+We agree that situations where the objectives are not separately given is also interesting, and we will consider this setting in our future works.
+
+References:
+[A] Zhang, S., Tang, F., Li, X., Liu, J. and Zhang, B., 2021. A hybrid multi-objective approach for real-time flexible production scheduling and rescheduling under dynamic environment in Industry 4.0 context. Computers & Operations Research, 132, p.105267.
+
+3. Experiment on a more complex environment with heterogenous objectives and varying priorities
+Part 3 of the common response reports a new heterogeneous Cat Feeder variant combining priority-weighted feeding objectives with a distinct battery-charging objective. All-Pay achieves a priority-weighted feeding score of 194.56±4.67, compared with 111.86±57.08 for centralized PPO, while also substantially reducing battery depletions.
+
+Official Review of Submission21218 by Reviewer C6kf
+Official Reviewby Reviewer C6kf15 Jun 2026, 18:29 (modified: 24 Sept 2026, 13:02)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer C6kfRevisions
+Summary:
+The authors present a novel and original approach to tackle the problem of a varying number of evolving targets in reinforcement learning setups. Their proposed method relies on an auction based method to have a set of policies (each assigned to one of the dynamic targets) compete against each other for execution rather than using a more common orchestrator-based dispatching algorithm or other types of hierarchical policy assignments. The paper contains a sound mathematical framework to make proof of the convergence of their methods towards a Nash equilibrium. In their experimental analysis of three multi-objective benchmarks, it becomes evident that their method outperforms single-agent baseline algorithms using a cumulative/average return over all optimization goals.
+
+Contribution Type: General: Most submissions will fall into this type.
+Strengths And Weaknesses:
+Strengths:
+
+The paper appears well-written with a high level of clarity regarding the presentation of the underlying problem space (variable number of dynamically evolving goals or targets in RL setups) and regarding the novelty of their approach compared to existing approaches (i.e. hierarchical or orchestration based policy assignment methods). The decentralized, auction-based approach presents a good degree of novelty (although it's hard to check the claim of global originality given the long history of game theory) and is potentially significant for the development of new methods beyond the scope of the present work. This includes the concept of "attaching" policies to targets and then using attention pooling to achieve permutation and number invariance over the set of evolving targets.
+
+Weaknesses:
+
+While the motivation and theoretical introduction of the auction-based policy bidding procedure is very strong the paper also exhibits a number of weaknesses, most of which are related to the selection of benchmarks (which limits the significance of the presented results) and the quality of the related experimental analysis. My major concerns are:
+
+The 3 selected experimental benchmarks are very similar in scope and complexity; they all represent problem of the same category with are intuitively solvable by choosing "greedy" solutions where selecting policies with "nearest" distance to targets is usually the obvious best choice (this point is correctly addressed by the authors when limiting their mathematical arguments to Nash equilibria rather than aiming for globally optimal solutions but it still limiting their claims to a narrow class of experiments).
+The reasoning behind the DWN baseline method remains questionable; in lines 314-319, the authors even admit that DWN has intrinsic conceptual limitations (e.g. small TD error signal) which raises the question why this methods has been chosen as a method for comparison in first place
+The claim that their methods works well even for a fairly larger number of evolving objectives at policy inference than used for policy training is only briefly addressed and weakly backed by the provided numbers. For example in Figure 5a, it is obvious that the Avg Score declines as a function of eval targets but it is unclear if the decline is still in line with a satisfying overall performance or not (I presume that the Avg Score has to go down when more (unreachable) targets are added, but exactly how severe that effect is, remains unaddressed)
+In the main part of the paper, the impact and challenge of tuning the newly introduced hyper-parameters (\rho, \beta, ...) is only weakly addressed without practical guidance how to derive good initial values for those parameters
+The interesting concept of attention pooling is dropped for 2 of the 3 benchmarks; the authors justify this decision by mentioning the fact that the benchmarks only involve "up to 3 targets" (l. 284). Ideally, all benchmarks would comprise of a larger number of "moving targets" to underscore the advantages of the proposed methods and improve the significance of the results
+Quality: 3: good
+Clarity: 4: excellent
+Significance: 3: good
+Originality: 3: good
+Questions:
+Key questions/suggestions:
+
+The authors could have used a more hetergoneous set of benchmarks, e.g. where the composition of reward structure reflects different complexities and with different interpretation of the "need for urgency" in the assignment of policies to demonstrate the significane of their novel approach for a wider range of RL optimization problems
+If baseline methods like DWN exhibit fundamental limitations for the choice of benchmarks (as the authors point out correctly) why are they used for reference in first place? One would expect that there are more capable methods for solving the two Atari benchmarks.
+Consistency of the learning curve representation in Figure 3: it is unclear why learning curves for DWN are not shown at all. If there is no learning progress for DWN at all, the question remains why it was chosen in first place or if it was used with inferior hyper-parametrization.
+Figure 3 and Table 1: How is it decided when to stop the policy training (e.g. after how many iterations/steps). This is important since the metrics evaluation is based on "each seed's last 5 evaluations". Also, were the 10 evaluation seeds part of the seeding set during training or do they represent entirely independent starting conditions of the 3 benchmark envs?
+Fig. 5a is shown a strong downward trend Avg Score performance as a function of eval targets. How do they authors arrive at their statement that the performance extrapolates well beyond the number of targets seen during training?
+Minor questions/remarks:
+ll. 307-313: Explanations in this section appear somewhat speculative (i.e. not backed by information/data provided in the main text). For insance, why would the addition of more frames help to learn better policies if the Markov condition should be fulfilled even by providing only a single frame as input? How has this been tested experimentally?
+
+ll. 125-134: The symbol "\Delta" appears to be not defined in the text explanation.
+
+Limitations:
+Yes, the authors do point out that the convergence towards a "Nash equilibrium" is not identical to achieving global optimality and that their solution rather addresses the concept of "urgency" by providing "greedy" solutions in the context of multi-objective policy optimization.
+
+Rating: 5: Accept: Technically solid paper, with high potential value on at least one sub-area of AI or moderate-to-high impact on more than one area of AI, with good-to-excellent evaluation, resources, reproducibility, and no unaddressed ethical considerations.
+Confidence: 4: You are confident in your assessment, but not absolutely certain. It is unlikely, but not impossible, that you did not understand some parts of the submission or that you are unfamiliar with some pieces of related work.
+Ethical Concerns: NO or VERY MINOR ethics concerns only
+Paper Formatting Concerns:
+None
+
+Code Of Conduct Acknowledgement: Yes
+Responsible Reviewing Acknowledgement: Yes
+Final Justification:
+I acknowledge and appreciate the authors' response to all my vital concerns (and many of the other reviewers as well) and thank the authors for the provided clarifications and explanations. By adding results on the augmented (more complex, heterogenous) cat feeder environment, the authors have also addressed my concern regarding "generalizability beyond reachability" in a sufficient way. Hence, I propose to increase my given score on significance by one unit, which translates into a better overall rating.
+
+Official Comment by Authors
+Official Commentby Authors (Kaushik Mallik, Guruprerana Shabadi)28 Jul 2026, 13:13 (modified: 29 Jul 2026, 09:57)Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer C6kfRevisions
+Comment:
+We thank the reviewer for the careful reading and constructive questions. Below, we address each question and suggestion.
+
+1. Experiment on a more complex environment with heterogenous objectives and varying priorities
+Part 3 of the common response reports a new heterogeneous Cat Feeder variant combining priority-weighted feeding objectives with a distinct battery-charging objective. All-Pay achieves a priority-weighted feeding score of 194.56±4.67, compared with 111.86±57.08 for centralized PPO, while also reducing battery depletions.
+
+2. Regarding baseline comparisons
+We included DWN because it is the closest prior multi-policy MORL method we found: like our approach, it trains objective-specific policies and learns a state-dependent signal for selecting which policy controls the agent. Its poor performance is therefore informative about the difference between TD-error-based arbitration and directly learned bidding, rather than a reason to exclude it.
+
+We omitted the DWN learning curve from Figure 3 for visual clarity since we wanted to focus on comparing the different PPO-based methods. We agree that including it would make the comparison more transparent and will add its learning curve in the revision.
+
+Lastly, the auction mechanism is conceptually independent of PPO, although adapting it to another base RL algorithm may require algorithm-specific implementation. Our empirical claims are limited to the PPO implementation and so only compare performance against PPO baselines.
+
+3. Policy training time and evaluation
+We used a fixed training budget chosen before aggregating the reported results, rather than stopping each seed based on its evaluation score. Cat Feeder and Atari Air-raid were trained for 400 PPO iterations and the Atari Assault benchmark for 150 iterations. Table 1 averages the final five scheduled evaluation checkpoints for each seed.
+
+For each of the ten runs, one seed initializes the environment and algorithmic random-number generators. Training and evaluation episodes use subsequent, non-overlapping draws from that seeded stream, so the evaluation trajectories are not replayed training trajectories. However, evaluation does not use a separate set of independently chosen seed identifiers. We will clarify this distinction in the paper.
+
+4. Generalization to more targets than during training
+We clarify that the downward trend in Figure 5(a) with the scaling number of targets is because a higher number of targets means that more of them expire before the robot can reach them, which decreases the score (the episode length stays fixed). Here, the score is the difference between the number of targets reached and the number of expired targets.
+
+Generalization to a higher number of targets is achieved by deploying more copies of the same policy corresponding to the new targets. In this way, all targets are concurrently considered by the agent. In the table below, we present the number of times each target is reached when the total number of targets is scaled. From the table it is clear that all targets are considered by the agent. The downward trend here is because the total length of the episode stays the same, so the total number of targets reached remains approximately the same and gets distributed across the larger number of targets.
+
+Number of Targets	Minimum number of times each target is reached (avg. over 10 episodes)
+8	8.2
+10	5.7
+12	5.9
+14	4.1
+5. More frames in the observation could produce better policies
+We agree that the original explanation was speculative. The relevant distinction is between the underlying Atari emulator state and the object-centric observation provided to the policy. A single extracted frame may omit motion information such as object velocities and projectile directions, so stacking consecutive observations can reduce partial observability by allowing the policy to infer temporal dynamics. We did not perform a dedicated frame-stack ablation, and therefore will revise the text to present this only as a plausible explanation rather than an experimentally established conclusion.
+
+6. Missing definition of 
+We thank the reviewer for catching this. 
+ is the set of probability distributions over a set 
+. This will be included in the final version.
+
+Official Comment by Reviewer C6kf
+Official Commentby Reviewer C6kf31 Jul 2026, 10:21Program Chairs, Senior Area Chairs, Area Chairs, Reviewers Submitted, Authors, Reviewer C6kf
+Comment:
+I acknowledge and appreciate the authors' response to all my vital concerns (and many of the other reviewers as well) and thank the authors for the provided clarifications and explanations. By adding results on the augmented (more complex) cat feeder environment, the authors have also addressed my concern regarding "generalizeability beyond reachability" in a sufficient way. Hence, I propose to increase my given score on significance by one unit, which translates into a better overall rating (from 4 to 5).
+
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs07 May 2026, 09:13Conference, Authors
+Feedback:
+Dear Author,
+
+We hope you found the PAT automated pre-submission feedback helpful for your NeurIPS 2026 submission.
+
+We are currently gathering feedback to gauge the quality and usefulness of the PAT Program. Could you spare a few minutes to share your experience in the link below? Your insights will directly help us improve the tool's accuracy and utility for future authors.
+
+https://docs.google.com/forms/d/e/1FAIpQLSfkkPCth8reUIUNubfiEjyoNLBm3lweHItoYWFYyQAk344Fww/viewform?usp=pp_url&entry.1908739883=OV5qcOHgej&entry.1717434670=MID&entry.445444243=347&pageHistory=0,1
+
+Thank you for your time, Paper Assistant Tool (PAT) Team
+
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs05 May 2026, 13:52Conference, Authors
+Feedback:
+Hello!
+
+You requested a review of your paper submitted to NeurIPS using the Google Paper Assistant Tool (PAT). The resulting AI Feedback can be found below. Note that this feedback is posted automatically, and is only visible to authors. Importantly, the feedback will not be used in the review process. Reviewers, area chairs, and program committee members will not have access to the PAT feedback.
+
+Disclaimer: Please note that the models used by the PAT pipeline are not infallible; they may hallucinate and make mistakes. Authors should treat the generated feedback with the same critical eye they would apply to a human review.
+
+Summary
+The paper proposes a novel, modular reinforcement learning framework to address dynamic multi-objective problems where objectives (from the same family) can appear and disappear at runtime. The framework assigns a selfish local policy to each objective and coordinates them via a decentralized, auction-based mechanism. Policies bid for control based on their urgency, and the highest bidder executes its action for a fixed window. To encourage truthful bidding, the framework incorporates bid penalties (Winner-Pays or All-Pay). The authors provide theoretical analyses showing that the auction mechanism approximates a reward-aware urgency ordering and guarantees a fraction of the optimal completions. Empirically, the local policies are trained concurrently using multi-agent PPO with attention pooling to handle a variable number of objectives, demonstrating superior performance and interpretability over monolithic baselines on a gridworld Cat Feeder task and Atari Assault.
+
+Strengths
+High Novelty and Significance: Addressing dynamically evolving objectives is a critical and underexplored challenge in Multi-Objective Reinforcement Learning (MORL). The proposed modular, auction-based framework enables zero-shot adaptation to new objectives without retraining, which is highly significant for real-world autonomous systems.
+
+Strong Theoretical Foundation: The paper provides rigorous theoretical guarantees, proving that the decentralized Winner-Pays and All-Pay auctions implement a reward-aware urgency ordering and achieve fraction-of-optimal completion guarantees compared to an optimal centralized scheduler.
+
+Interpretability and Scalability: The auction mechanism inherently provides policy interpretability by revealing which objective won control at any given step. Furthermore, the creative integration of attention pooling allows the policies to scale gracefully to a variable and unbounded number of competing objectives.
+
+Weaknesses
+The authors might want to revise the theoretical analysis section, as it currently contains unresolved draft artifacts, including a "TODO: Worked up to here..." placeholder (Line 249) followed by duplicated and conflicting definitions of continuation values. Additionally, numerous internal author comments (e.g., "KM:", "GS:") are left embedded in the proofs and main text.
+
+Please consider resolving inconsistencies in the mathematical formalization. For instance, the MO-MDP definition assumes a fixed number of goals 
+ (Line 135), which appears to contradict the text's claim that expectations range over "target arrivals or removals" (Line 258). Furthermore, Definition 1 (Markov Bidding Game) uses the single-agent location set 
+ rather than the joint state space 
+, omits deadlines and penalties, and defines bids over unbounded integers despite the previously established maximum bid 
+.
+
+The authors are encouraged to review the proofs for potential algebraic and logical issues. In Theorem 2, the gap condition $\Delta_{i^}^{\text{gross}} - \max_{j \neq i^} \Delta_j^{\text{gross}} > \rho
+\delta
+\beta
+\eta$.
+
+To ensure a fair comparison, the authors might consider addressing the compute disparity with the Deep W-Networks (DWN) baseline. The PPO models are trained for approximately 
+ steps, while the DWN baseline is restricted to 
+ steps (Table 5) and uses an unusually low train frequency in the Cat Feeder environment, potentially confounding the conclusion that DWN's poor performance is solely due to its architecture (Macfarlane et al.: Deep W-Networks: Solving Multi-Objective Optimisation Problems With Deep Reinforcement Learning, 2022).
+
+The authors are encouraged to clarify whether the Single-Policy PPO and DWN baselines use the same action window (frame skip) 
+ as the proposed multi-policy framework. Standardizing or explicitly stating this is necessary for a rigorous comparison of decision horizons.
+
+Please consider discussing the counterintuitive ablation results in Table 1, where the restricted variants of Winner-Pays (Local Obs and No Attn. Pool) substantially outperform the full Winner-Pays method on the Cat Feeder environment. This seems to contradict the premise that global environment awareness and attention pooling are beneficial for this setting.
+
+The authors might want to double-check the values reported in Figure 4d, which shows an average of roughly 4000 zero-value bids per episode for Atari Assault. This appears mathematically impossible given the maximum episode length of 10000 steps and an action window of 15 (allowing at most 667 bidding rounds). Additionally, reporting performance at the "best evaluation iteration" (Table 1) could introduce an optimistic evaluation bias; reporting average performance over the final training iterations might be more robust.
+
+Please ensure all formatting issues are resolved, including several broken citation macros that render as "(author?)" and a completely blank NeurIPS Paper Checklist.
+
+Potential Issues And Suggestions
+[Introduction and Motivation] (Pages: 1-4)
+Potential Mistakes and Improvements:
+
+State Space Formulation: In Section 2 (Lines 135-138), the state space 
+ for the multi-objective Markov decision process (MO-MDP) is defined strictly as the set of spatial locations of the agent and the goals (
+). However, the reward function critically depends on whether the agent reaches these goals before absolute deadlines 
+ (Line 148). In standard MDP formulations with absolute deadlines or time-dependent rewards, the elapsed time or remaining time must be included in the state space to allow for optimal Markovian (memoryless) policies. Without time information in the state, memoryless policies cannot adapt to approaching deadlines. This discrepancy is also highlighted by the experimental setup description, which correctly notes that the local policy observation space includes "time steps until the expiration of the requests" (Line 639). The formal MO-MDP definition should be updated to incorporate time.
+
+Inaccurate NP-Hardness Reduction (Theorem 1 Proof): The proof sketch in Lines 160-162 claims that when deadlines are all infinity, the problem subsumes the standard Euclidean Traveling Salesman Problem (TSP) where the goal is to find the shortest path passing through all goals. However, with 
+, the formalized MO-MDP objective is to maximize the discounted sum of rewards 
+. This objective prioritizes reaching early nodes quickly and mathematically corresponds to the Discounted Reward TSP or the Minimum Latency Problem (also known as the Traveling Repairman Problem). It does not strictly reduce to the standard TSP, which minimizes the time to visit the last node (
+). While the problem is indeed NP-hard, the statement should reference the appropriate routing problem to rigorously establish the reduction.
+
+Minor Corrections and Typos:
+
+Unresolved Internal Comments: Several internal author discussion notes and reviewer replies have been inadvertently left in the main text of the submitted manuscript. These disrupt the reading flow and should be removed. Examples in the reviewed segment include:
+Line 143: KM: the penalty is always added undiscounted
+Line 145: KM: Restrict to memoryless policies?
+Lines 163-166: KM: There is a slight difference, that we allow revisiting a state. However, I found on discussion forums that this does not change the complexity, find a reference. Also see metric traveling salesman...
+Lines 180-181: KM: Is this used in the literature? If yes, some citation would be nice.
+Lines 187-188: GS: Also talk about how urgency encodes agent cooperation.
+[Algorithm Design and Methodology] (Pages: 3-5, 11-12)
+1. Potential Mistakes and Improvements
+Inconsistent MO-MDP and State Space Definitions: Between Page 3 and Page 11, the formalization of the MO-MDP changes. On Page 3 (Line 135), the MO-MDP is an 8-tuple with the joint state space 
+ containing both the agent and goal locations, deadlines 
+, and penalty 
+. In Definition 1 (Page 11, Line 420), it is redefined as a 6-tuple omitting 
+ and 
+. Furthermore, the state space for the Markov Bidding Game (Line 424) is defined as 
+, which uses the single-location set 
+ rather than the multi-objective joint state space 
+. This mathematically disconnects the Markov Game's state representation from the actual multi-target environment.
+
+Reward Function Inconsistency: On Page 3, 
+ is defined as a set of positive constants ${r_i}{i \in [1;m]}
+M
+R_i(s, a{k'}, s')
+r_i
+M
+R_i$.
+
+Parameter Sharing with Identical Observations: The methodology states that all local policies are trained concurrently using "the same actor and critic network" (Page 12, Line 441). Because all policies operate within the same environment and observe the global state, passing an identical global observation into shared network weights would theoretically cause all policies to output the exact same actions and bids. The paper should clarify how the observation is made target-centric (e.g., appending an objective indicator to the input) to enable independent selfish behaviors.
+
+Attention Pooling Normalization: On Page 12 (Lines 448-450), the attention mechanism computes aggregation weights by taking the dot product of target embeddings with a query vector, producing a weighted sum. It is not specified whether these weights are normalized (e.g., via a softmax function). Without normalization, the magnitude of the aggregated vector will scale linearly with the number of active objectives, potentially leading to out-of-distribution network activations during testing when the number of targets varies from training.
+
+Omission of Intermediate Rewards in Continuation Values: On Page 5 (Line 236), the pre-payment continuation value $\tilde{V}^{win}i(\mathbf{s}, t)
+\max{\pi_i^a} \mathbb{E}[V_i^*(T^\tau(\mathbf{s}, \pi_i^a), t+\tau)]
+t+\tau
+\tau
+t+\tau$.
+
+Policy History Dependence vs. Implementation: On Page 12 (Line 434), the local policy is defined as a history-dependent function 
+. However, standard Proximal Policy Optimization (PPO) with feed-forward networks learns Markovian/memoryless policies. Clarifying whether memoryless policies are theoretically sufficient for the proposed auction framework would resolve this discrepancy between the mathematical definition and the implementation.
+
+2. Minor Corrections and Typos
+Unresolved Inline Author Notes: There are several internal draft comments remaining in the text, such as "KM: the penalty is always added undiscounted" (Page 3, Line 143), "KM: No need to talk about the deterministic case here." (Page 5, Line 219), and "GS: Something about 
+ with WinnerPays?" (Page 11, Line 412).
+
+Transition Function Codomain: In Definition 1 (Page 11, Line 428), the Markov game transition function is defined as 
+. Because it outputs transition probabilities, the codomain should be constrained to $$.
+
+Action Space Bound: On Page 11 (Line 425), the joint extended action space 
+ defines bids as drawn from 
+. Since the text introduces a maximum bid parameter 
+, it would be more precise to define the bid space as bounded, e.g., 
+.
+
+Arbitrary Initial State Variable: On Page 12 (Line 431), the initial state distribution defines 
+, adding "where 
+ is an arbitrary agent." It would be more rigorous to define how the previous-winner variable 
+ is initialized at 
+ (e.g., uniformly at random), even though its value does not impact the transition at the first time step.
+
+[Theoretical Analysis] (Pages: 4-11)
+1. Potential Mistakes and Improvements
+Unresolved Draft Artifacts and Duplicated Text: The theoretical analysis section appears to be an unedited draft. Line 249 contains a literal developer placeholder: "TODO: Worked up to here...now continue with the net gain, gross gain etc." Following this placeholder, the text spanning Lines 250–269 restarts the mathematical setup and provides a second, competing set of definitions for the continuation values and utilities that conflicts with the earlier formalization (Lines 220–247). Additionally, the text is heavily littered with internal author comments (e.g., "KM:", "GS:") embedded directly in the proofs and definitions (Lines 145, 163, 180, 208, 219, 253, 256, 264, 276, 296, 300, 308, 361, 369, 412). This disrupts the formal presentation and makes it difficult to parse the intended math.
+
+Tie-Breaking Flaw in Theorem 2: The theorem asserts that if the urgency gap $\Delta_{i^}^{\text{gross}} - \max_{j \neq i^} \Delta_j^{\text{gross}} > \rho
+i^
+i^
+i^
+j
+b
+i^
+1/|W|
+i^
+b+1
+\rho
+|W|=2
+\Delta_{i^}^{\text{gross}} - \rho(b+1) > \frac{1}{2}(\Delta_{i^}^{\text{gross}} - \rho b)
+\Delta_{i^}^{\text{gross}} > \rho(b+2)
+\Delta_j^{\text{gross}} = 0
+\Delta_{i^}^{\text{gross}} = 1.5\rho
+> \rho
+1.5\rho
+> 2\rho
+i^
+b=0
+1
+i^*$ does not uniquely win control. The gap condition must be tightened to rigorously guarantee uniqueness.
+
+Algebraic Error in Lemma 1 Bounds: The proof of Lemma 1 derives the lower bound $\Delta_{i^}^{\text{gross}} \ge \delta M - r_{\max}
+\max_{j \neq i^} \Delta_j^{\text{gross}} \le r_{\max}
+\delta M - 2r_{\max}
+\delta \in (0,1]
+M - C \ge \rho
+C = 2r_{\max}
+\delta
+\delta
+\delta M - 2r_{\max} \ge M - C
+C
+M
+M - C
+C
+M
+M - C > \rho
+M
+\delta
+\delta M - 2r_{\max} > \rho$.
+
+Undefined Variables and Notation Collision in Theorem 4: The probability mass on urgent objectives is defined as 
+ on Line 356 and is assumed to be lower-bounded by 
+ on Line 369. This creates a severe notation collision because 
+ is already strictly defined as the maximum integer bid limit for the auction (Lines 210, 421). In the theorem statement (Line 371) and proof (Line 374), the text attempts to fix this by switching to the variables 
+ and 
+ (e.g., 
+). Because 
+ and 
+ are never mathematically defined, the theorem and its proof are formally incomplete.
+
+Inconsistencies in Markov Bidding Game Formalization (Definition 1):
+
+State Space Dimensionality: Line 424 defines the state space of the Markov bidding game as 
+. However, 
+ was defined purely as the set of physical robot locations (Line 136). Using 
+ instead of the full MO-MDP state space 
+ strips the goal locations from the state, directly contradicting the paper's claim that policies "have information about the global state" (Line 88).
+Tuple Mismatch: The MO-MDP tuple on Line 420 omits the deadlines 
+ and penalty 
+ that were required in the initial formalization on Line 135.
+Unbounded Bids: Line 425 defines the joint action space 
+ with bids drawn from the unbounded set 
+, ignoring the maximum bid parameter 
+ established for the auction mechanism (Line 200).
+Incorrect Initial Bellman Formulation: On Line 236, the pre-payment winning continuation value is initially defined as $\tilde{V}i^{\text{win}}(s,t) := \max{\pi_i^a} \mathbb{E}[V_i^*(T^\tau(s, \pi_i^a), t+\tau)]
+r_i
+\tau
+\gamma^\tau
+t$. (This appears to be partially corrected by the trajectory-based definition on Line 255).
+
+Imprecise TSP Reduction: The proof of Theorem 1 (Line 160) claims that setting deadlines to infinity reduces the problem to the standard Euclidean Traveling Salesman Problem (TSP), which minimizes total tour length. Because the MO-MDP explicitly maximizes the expected discounted sum of rewards (
+), the objective structurally maps to the Discounted Reward TSP (or the Traveling Repairman / Minimum Latency Problem, which minimizes the sum of arrival times). The reduction should reference the correct problem class.
+
+2. Minor Corrections and Typos
+Trace Notation: On Line 147, the notation for the trace sequence 
+ is missing a comma before the final action (
+).
+
+Unused Variable: The continuation value 
+ defined on Line 263 is never used in the subsequent derivations or proofs.
+
+Typo: Line 256 contains the phrase "
+ wins at 
+", which should read "
+ wins at 
+" (as flagged by an inline author comment).
+
+Orphaned Claim: Lines 312–314 present a standalone mathematical claim ("Then in any pure Nash equilibrium, policy 
+ wins control.") followed immediately by a formal "Proof." block. This sentence acts as a corollary and should be encapsulated in a formal Proposition or Corollary environment.
+
+Spelling: "continuoum" on Line 341 should be spelled "continuum".
+
+[Experimental Evaluation] (Pages: 12-15, 17-22)
+1. Potential Mistakes and Improvements
+Compute Parity for the DWN Baseline: In the Cat Feeder environment, the Multi-agent and Single-agent PPO models are trained for 400 iterations across 4096 parallel environments with 256 steps per rollout (Tables 3 and 4), equating to approximately 
+ environment interactions. The DWN baseline is restricted to a budget of 
+ total timesteps (Table 5). This ~8.4x disparity in the training budget compromises the fairness of the baseline comparison. Additionally, the DWN baseline in Cat Feeder uses a "Train frequency" of 2560 steps, yielding fewer than 20,000 gradient updates over the entire training run, which is exceptionally low for a DQN-based method (in contrast, its train frequency for Atari Assault is 80, per Table 9). This potential under-tuning may confound the conclusion that DWN's poor performance is solely due to its architectural design.
+
+Action Window Parity for Baselines: The proposed multi-policy framework uses an "Action window" (
+ for Cat Feeder, 
+ for Assault, per Tables 3 and 6) during which a winning policy's action is repeated. The experimental setup does not clarify whether the Single-Policy PPO and DWN baselines use an identical action repeat (frame skip). If the baselines select new actions at every individual timestep (
+), the performance comparison is confounded by differences in the effective decision horizon and temporal abstraction. Standardizing or explicitly stating the baselines' action repeat settings is necessary for a rigorous comparison.
+
+Contradictory Ablation Results (Winner-Pays): The paper theoretically motivates providing global observations to achieve "environment-aware bidding" (Challenge II, Lines 83-89) and claims the ablation studies validate the attention pooling architecture (Lines 488-490). However, Table 1 reveals that in the Cat Feeder environment, the Winner-Pays setting restricted to Local Obs (67.21) and the variant with No Attn. Pool. (58.41) both substantially outperform the full Winner-Pays method (51.17). The text should address why providing global observations or attention pooling appears to degrade the asymptotic performance of the Winner-Pays mechanism.
+
+Attribution of Gains in Atari Assault: The text notes that in the Assault environment, "bids are usually 0, indicating that random control assignment suffices" (Lines 514-515). Because the proposed mechanism resolves bidding ties uniformly at random (Line 201), a consistent bid of 0 effectively turns the auction into a random scheduler. This implies that the substantial performance improvement over the Single-Policy PPO baseline (668.48 vs. 430.08) stems primarily from the decomposition of the state and action spaces into independent local policies, rather than the auction mechanism optimizing urgency trade-offs. Evaluating a random-scheduling multi-policy baseline would clarify the exact contribution of the bidding mechanism in this environment.
+
+Symmetry-Breaking in Shared Policies: The framework deploys identical copies of a single generalized parameterized policy for all objectives (Lines 55-56, 441). Since all identical policy copies receive the exact same global observation via a shared attention pooling module, it is not specified how an individual local policy distinguishes its assigned target from the other competing targets. Clarifying this symmetry-breaking mechanism (e.g., an explicit feature flag, mask, or ego-centric coordinate system) is critical for reproducibility.
+
+Mathematical Impossibility in Figure 4d: Figure 4d plots the "Avg Count per Episode" for bid values in Atari Assault, displaying roughly 4000 zero-value bids per policy. However, Table 6 defines a maximum episode length of 10000 steps and an action window of 15. This allows a maximum of 
+ bidding rounds per episode, making an average count of 4000 mathematically impossible. The plotted values are likely summed across multiple episodes or seeds rather than averaged per single episode.
+
+Evaluation Metric Bias: The caption of Table 1 states that performance is reported "at the best evaluation iteration." Selecting the maximum performance over the course of training introduces an optimistic evaluation bias by effectively using the evaluation metric for early stopping. Reporting the average performance over the final 
+ training iterations or evaluating the best checkpoint on independent test seeds would provide a more robust measure of performance.
+
+2. Minor Corrections and Typos
+Inconsistent Target Count: Line 465 states, "We train with 
+ cats." However, Line 631 states "m was set as 8 during the training time", Table 2 lists 8 agents/targets, and Figure 4a depicts 8 distinct policies (Policy 0 through Policy 7).
+
+Inconsistent Scaling Claims: Lines 466 and 523 claim the models were tested with "up to 14" targets, but Figure 5a plots performance evaluation points at 8, 12, and 16 targets.
+
+Target KL Hyperparameter Discrepancy: Table 7 lists Target KL: 0.02 for the Assault Multi-agent PPO baseline, whereas Table 8 (Assault Single-agent PPO) lists Target KL: —, despite the Table 8 caption stating that "all other parameters are shared." It should be clarified if the KL penalty was intentionally removed for the single-agent baseline.
+
+Unresolved Citations: There are several unresolved LaTeX citation macros appearing as (author?) throughout the text (e.g., Lines 100, 101, 438, 440, 490, 655, 673).
+
+Checklist Omission: The NeurIPS paper checklist (Pages 21-28) is left entirely blank with [TODO] placeholders.
+
+Typographical Errors: Line 540 is missing a hyphen ("nonzerosum" instead of "nonzero-sum"). The author name in the citation on Line 585 contains a text encoding artifact ("JoÃG, o GM AraÃšjo").
+
+[Conclusion, References, and Checklist] (Pages: 15-28)
+1. Potential Mistakes and Improvements:
+
+Incomplete Submission Checklist: The NeurIPS Paper Checklist (starting on page 19) has not been filled out; all answers and justifications remain as [TODO]. As stated in the checklist guidelines (line 683), failing to include a completed checklist may be grounds for desk rejection.
+
+Missing Broader Impacts Section: The paper currently lacks a dedicated section discussing broader societal impacts, which is expected to fulfill the NeurIPS checklist requirements.
+
+Terminology: In the conclusion (line 542), the text states that the framework achieves a "superior learning rate." In machine learning, "learning rate" typically refers to the optimizer's step size hyperparameter. Since the context refers to learning progress over time (e.g., Figure 3), it would be more precise to use terms like "sample efficiency," "learning speed," or "convergence rate."
+
+2. Minor Corrections and Typos:
+
+Table Placement: Tables 3 through 9 from Appendix B float into the pages containing the NeurIPS Paper Checklist (pages 19–22). Inserting a \clearpage command before the checklist begins would prevent this interleaving.
+
+Citation Formatting: There is a compilation issue causing certain citations to render as "(author?) [X]". Within the reviewed segment, this occurs on lines 655 and 673. (Note: This formatting error is also present in earlier sections of the main text).
+
+Line 540: The word "nonzerosum" is missing a hyphen and should be written as "nonzero-sum".
+
+Line 557: The reference contains a typographical/spacing artifact in the author name ("Novotn ˇ y").
+
+Line 580: The title of the referenced paper contains what appears to be a copy-paste artifact at the end: "A practical guide to multi-objective reinforcement learning and planning: Cf hayes et al."
+
+Line 585: There is a character encoding error in the author list. "João GM Araújo" is rendered incorrectly as "JoÃG, o GM AraÃšjo".
+
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs05 May 2026, 08:03Conference, Authors
+Feedback:
+Hello!
+
+You requested feedback on your paper submitted to NeurIPS using the Google Paper Assistant Tool (PAT).
+We received your paper and are currently processing it. We will post the feedback here once it is ready.
+
+If you have not received feedback within 24 hours, please contact us at paper-assistant@google.com.
+LLM Feedback by Program Chairs
+LLM Feedbackby Program Chairs05 May 2026, 08:03Conference, Authors
+Feedback:
+Hello!
+
+You requested feedback on your paper submitted to NeurIPS using the Google Paper Assistant Tool (PAT).
+We received your paper and are currently processing it. We will post the feedback here once it is ready.
+
+If you have not received feedback within 24 hours, please contact us at paper-assistant@google.com.
+About OpenReview
+Contact
+FAQ
+Hosting a Venue
+Sponsors
+Terms of Use / Privacy Policy
+All Venues
+Donate
+News
+OpenReview is a long-term project to advance science through improved peer review with legal nonprofit status. We gratefully acknowledge the support of the OpenReview Sponsors. © 2026 OpenReview
+
